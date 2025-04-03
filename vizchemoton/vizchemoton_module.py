@@ -18,6 +18,9 @@ import bokeh.plotting
 import bokeh.models as bkm
 import RXVisualizer as arxviz
 import networkx as nx
+from xyz2mol import xyz2mol, read_xyz_file
+from rdkit import Chem
+from rdkit.Chem import AllChem, MACCSkeys, rdMolDescriptors 
 
 # Project-Specific SCINE imports
 import scine_utilities as utils
@@ -87,9 +90,36 @@ def get_energy_and_barriers(energy_type, es_id, elementary_steps, model1, struct
 
     return energy, barriers, not_None
 
+def _convert_xyz_to_smiles(elements, coordinates, charge, mongoid):
+    """
+    Convert xyz file to smiles using the external xyz2mol library.
+    """
+    # deprecated - now implemented in rdkit
+    molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
+                                    embed_chiral=False, allow_charged_fragments=True)
+
+    data = {'flag': False}
+    if len(molformat) != 0:
+        flag = True
+        smiles = Chem.MolToSmiles(molformat[0])
+        m = Chem.MolFromSmiles(smiles)
+        smiles = Chem.MolToSmiles(m)
+        data = {'flag': flag, 'smiles': smiles}
+    return data
+
+def convert_struct_to_smile(centroid):
+    """
+    Convert structure instance to a smile.
+    """
+    conv2angs = 0.529177  # conversion of bohrs to anstrongs 
+    elements = [atom.value for atom in centroid.get_atoms().elements]
+    coordinates = [[cj * conv2angs for cj in ci] for ci in centroid.get_atoms().positions.tolist()]
+    charge = centroid.get_charge()
+    dsmiles = _convert_xyz_to_smiles(elements, coordinates, charge, centroid.get_id())
+    return dsmiles
 
 def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=False, write_pathfinder=False,
-                                verbose=True):
+                                verbose=False):
     """
     Extract the chemical reactions, compounds and transition states from the Mongo-DB where the exploration
     with Chemoton was run.
@@ -229,6 +259,8 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
             html_compounds[cmp_dict[compound_id]]['program'] = list()
             html_compounds[cmp_dict[compound_id]]['solvent'] = list()
             html_compounds[cmp_dict[compound_id]]['solvation'] = list()
+            html_compounds[cmp_dict[compound_id]]['_smiles'] = list()
+            html_compounds[cmp_dict[compound_id]]['smiles'] = list()
             for _ids in ids:
                 type_object = pathfinder.graph_handler.graph.nodes(data=True)[_ids]["type"]
                 if type_object == db.CompoundOrFlask.COMPOUND.name:
@@ -241,6 +273,7 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
                 structure_obj = db.Structure(structure, structures)
                 xyz = [(str(o.element), tuple(o.position)) for o in structure_obj.get_atoms()]
                 z, s = structure_obj.get_charge(), structure_obj.multiplicity
+                smiles = convert_struct_to_smile(structure_obj)
                 e = get_energy_for_structure(structure_obj, 'electronic_energy', model1, structures, properties)
                 e_kj = e * utils.KJPERMOL_PER_HARTREE
                 html_compounds[cmp_dict[compound_id]]['_mongodb_id'].append(_ids)
@@ -253,8 +286,14 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
                 html_compounds[cmp_dict[compound_id]]['program'].append(model1.program + " " + model1.version)
                 html_compounds[cmp_dict[compound_id]]['solvent'].append(model1.solvent)
                 html_compounds[cmp_dict[compound_id]]['solvation'].append(model1.solvation)
+                if smiles['flag']:
+                    html_compounds[cmp_dict[compound_id]]['_smiles'].append(smiles['smiles'])
+                else:
+                    html_compounds[cmp_dict[compound_id]]['_smiles'].append('None')
             html_compounds[cmp_dict[compound_id]]['mongodb_id'] = "//".join(
                 html_compounds[cmp_dict[compound_id]]['_mongodb_id'])
+            html_compounds[cmp_dict[compound_id]]['smiles'] = "//".join(
+                            html_compounds[cmp_dict[compound_id]]['_smiles'])
 
         elif ";" in compound_id:  # checking the transitions states
             structure = compound_id[0:-1]
@@ -275,6 +314,7 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
             html_compounds[cmp_dict[compound_id]]['program'] = model1.program + " 5.0.3"
             html_compounds[cmp_dict[compound_id]]['solvent'] = model1.solvent
             html_compounds[cmp_dict[compound_id]]['solvation'] = model1.solvation
+            html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
 
         else:  # checking compounds
             type_object = pathfinder.graph_handler.graph.nodes(data=True)[compound_id]["type"]
@@ -289,6 +329,7 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
             xyz = [(str(o.element), tuple(o.position)) for o in structure_obj.get_atoms()]
             z, s = structure_obj.get_charge(), structure_obj.multiplicity
             e = get_energy_for_structure(structure_obj, 'electronic_energy', model1, structures, properties)
+            smiles = convert_struct_to_smile(structure_obj)
             e_kj = e * utils.KJPERMOL_PER_HARTREE
             model_obj = structure_obj.get_model()
             html_compounds[cmp_dict[compound_id]]['mongodb_id'] = compound_id
@@ -302,6 +343,11 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
                 'program'] = model1.program + " 5.0.3"  # model_obj.program+" "+model_obj.version
             html_compounds[cmp_dict[compound_id]]['solvent'] = model1.solvent  # model_obj.solvent
             html_compounds[cmp_dict[compound_id]]['solvation'] = model1.solvation  # model_obj.solvation
+            if smiles['flag']:
+                html_compounds[cmp_dict[compound_id]]['smiles'] = smiles['smiles']
+            else:
+                html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
+
 
     return html_reactions, html_compounds
 
@@ -321,7 +367,7 @@ def write_compound_reactions_files(html_reactions, html_compounds, reaction_file
     - compounds_file (str): path to the compounds file
     """
 
-    if verbose: print("## Writing {f1} and {f2} files".format(f1=html_reactions, f2=html_compounds))
+    if verbose: print("## Writing {f1} and {f2} files".format(f1=reaction_file, f2=compound_file))
     # Open a file in write mode
     with open(reaction_file, 'w') as f:
         # Loop through the list and write each tuple to the file

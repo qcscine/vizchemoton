@@ -1,8 +1,8 @@
 db:
-  active: False
+  active: True
   name: "ozone_tme_lcpbe"
   ip: "localhost"
-  port: "8889"
+  port: "8888"
 
 method:
   method_family: "dft"
@@ -16,10 +16,10 @@ files:
     mode: "read"
   reactions:
     path: "./vizchemoton/resources/reactions.csv"
-    mode: "read"
+    mode: "write"
   compounds:
     path: "./vizchemoton/resources/compounds.json"
-    mode: "read"
+    mode: "write"
 
 output:
   file: "network.html"
