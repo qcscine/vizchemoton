@@ -1,5 +1,5 @@
 db:
-  active: True
+  active: False
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "8888"
@@ -16,10 +16,10 @@ files:
     mode: "read"
   reactions:
     path: "./vizchemoton/resources/reactions.csv"
-    mode: "write"
+    mode: "read"
   compounds:
     path: "./vizchemoton/resources/compounds.json"
-    mode: "write"
+    mode: "read"
 
 output:
   file: "network.html"
