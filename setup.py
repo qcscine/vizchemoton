@@ -1,8 +1,14 @@
 from setuptools import setup, find_packages
 
+# setup.py
+import re
+
+with open("vizchemoton/__init__.py") as f:
+    version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
+
 setup(
     name='vizchemoton',
-    version='0.1.0',
+    version=version,
     packages=find_packages(),
     author='Enric Petrus, Diego Garay-Ruiz',
     author_email= ['enric.petrus@eawag.ch'],
