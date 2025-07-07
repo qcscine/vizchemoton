@@ -26,7 +26,7 @@ from scine_chemoton.gears.pathfinder import Pathfinder as pf
 from vizchemoton.tests.resources import resources_root_path
 
 # Local imports
-from ..vizchemoton_module import get_reactions_and_compounds, convert_struct_to_smile
+from vizchemoton.vizchemoton_module import get_reactions_and_compounds, convert_struct_to_smile, read_compound_reactions_files, process_graph
 
 class VizChemotonTests(unittest.TestCase, HoldsCollections):
 
@@ -34,9 +34,6 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         self._required_collections = ["manager", "elementary_steps", "structures", "reactions", "compounds", "flasks",
                                       "properties"]
         self.initialize_collections(manager)
-
-    def tearDown(self) -> None:
-        self._manager.wipe()
 
     # Capture std out end err
     @pytest.fixture(autouse=True)
@@ -123,7 +120,17 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         assert len(compounds.keys()) != 0
         assert isinstance(compounds, dict)
 
-
+    def test_process_graph(self):
+        """
+        Tests that the conversion to a NetworkX object is successfuly -and consistently- done. 
+        """
+        rr = resources_root_path()
+        reaction_file, compounds_file = "test_reactions.csv", "test_compounds.json"
+        rfile, cfile = os.path.join(rr, reaction_file), os.path.join(rr, compounds_file)
+        reactions, compounds = read_compound_reactions_files(rfile, cfile, verbose=False) 
+        G = process_graph(reactions,compounds,dist_adduct=3.0)
+        assert len(G.edges) == 24
+        assert len(G.nodes) == 25
 
 
 
