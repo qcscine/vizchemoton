@@ -13,22 +13,24 @@ import inspect
 import unittest
 import pytest
 
-# Local application tests imports
+# Third party imports
 from scine_chemoton.gears import HoldsCollections
 from scine_chemoton.engine import Engine
 from scine_chemoton.gears.reaction import BasicReactionHousekeeping
-
-# Third party imports
 import scine_database as db
 import scine_utilities as utils
 from scine_database import test_database_setup as db_setup
 from scine_chemoton.gears.pathfinder import Pathfinder as pf
 from vizchemoton.tests.resources import resources_root_path
+from bokeh.plotting import Figure
 
 # Local imports
-from vizchemoton.vizchemoton_module import get_reactions_and_compounds, convert_struct_to_smile, read_compound_reactions_files, process_graph
+from vizchemoton.vizchemoton_module import get_reactions_and_compounds, convert_struct_to_smile, read_compound_reactions_files, process_graph, build_dashboard
 
 class VizChemotonTests(unittest.TestCase, HoldsCollections):
+    """
+    Tests the main -and thus most critical- functions of VizChemoton.
+    """
 
     def custom_setup(self, manager: db.Manager) -> None:
         self._required_collections = ["manager", "elementary_steps", "structures", "reactions", "compounds", "flasks",
@@ -120,7 +122,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         assert len(compounds.keys()) != 0
         assert isinstance(compounds, dict)
 
-    def test_process_graph(self):
+    def test_process_graph_and_build_dashboard(self):
         """
         Tests that the conversion to a NetworkX object is successfuly -and consistently- done. 
         """
@@ -131,8 +133,9 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         G = process_graph(reactions,compounds,dist_adduct=3.0)
         assert len(G.edges) == 24
         assert len(G.nodes) == 25
-
-
+        outfile, title = os.path.join(rr, "test_network.html"), 'test_network'
+        bokehobj = build_dashboard(G,title,outfile)
+        assert any(isinstance(x, Figure) for x in bokehobj), "No Figure found in build_dashboard output"
 
 
 
