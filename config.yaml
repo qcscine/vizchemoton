@@ -24,6 +24,7 @@ files:
 output:
   file: "network.html"
   title: "Chemoton graph"
+  smiles: True
   verbose: True
 
 graph:

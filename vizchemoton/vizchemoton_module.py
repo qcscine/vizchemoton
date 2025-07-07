@@ -118,8 +118,37 @@ def convert_struct_to_smile(centroid):
     dsmiles = _convert_xyz_to_smiles(elements, coordinates, charge, centroid.get_id())
     return dsmiles
 
-def get_reactions_and_compounds(manager, dict_method, read_pathfinder=False, write_pathfinder=False,
-                                verbose=False):
+def get_crn_as_pathfinder(ip, port, db_name, dict_method, read_pathfinder=False, write_pathfinder=False, verbose=False):
+
+    manager = db.Manager()
+    credentials = db.Credentials(ip, int(port), db_name)
+    manager.set_credentials(credentials)
+    if verbose: print("## Connecting to the Mongo-DB")
+    manager.connect()
+    model1 = db.Model(dict_method["method_family"], dict_method["method"], dict_method["basis_set"])
+    model1.program = dict_method["program"]
+
+    #########################################################################
+
+    # # # Load Pathfinder and assign NetworkX Digraph
+    pathfinder = pf(manager)
+
+    if isinstance(read_pathfinder, str):
+        if verbose: print("## Reading pathfinder object with name "+read_pathfinder)
+        pathfinder.load_graph(read_pathfinder)
+    elif isinstance(write_pathfinder, str):
+        if verbose: print("## Writing pathfinder object with name "+write_pathfinder)
+        pathfinder.options.model = model1
+        pathfinder.options.graph_handler = "barrier"
+        pathfinder.options.use_structure_model = True
+        pathfinder.options.structure_model = model1
+        pathfinder.build_graph()
+        pathfinder.export_graph(write_pathfinder)
+
+    return manager, pathfinder
+
+def get_reactions_and_compounds(manager, pathfinder, dict_method,
+                                calcsmiles=False, verbose=False):
     """
     Extract the chemical reactions, compounds and transition states from the Mongo-DB where the exploration
     with Chemoton was run.
@@ -137,16 +166,8 @@ def get_reactions_and_compounds(manager, dict_method, read_pathfinder=False, wri
       - html_compounds (dict): a dictionary for each compound containing relevant information (charge, spin, xyz ...)
     """
 
-    #manager = db.Manager()
-    #credentials = db.Credentials(ip, int(port), db_name)
-    #manager.set_credentials(credentials)
-    if verbose: print("## Connecting to the Mongo-DB")
-    manager.connect()
     model1 = db.Model(dict_method["method_family"], dict_method["method"], dict_method["basis_set"])
     model1.program = dict_method["program"]
-
-    #########################################################################
-
     calculations = manager.get_collection("calculations")
     structures = manager.get_collection("structures")
     reactions = manager.get_collection("reactions")
@@ -154,22 +175,7 @@ def get_reactions_and_compounds(manager, dict_method, read_pathfinder=False, wri
     compounds = manager.get_collection("compounds")
     properties = manager.get_collection('properties')
     elementary_steps = manager.get_collection('elementary_steps')
-
-    # # # Load Pathfinder and assign NetworkX Digraph
-    pathfinder = pf(manager)
-
-    if isinstance(read_pathfinder, str):
-        if verbose: print("## Reading pathfinder object with name "+read_pathfinder)
-        pathfinder.load_graph(read_pathfinder)
-    elif isinstance(write_pathfinder, str):
-        if verbose: print("## Writing pathfinder object with name "+write_pathfinder)
-        pathfinder.options.model = model1
-        pathfinder.options.graph_handler = "barrier"
-        pathfinder.options.use_structure_model = True
-        pathfinder.options.structure_model = model1
-        pathfinder.build_graph()
-        pathfinder.export_graph(write_pathfinder)
-
+    
     # # # List of compounds and reactions
     lhs_rxn_list = [node for node in pathfinder.graph_handler.graph.nodes if ";0;" in node]
     cmp_idx = 1
@@ -273,7 +279,7 @@ def get_reactions_and_compounds(manager, dict_method, read_pathfinder=False, wri
                 structure_obj = db.Structure(structure, structures)
                 xyz = [(str(o.element), tuple(o.position)) for o in structure_obj.get_atoms()]
                 z, s = structure_obj.get_charge(), structure_obj.multiplicity
-                smiles = convert_struct_to_smile(structure_obj)
+                smiles = convert_struct_to_smile(structure_obj) if calcsmiles else {'flag': False}
                 e = get_energy_for_structure(structure_obj, 'electronic_energy', model1, structures, properties)
                 e_kj = e * utils.KJPERMOL_PER_HARTREE
                 html_compounds[cmp_dict[compound_id]]['_mongodb_id'].append(_ids)
@@ -329,7 +335,7 @@ def get_reactions_and_compounds(manager, dict_method, read_pathfinder=False, wri
             xyz = [(str(o.element), tuple(o.position)) for o in structure_obj.get_atoms()]
             z, s = structure_obj.get_charge(), structure_obj.multiplicity
             e = get_energy_for_structure(structure_obj, 'electronic_energy', model1, structures, properties)
-            smiles = convert_struct_to_smile(structure_obj)
+            smiles = convert_struct_to_smile(structure_obj) if calcsmiles else {'flag': False}
             e_kj = e * utils.KJPERMOL_PER_HARTREE
             model_obj = structure_obj.get_model()
             html_compounds[cmp_dict[compound_id]]['mongodb_id'] = compound_id
