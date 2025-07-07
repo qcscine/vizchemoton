@@ -6,6 +6,7 @@ HTML dashboards to visualize GRRM-generated reaction networks.
 
 import networkx as nx
 from .vizchemoton_module import  vizchemoton_header, get_reactions_and_compounds, write_compound_reactions_files, read_compound_reactions_files, process_graph, build_dashboard, load_config
+import scine_database as db
 
 def main():
     # Load configuration
@@ -39,13 +40,15 @@ def main():
     # Start of Vizchemoton
     vizchemoton_header()
     if db_active: # the Mongo-DB is reachable
-        
+        manager = db.Manager()
+        credentials = db.Credentials(ip, int(port), db_name)
+        manager.set_credentials(credentials)
         if pathfinder_mode == 'read': # read the pathfinder object (to speed-up the process)
-             reactions, compounds = get_reactions_and_compounds(db_name, ip, port, dict_method,
+             reactions, compounds = get_reactions_and_compounds(manager, dict_method,
              write_pathfinder=False, read_pathfinder=pathfinder_file, verbose=verbose)
 
         elif pathfinder_mode == 'write':  # write the pathfinder object
-             reactions, compounds = get_reactions_and_compounds(db_name, ip, port, dict_method,
+             reactions, compounds = get_reactions_and_compounds(manager, dict_method,
              write_pathfinder=pathfinder_file, read_pathfinder=False, verbose=verbose)
 
         # write the reactions and compounds

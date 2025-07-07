@@ -118,7 +118,7 @@ def convert_struct_to_smile(centroid):
     dsmiles = _convert_xyz_to_smiles(elements, coordinates, charge, centroid.get_id())
     return dsmiles
 
-def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=False, write_pathfinder=False,
+def get_reactions_and_compounds(manager, dict_method, read_pathfinder=False, write_pathfinder=False,
                                 verbose=False):
     """
     Extract the chemical reactions, compounds and transition states from the Mongo-DB where the exploration
@@ -137,9 +137,9 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
       - html_compounds (dict): a dictionary for each compound containing relevant information (charge, spin, xyz ...)
     """
 
-    manager = db.Manager()
-    credentials = db.Credentials(ip, int(port), db_name)
-    manager.set_credentials(credentials)
+    #manager = db.Manager()
+    #credentials = db.Credentials(ip, int(port), db_name)
+    #manager.set_credentials(credentials)
     if verbose: print("## Connecting to the Mongo-DB")
     manager.connect()
     model1 = db.Model(dict_method["method_family"], dict_method["method"], dict_method["basis_set"])
