@@ -165,8 +165,8 @@ def get_reactions_and_compounds(db_name, ip, port, dict_method, read_pathfinder=
         if verbose: print("## Writing pathfinder object with name "+write_pathfinder)
         pathfinder.options.model = model1
         pathfinder.options.graph_handler = "barrier"
-        #pathfinder.options.use_structure_model = True
-        #pathfinder.options.structure_model = model1
+        pathfinder.options.use_structure_model = True
+        pathfinder.options.structure_model = model1
         pathfinder.build_graph()
         pathfinder.export_graph(write_pathfinder)
 

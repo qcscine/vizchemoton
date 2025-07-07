@@ -1,25 +1,25 @@
 db:
-  active: False
-  name: "ozone_tme_lcpbe"
+  active: True
+  name: "eth_o2_s3"
   ip: "localhost"
-  port: "8888"
+  port: "27017"
 
 method:
-  method_family: "dft"
-  method: "lc-pbe"
-  basis_set: "def2-svp"
-  program: "orca"
+  method_family: "gfn2"
+  method: "gfn2"
+  basis_set: ""
+  program: "xtb"
 
 files:
   pathfinder:
     path: "./vizchemoton/resources/crn_pathfinder.json"
-    mode: "read"
+    mode: "write"
   reactions:
     path: "./vizchemoton/resources/reactions.csv"
-    mode: "read"
+    mode: "write"
   compounds:
     path: "./vizchemoton/resources/compounds.json"
-    mode: "read"
+    mode: "write"
 
 output:
   file: "network.html"
