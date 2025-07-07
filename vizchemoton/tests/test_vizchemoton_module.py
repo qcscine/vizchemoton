@@ -23,9 +23,10 @@ import scine_database as db
 import scine_utilities as utils
 from scine_database import test_database_setup as db_setup
 from scine_chemoton.gears.pathfinder import Pathfinder as pf
+from vizchemoton.tests.resources import resources_root_path
 
 # Local imports
-from ..vizchemoton_module import get_reactions_and_compounds
+from ..vizchemoton_module import get_reactions_and_compounds, convert_struct_to_smile
 
 class VizChemotonTests(unittest.TestCase, HoldsCollections):
 
@@ -42,7 +43,43 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
     def capsys(self, capsys):
         self.capsys = capsys
 
-    def test_pathfinder_build_graph_and_find_paths(self):
+    def test_convert_struct_to_smiles(self):
+        """
+        Test that convert_struct_to_smiles() behaves properly, converting simple cartesian files into SMILES.
+        """
+        test_molec = ["test_carbondioxide.xyz", 
+                      "test_h2o2.xyz", 
+                      "test_hydroxychlorohydroperoxide.xyz",
+                      "test_ozonide.xyz", 
+                      "test_ozone.xyz"]
+        # connect to test DB
+        manager = db_setup.get_clean_db("chemoton_test_compound_creation")
+        self.custom_setup(manager)
+        # add structure data
+        model = db.Model("FAKE", "FAKE", "F-AKE")
+        rr = resources_root_path()
+        manager.init()
+        lcentroids = list()
+        for ipath in test_molec:
+            structure = db.Structure()
+            structure.link(self._structures)
+            structure.create(os.path.join(rr, ipath), 0, 1)
+            lcentroids.append(structure)
+        dsmiles = {}
+        for ipath, icentr in zip(test_molec, lcentroids):
+            dsmiles[ipath] = convert_struct_to_smile(icentr)
+        # check five typical ozonation products
+        assert dsmiles["test_carbondioxide.xyz"]['smiles'] == 'O=C=O'
+        assert dsmiles["test_h2o2.xyz"]['smiles'] == 'OO'
+        assert dsmiles["test_hydroxychlorohydroperoxide.xyz"]['smiles'] == 'OOC(O)Cl'
+        assert dsmiles["test_ozonide.xyz"]['smiles'] == 'C1COOO1'
+        assert dsmiles["test_ozone.xyz"]['smiles'] == 'O=[O+][O-]'
+
+    def test_get_reactions_and_compounds(self):
+        """
+        Tests that get_reactions_and_compounds() correctly reads the reaction network data from a pathfinder
+        object.
+        """
         # prepare settings for creating a generic crn
         n_compounds = 7
         n_reactions = 8
