@@ -109,5 +109,5 @@ packaging:
   artifacts:
     expire_in: 1 day
     paths:
-      - ./scine_art-*
+      - ./vizchemoton-*
 
