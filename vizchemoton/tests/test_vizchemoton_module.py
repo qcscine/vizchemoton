@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-__copyright__ = """ This code is licensed under the 3-clause BSD license.
+""" This code is licensed under the 3-clause BSD license.
 Copyright ETH Zurich, Department of Chemistry and Applied Biosciences, Reiher
 Group. See LICENSE.txt for details.
 """
@@ -8,17 +8,16 @@ Group. See LICENSE.txt for details.
 # Standard library imports
 import os
 import unittest
-import pytest
 
 # Third party imports
 from scine_chemoton.gears import HoldsCollections
+from scine_chemoton.gears.pathfinder import Pathfinder as pf
 import scine_database as db
 from scine_database import test_database_setup as db_setup
-from scine_chemoton.gears.pathfinder import Pathfinder as pf
-from vizchemoton.tests.resources import resources_root_path
 from bokeh.plotting import Figure
 
 # Local imports
+from vizchemoton.tests.resources import resources_root_path
 from vizchemoton.vizchemoton_module import (get_reactions_and_compounds,
                                             convert_struct_to_smile,
                                             read_compound_reactions_files,
@@ -32,7 +31,10 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
     """
 
     def custom_setup(self, manager: db.Manager) -> None:
-        self._required_collections = [
+         """
+         Initializes a custom database.
+         """
+         self._required_collections = [
             "manager",
             "elementary_steps",
             "structures",
@@ -41,11 +43,6 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             "flasks",
             "properties"]
         self.initialize_collections(manager)
-
-    # Capture std out end err
-    @pytest.fixture(autouse=True)
-    def capsys(self, capsys):
-        self.capsys = capsys
 
     def test_convert_struct_to_smiles(self):
         """
@@ -63,7 +60,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         # add structure data
         rr = resources_root_path()
         manager.init()
-        lcentroids = list()
+        lcentroids = []
         for ipath in test_molec:
             structure = db.Structure()
             structure.link(self._structures)
@@ -85,30 +82,20 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         network data from a pathfinder object.
         """
         # prepare settings for creating a generic crn
-        n_compounds = 7
-        n_reactions = 8
-        max_r_per_c = 7
-        max_n_products_per_r = 3
-        max_n_educts_per_r = 3
-        max_s_per_c = 1
-        max_el_steps_per_r = 1
-        barrier_limits = (10, 80)
-        n_inserts = 2
-        n_flasks = 1
+        params = {
+            "n_compounds": 7,
+            "n_flasks": 1,
+            "n_reactions": 8,
+            "max_r_per_c": 7,
+            "name": "test_pathfinder_build_graph",
+            "max_n_products_per_r": 3,
+            "max_n_educts_per_r": 3,
+            "max_s_per_c": 1,
+            "barrier_limits": (10, 80),
+            "n_inserts": 2,
+        }
         # create a generic crn
-        manager = db_setup.get_random_db(
-            n_compounds,
-            n_flasks,
-            n_reactions,
-            max_r_per_c,
-            "test_pathfinder_build_graph",
-            max_n_products_per_r,
-            max_n_educts_per_r,
-            max_s_per_c,
-            max_el_steps_per_r,
-            barrier_limits,
-            n_inserts,
-        )
+        manager = db_setup.get_random_db(**params)
         self.custom_setup(manager)
         # define arbitrary parameters
         dmethod = {
@@ -116,6 +103,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             "method": "FAKE",
             "basis_set": "F-AKE",
             "program": "FA-KE"}
+        # pylint: disable=no-member
         model1 = db.Model(
             dmethod["method_family"],
             dmethod["method"],
@@ -148,10 +136,10 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             rr, compounds_file)
         reactions, compounds = read_compound_reactions_files(
             rfile, cfile, verbose=False)
-        G = process_graph(reactions, compounds, dist_adduct=3.0)
-        assert len(G.edges) == 24
-        assert len(G.nodes) == 25
+        graph = process_graph(reactions, compounds, dist_adduct=3.0)
+        assert len(graph.edges) == 24
+        assert len(graph.nodes) == 25
         outfile, title = os.path.join(rr, "test_network.html"), 'test_network'
-        bokehobj = build_dashboard(G, title, outfile)
+        bokehobj = build_dashboard(graph, title, outfile)
         assert any(isinstance(x, Figure)
                    for x in bokehobj), "No Figure in build_dashboard output"
