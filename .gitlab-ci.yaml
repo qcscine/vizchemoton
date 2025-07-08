@@ -1,0 +1,113 @@
+---
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_DEPTH: 1
+  PYTHON_ARTIFACT_DIR: "$CI_PROJECT_DIR/.cache"
+  PIP_CACHE_DIR: "$PYTHON_ARTIFACT_DIR/pip"
+
+include:
+  - project: 'scine/development-utils'
+    file: '/ci/jobs.yml'
+
+stages:
+  - quality
+  - build
+  - package
+
+.pipeline_setup: &pipeline_setup
+  - !reference [.python_venv]
+
+check_flake8:
+  stage: quality
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - python3 -m pip install -r requirements-dev.txt
+    - python3 -m flake8 vizchemoton
+
+check_license:
+  stage: quality
+  extends: .gcc
+  script:
+    - ./dev/scripts/check_presence_of_license.sh vizchemoton/
+
+check_pylint:
+  stage: quality
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - python3 -m pip install -r requirements-dev.txt
+    - python3 -m pylint vizchemoton || python3 -m pylint_exit --error-fail --warn-fail $?
+
+check_mypy:
+  stage: quality
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - python3 -m pip install -r requirements-dev.txt
+    - python3 -m mypy --ignore-missing-imports -p vizchemoton
+
+test_unittests:
+  stage: build
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - pip install --no-deps scine-utilities --index-url https://__token__:$SCINE_API_ACCESS@gitlab.chab.ethz.ch/api/v4/projects/159/packages/pypi/simple
+    - pip install --no-deps scine-molassembler --index-url https://__token__:$SCINE_API_ACCESS@gitlab.chab.ethz.ch/api/v4/projects/11/packages/pypi/simple
+    - python3 -m pip install -r requirements-dev.txt
+    - >-
+      python3 -m coverage run -m pytest vizchemoton
+    - python3 -m coverage report -m --precision=2
+    - python3 -m coverage xml
+  artifacts:
+    expire_in: 1 day
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  coverage: '/^TOTAL.+?(\d+.\d+\%)$/'
+
+sphinx:devel:
+  stage: build
+  extends: .gcc
+  except:
+    - master
+    - develop
+  script:
+    - *pipeline_setup
+    - python3 -m pip install .
+    - python3 -m pip install -r requirements-dev.txt
+    - make -C docs html
+    - mv docs/build/html html_docs/
+
+sphinx:production:
+  stage: build
+  extends: .gcc
+  only:
+    - master
+    - develop
+  script:
+    - *pipeline_setup
+    - python3 -m pip install .
+    - python3 -m pip install -r requirements-dev.txt
+    - make -C docs html
+    - mv docs/build/html html_docs/
+#  artifacts:
+#    expire_in: 1 day
+#    paths:
+#      - html_docs
+
+packaging:
+  stage: package
+  extends: .gcc
+  only:
+    - master
+    - develop
+  script:
+    - python3 setup.py sdist --dist-dir .
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ./scine_art-*
+
