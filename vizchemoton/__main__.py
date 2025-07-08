@@ -8,8 +8,11 @@ visualize GRRM-generated reaction networks.
 
 import networkx as nx
 from .vizchemoton_module import (vizchemoton_header, get_crn_as_pathfinder,
-get_reactions_and_compounds, write_compound_reactions_files, 
-read_compound_reactions_files, process_graph, build_dashboard, load_config)
+                                 get_reactions_and_compounds,
+                                 write_compound_reactions_files,
+                                 read_compound_reactions_files, process_graph,
+                                 build_dashboard, load_config)
+
 
 def main():
     # Load configuration
@@ -47,15 +50,19 @@ def main():
         # read the pathfinder object (to speed-up the process)
         if pathfinder_mode == 'read':
             manager, pathfinder = get_crn_as_pathfinder(ip, int(
-                port), db_name, dict_method, write_pathfinder=False, read_pathfinder=pathfinder_file, verbose=verbose)
+                port), db_name, dict_method, write_pathfinder=False,
+                read_pathfinder=pathfinder_file, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, calcsmiles=smiles, verbose=verbose)
+                manager, pathfinder, dict_method, calcsmiles=smiles,
+                verbose=verbose)
 
         elif pathfinder_mode == 'write':  # write the pathfinder object
             manager, pathfinder = get_crn_as_pathfinder(ip, int(
-                port), db_name, dict_method, write_pathfinder=pathfinder_file, read_pathfinder=False, verbose=verbose)
+                port), db_name, dict_method, write_pathfinder=pathfinder_file,
+                read_pathfinder=False, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, calcsmiles=smiles, verbose=verbose)
+                manager, pathfinder, dict_method, calcsmiles=smiles,
+                verbose=verbose)
 
         # write the reactions and compounds
         if reactions_mode == 'write' and compounds_mode == 'write':
