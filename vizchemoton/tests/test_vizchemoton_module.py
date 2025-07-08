@@ -27,14 +27,21 @@ from bokeh.plotting import Figure
 # Local imports
 from vizchemoton.vizchemoton_module import get_reactions_and_compounds, convert_struct_to_smile, read_compound_reactions_files, process_graph, build_dashboard
 
+
 class VizChemotonTests(unittest.TestCase, HoldsCollections):
     """
     Tests the main -and thus most critical- functions of VizChemoton.
     """
 
     def custom_setup(self, manager: db.Manager) -> None:
-        self._required_collections = ["manager", "elementary_steps", "structures", "reactions", "compounds", "flasks",
-                                      "properties"]
+        self._required_collections = [
+            "manager",
+            "elementary_steps",
+            "structures",
+            "reactions",
+            "compounds",
+            "flasks",
+            "properties"]
         self.initialize_collections(manager)
 
     # Capture std out end err
@@ -46,10 +53,10 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         """
         Test that convert_struct_to_smiles() behaves properly, converting simple cartesian files into SMILES.
         """
-        test_molec = ["test_carbondioxide.xyz", 
-                      "test_h2o2.xyz", 
+        test_molec = ["test_carbondioxide.xyz",
+                      "test_h2o2.xyz",
                       "test_hydroxychlorohydroperoxide.xyz",
-                      "test_ozonide.xyz", 
+                      "test_ozonide.xyz",
                       "test_ozone.xyz"]
         # connect to test DB
         manager = db_setup.get_clean_db("chemoton_test_compound_creation")
@@ -106,17 +113,25 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         )
         self.custom_setup(manager)
         # define arbitrary parameters
-        dmethod = {"method_family": "FAKE", "method": "FAKE", "basis_set": "F-AKE", "program": "FA-KE"}
-        model1 = db.Model(dmethod["method_family"], dmethod["method"], dmethod["basis_set"])
+        dmethod = {
+            "method_family": "FAKE",
+            "method": "FAKE",
+            "basis_set": "F-AKE",
+            "program": "FA-KE"}
+        model1 = db.Model(
+            dmethod["method_family"],
+            dmethod["method"],
+            dmethod["basis_set"])
         # construct arbitrary pathfinder object
         pathfinder = pf(manager)
-        pathfinder.options.model = model1 
+        pathfinder.options.model = model1
         pathfinder.options.graph_handler = "barrier"
         pathfinder.options.use_structure_model = True
         pathfinder.options.structure_model = model1
         pathfinder.build_graph()
-        # test the get_reactions_and_compounds() 
-        reactions, compounds = get_reactions_and_compounds(manager, pathfinder, dmethod)
+        # test the get_reactions_and_compounds()
+        reactions, compounds = get_reactions_and_compounds(
+            manager, pathfinder, dmethod)
         assert len(reactions) != 0
         assert isinstance(reactions, list)
         assert len(compounds.keys()) != 0
@@ -124,22 +139,19 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
 
     def test_process_graph_and_build_dashboard(self):
         """
-        Tests that the conversion to a NetworkX object is successfuly -and consistently- done. 
+        Tests that the conversion to a NetworkX object is successfuly -and consistently- done.
         """
         rr = resources_root_path()
         reaction_file, compounds_file = "test_reactions.csv", "test_compounds.json"
-        rfile, cfile = os.path.join(rr, reaction_file), os.path.join(rr, compounds_file)
-        reactions, compounds = read_compound_reactions_files(rfile, cfile, verbose=False) 
-        G = process_graph(reactions,compounds,dist_adduct=3.0)
+        rfile, cfile = os.path.join(
+            rr, reaction_file), os.path.join(
+            rr, compounds_file)
+        reactions, compounds = read_compound_reactions_files(
+            rfile, cfile, verbose=False)
+        G = process_graph(reactions, compounds, dist_adduct=3.0)
         assert len(G.edges) == 24
         assert len(G.nodes) == 25
         outfile, title = os.path.join(rr, "test_network.html"), 'test_network'
-        bokehobj = build_dashboard(G,title,outfile)
-        assert any(isinstance(x, Figure) for x in bokehobj), "No Figure found in build_dashboard output"
-
-
-
-
-
-
-
+        bokehobj = build_dashboard(G, title, outfile)
+        assert any(isinstance(x, Figure)
+                   for x in bokehobj), "No Figure found in build_dashboard output"
