@@ -18,7 +18,7 @@ import bokeh.models as bkm
 import RXVisualizer as arxviz
 import networkx as nx
 from xyz2mol import xyz2mol
-from rdkit import Chem
+from rdkit.Chem import MolToSmiles, MolFromSmiles
 
 # Project-Specific SCINE imports
 import scine_utilities as utils
@@ -86,7 +86,7 @@ def get_energy_and_barriers(
     Returns:
       - energy (float): energy state in the reaction.
       - barriers (tuple): forward and backward energy barriers
-      - not_None (bool): returns True if no None was found in the barriers
+      - not_none (bool): returns True if no None was found in the barriers
       tuple
     """
     energy = get_energy_change(
@@ -101,14 +101,14 @@ def get_energy_and_barriers(
         es_from_graph, energy_type, model1, structures, properties)
 
     if None in barriers:
-        not_None = False
+        not_none = False
     else:
-        not_None = True
+        not_none = True
 
-    return energy, barriers, not_None
+    return energy, barriers, not_none
 
 
-def _convert_xyz_to_smiles(elements, coordinates, charge, mongoid):
+def _convert_xyz_to_smiles(elements, coordinates, charge):
     """
     Convert xyz file to smiles using the external xyz2mol library.
     """
@@ -119,9 +119,9 @@ def _convert_xyz_to_smiles(elements, coordinates, charge, mongoid):
     data = {'flag': False}
     if len(molformat) != 0:
         flag = True
-        smiles = Chem.MolToSmiles(molformat[0])
-        m = Chem.MolFromSmiles(smiles)
-        smiles = Chem.MolToSmiles(m)
+        smiles = MolToSmiles(molformat[0])
+        m = MolFromSmiles(smiles)
+        smiles = MolToSmiles(m)
         data = {'flag': flag, 'smiles': smiles}
     return data
 
@@ -136,7 +136,7 @@ def convert_struct_to_smile(centroid):
                    for ci in centroid.get_atoms().positions.tolist()]
     charge = centroid.get_charge()
     dsmiles = _convert_xyz_to_smiles(
-        elements, coordinates, charge, centroid.get_id())
+        elements, coordinates, charge)
     return dsmiles
 
 
@@ -223,11 +223,11 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
     lhs_rxn_list = [
         node for node in pathfinder.graph_handler.graph.nodes if ";0;" in node]
     cmp_idx = 1
-    cmp_dict, html_reactions, html_compounds = dict(), list(), dict()
+    cmp_dict, html_reactions, html_compounds = {}, [], {}
 
     if verbose:
         print("## Iterating through reactions in the network")
-    for rxn_ind, rxn_id in enumerate(lhs_rxn_list):
+    for rxn_id in lhs_rxn_list:
         # Iterate through the reations of the network
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
@@ -278,17 +278,16 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
                 es_id = db.ID(pathfinder.graph_handler.graph.nodes(
                         data=True)[rxn_id]["elementary_step_id"])
                 es_from_graph = db.ElementaryStep(es_id, elementary_steps)
-                _energy, barriers, not_None = get_energy_and_barriers(
+                _energy, _, not_none = get_energy_and_barriers(
                     'electronic_energy', es_id, elementary_steps, model1,
                     structures, properties, es_from_graph)
 
                 step_type = es_from_graph.get_type()
                 is_barrierless = step_type == db.ElementaryStepType.BARRIERLESS
-                if is_barrierless and not_None and _energy is not None:
+                if is_barrierless and not_none and _energy is not None:
                     html_reactions.append([cmp_dict[node_x],
                                            cmp_dict[node_y], None])
-                elif not_None:
-                    b1, b2 = barriers
+                elif not_none:
                     node_ts = es_from_graph.get_transition_state().string()+";"
                     if node_ts not in cmp_dict.keys():
                         cmp_dict[node_ts] = cmp_idx
@@ -307,20 +306,20 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
             # the following line:
             # continue
             ids = compound_id.split("//")
-            html_compounds[cmp_dict[compound_id]]['crn_id'] = list()
-            html_compounds[cmp_dict[compound_id]]['_mongodb_id'] = list()
-            html_compounds[cmp_dict[compound_id]]['mongodb_id'] = list()
-            html_compounds[cmp_dict[compound_id]]['xyz'] = list()
-            html_compounds[cmp_dict[compound_id]]['charge'] = list()
-            html_compounds[cmp_dict[compound_id]]['multiplicity'] = list()
-            html_compounds[cmp_dict[compound_id]]['energy'] = list()
-            html_compounds[cmp_dict[compound_id]]['method'] = list()
-            html_compounds[cmp_dict[compound_id]]['basis_set'] = list()
-            html_compounds[cmp_dict[compound_id]]['program'] = list()
-            html_compounds[cmp_dict[compound_id]]['solvent'] = list()
-            html_compounds[cmp_dict[compound_id]]['solvation'] = list()
-            html_compounds[cmp_dict[compound_id]]['_smiles'] = list()
-            html_compounds[cmp_dict[compound_id]]['smiles'] = list()
+            html_compounds[cmp_dict[compound_id]]['crn_id'] = []
+            html_compounds[cmp_dict[compound_id]]['_mongodb_id'] = []
+            html_compounds[cmp_dict[compound_id]]['mongodb_id'] = []
+            html_compounds[cmp_dict[compound_id]]['xyz'] = []
+            html_compounds[cmp_dict[compound_id]]['charge'] = []
+            html_compounds[cmp_dict[compound_id]]['multiplicity'] = []
+            html_compounds[cmp_dict[compound_id]]['energy'] = []
+            html_compounds[cmp_dict[compound_id]]['method'] = []
+            html_compounds[cmp_dict[compound_id]]['basis_set'] = []
+            html_compounds[cmp_dict[compound_id]]['program'] = []
+            html_compounds[cmp_dict[compound_id]]['solvent'] = []
+            html_compounds[cmp_dict[compound_id]]['solvation'] = []
+            html_compounds[cmp_dict[compound_id]]['_smiles'] = []
+            html_compounds[cmp_dict[compound_id]]['smiles'] = []
             for _ids in ids:
                 type_object = pathfinder.graph_handler.graph.nodes(data=True)[
                     _ids]["type"]
@@ -492,8 +491,6 @@ def write_compound_reactions_files(
         # use `json.loads` to do the revers
         file.write(json.dumps(html_compounds))
 
-    return None
-
 
 def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
     """
@@ -525,7 +522,7 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
     return reaction_tuples, compounds
 
 
-def build_dashboard(G, title, outfile, size=(1400, 800),
+def build_dashboard(graph, title, outfile, size=(1400, 800),
                     layout_function=nx.kamada_kawai_layout,
                     map_field="energy", verbose=True):
     """
@@ -580,13 +577,13 @@ def build_dashboard(G, title, outfile, size=(1400, 800),
     {% endblock %}
     """
 
-    posx = layout_function(G)
+    posx = layout_function(graph)
     # Add model field to all nodes and edges & also vibrations
-    arxviz.add_models(G)
+    arxviz.add_models(graph)
 
     # Bokeh-powered visualization via RXVisualizer
     bk_fig, bk_graph = arxviz.bokeh_network_view(
-        G, positions=posx, graph_title=title, width=w1, height=h,
+        graph, positions=posx, graph_title=title, width=w1, height=h,
         map_field=map_field, hide_energy=True)
 
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()
@@ -601,7 +598,7 @@ def build_dashboard(G, title, outfile, size=(1400, 800),
 
     # custom edge hovering to reduce noise
     #
-    hover_edgeJS = '''
+    hover_edge_js = '''
     var erend = graph.edge_renderer.data_source
     var label1 = String.fromCharCode(916).concat("E1")
     var label2 = String.fromCharCode(916).concat("E2")
@@ -619,7 +616,7 @@ def build_dashboard(G, title, outfile, size=(1400, 800),
     }
     '''
     # Custom locateMolecule function to support search by SMILES
-    locateMolecule = """
+    locate_molecule = """
         // source - source object for JSMol
         // pass graph and fetch node and edge renderers
         // from fig, we modify x_range and y_range. Default plot starts from
@@ -735,7 +732,7 @@ def build_dashboard(G, title, outfile, size=(1400, 800),
         args={
             "hover": hover_edge,
             "graph": bk_graph},
-        code=hover_edgeJS)
+        code=hover_edge_js)
     bk_fig.add_tools(hover_edge)
 
     highl_callback = bkm.CustomJS(
@@ -764,7 +761,7 @@ def build_dashboard(G, title, outfile, size=(1400, 800),
             "graph": bk_graph,
             "fig": bk_fig,
             "text_input": text_input},
-        code=locateMolecule)
+        code=locate_molecule)
     sel_button = sel_row.children[1]
     sel_button.js_event_callbacks['button_click'] = [js_mol_locator_nw]
     sel_button.js_on_click(js_mol_locator_nw)
@@ -845,13 +842,15 @@ def sort_edge_names(edge_tuple):
     Output:
     - lexico_tuple (tuple): lexicographically sorted tuple.
     """
-
     n1, n2 = [int(nd) for nd in edge_tuple]
     srt_pair = sorted([n1, n2])
-    lexico_tuple = tuple([str(nd) for nd in srt_pair])
+    lexico_tuple = tuple((str(nd) for nd in srt_pair))
     return lexico_tuple
 
 def preprocess_compounds(compounds):
+    """
+    Helper function to process compounds properties.
+    """
     tgt_vars = ["energy", "charge", "multiplicity"]
     for comp in compounds.values():
         for vv in tgt_vars:
@@ -860,10 +859,16 @@ def preprocess_compounds(compounds):
 
 
 def build_graph_edges(reaction_list):
+    """
+    Build graph edges.
+    """
     return [(item[0], item[1], {"tsidx": item[2]}) for item in reaction_list]
 
 
 def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
+    """
+    Helper function to retrieve the node name and geometry.
+    """
     if isinstance(comp["crn_id"], list):
         node_name = "+".join(comp["crn_id"])
 
@@ -887,8 +892,11 @@ def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
     return node_name, xyz_full, xyz_list
 
 
-def add_node_attributes(G, compounds, node_renaming, dist_adduct, bohr_to_ang):
-    for nd in G.nodes(data=True):
+def add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang):
+    """
+    Add nodes attributes to the graph for building the HTML file.
+    """
+    for nd in graph.nodes(data=True):
         comp = compounds[nd[0]]
         node_name, xyz_full, xyz_list = get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang)
 
@@ -898,23 +906,26 @@ def add_node_attributes(G, compounds, node_renaming, dist_adduct, bohr_to_ang):
         nd[1]["energy"] = sum(comp["energy"])
         nd[1]["ZPVE"] = 0.0
         nd[1]["name"] = node_name
-        nd[1]["degree"] = G.degree(nd[0])
+        nd[1]["degree"] = graph.degree(nd[0])
         nd[1]["charge"] = "//".join([str(item) for item in comp["charge"]])
         nd[1]["multiplicity"] = "//".join([str(item) for item in comp["multiplicity"]])
         nd[1]["formula"] = "//".join([formula_from_xyz_block(xyz) for xyz in xyz_list])
-        nd[1]["neighbors"] = list(G.neighbors(nd[0]))
+        nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
         nd[1]["smiles"] = comp.get("smiles", "None")
 
 
-def add_edge_attributes(G, compounds):
-     compounds_renamed = {}
-     for k, comp in compounds.items():
-         if isinstance(comp["crn_id"], list):
-             new_key = "+".join(comp["crn_id"])
-             compounds_renamed[new_key] = comp
-         else:
-             compounds_renamed[comp["crn_id"]] = comp
-     for ii, ed in enumerate(G.edges(data=True)):
+def add_edge_attributes(graph, compounds):
+    """
+    Add edges attributes to the graph for building the HTML file.
+    """
+    compounds_renamed = {}
+    for _, comp in compounds.items():
+        if isinstance(comp["crn_id"], list):
+            new_key = "+".join(comp["crn_id"])
+            compounds_renamed[new_key] = comp
+        else:
+            compounds_renamed[comp["crn_id"]] = comp
+    for ii, ed in enumerate(graph.edges(data=True)):
         e1, e2 = [sum(compounds_renamed[nd]["energy"]) for nd in ed[0:2]]
         if ed[2]["tsidx"] == "None":
             e_ts = max(e1, e2)
@@ -945,23 +956,28 @@ def add_edge_attributes(G, compounds):
 
 
 def process_graph(reaction_list, compounds, dist_adduct=3.0):
+    """
+    Wrapper function to generate a nx.Graph from a list of reactions and a
+    dictionary of compounds, including XYZ-formatted geometries where
+    individual geometries of the species forming adducts are joined.
+    """
     bohr_to_ang = 0.529177
-    G = nx.Graph()
+    graph = nx.Graph()
     edge_list = build_graph_edges(reaction_list)
-    G.add_edges_from(edge_list)
+    graph.add_edges_from(edge_list)
 
     node_renaming = {}
     preprocess_compounds(compounds)
-    add_node_attributes(G, compounds, node_renaming, dist_adduct, bohr_to_ang)
-    nx.relabel_nodes(G, node_renaming, copy=False)
+    add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang)
+    nx.relabel_nodes(graph, node_renaming, copy=False)
 
     # update neighbors after renaming
-    for nd in G.nodes(data=True):
-        nd[1]["neighbors"] = list(G.neighbors(nd[0]))
+    for nd in graph.nodes(data=True):
+        nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
 
-    add_edge_attributes(G, compounds)
+    add_edge_attributes(graph, compounds)
 
-    return G
+    return graph
 
 
 #def process_graph(reaction_list, compounds, dist_adduct=3.0):

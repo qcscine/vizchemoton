@@ -31,18 +31,18 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
     """
 
     def custom_setup(self, manager: db.Manager) -> None:
-         """
-         Initializes a custom database.
-         """
-         self._required_collections = [
-            "manager",
-            "elementary_steps",
-            "structures",
-            "reactions",
-            "compounds",
-            "flasks",
-            "properties"]
-         self.initialize_collections(manager)
+        """
+        Initializes a custom database.
+        """
+        self._required_collections = [
+           "manager",
+           "elementary_steps",
+           "structures",
+           "reactions",
+           "compounds",
+           "flasks",
+           "properties"]
+        self.initialize_collections(manager)
 
     def test_convert_struct_to_smiles(self):
         """

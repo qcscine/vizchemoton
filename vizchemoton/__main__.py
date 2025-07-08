@@ -66,6 +66,7 @@ def main():
 
         # write the reactions and compounds
         if reactions_mode == 'write' and compounds_mode == 'write':
+            reactions, compounds = [], {}
             write_compound_reactions_files(
                 reactions,
                 compounds,
@@ -77,9 +78,9 @@ def main():
     # compounds are stored in separate files
     reactions, compounds = read_compound_reactions_files(
         reactions_file, compounds_file, verbose=verbose)
-    G = process_graph(reactions, compounds, dist_adduct)
+    graph = process_graph(reactions, compounds, dist_adduct)
     build_dashboard(
-        G,
+        graph,
         title_html,
         output_file,
         size=size,
