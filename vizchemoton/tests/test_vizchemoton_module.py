@@ -42,7 +42,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             "compounds",
             "flasks",
             "properties"]
-        self.initialize_collections(manager)
+         self.initialize_collections(manager)
 
     def test_convert_struct_to_smiles(self):
         """
