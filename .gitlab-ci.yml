@@ -34,19 +34,20 @@ check_mypy:
     - python3 -m pip install -r requirements-dev.txt
     - python3 -m mypy --ignore-missing-imports -p vizchemoton
 
-
 setup_environment:
   stage: build
-  image: continuumio/miniconda3  # Uses a base image with conda preinstalled
+  image: ubuntu:20.04
   extends: .gcc
   before_script:
-    # Initialize conda
-    - source /opt/conda/etc/profile.d/conda.sh
+    - apt-get update && apt-get install -y wget git build-essential python3-pip
+    - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - source $HOME/miniconda/etc/profile.d/conda.sh
+    - conda init bash
     - conda config --set always_yes yes --set changeps1 no
-    # Create and activate conda environment
     - conda create --name my_env python=3.6
     - conda activate my_env
-    # Upgrade pip inside conda env
     - python -m pip install --upgrade pip
   script:
     # Clone and install Chemoton
