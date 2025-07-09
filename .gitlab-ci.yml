@@ -65,6 +65,7 @@ setup_environment:
     - cd ..
   script: 
     # Run unitary tests
+    - find . -name "test_*csv"
     - python3 -m pip install -r requirements-dev.txt
     - python3 -m pytest vizchemoton
   artifacts:
