@@ -38,6 +38,7 @@ check_mypy:
 setup_environment:
   stage: build
   image: continuumio/miniconda3  # Uses a base image with conda preinstalled
+  extends: .gcc
   before_script:
     # Initialize conda
     - source /opt/conda/etc/profile.d/conda.sh
