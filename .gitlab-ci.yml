@@ -32,7 +32,7 @@ check_pylint:
   script:
     - *pipeline_setup
     - python3 -m pip install -r requirements-dev.txt
-    - python3 -m pylint vizchemoton || python3 -m pylint_exit --error-fail --warn-fail $?
+    - python3 -m pylint vizchemoton
 
 check_mypy:
   stage: quality
