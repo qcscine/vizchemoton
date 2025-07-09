@@ -67,6 +67,7 @@ setup_environment:
     # Run unitary tests
     - ls
     - cd vizchemoton
+    - python3 -m pip install -r requirements-dev.txt
     - python3 -m pytest
   artifacts:
     paths:
