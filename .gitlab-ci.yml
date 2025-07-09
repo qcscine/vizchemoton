@@ -62,14 +62,10 @@ setup_environment:
     - cd amk_tools
     - python -m pip install -e .
     - cd ..
-
-    # Install VizChemoton
-    - git clone https://github.com/petrusen/vizchemoton.git
-    - cd vizchemoton
-    - python3 -m pip install -r ./requirements.txt
-    - python3 -m pip install .
   script: 
     # Run unitary tests
+    - ls
+    - cd vizchemoton
     - python3 -m pytest
   artifacts:
     paths:
