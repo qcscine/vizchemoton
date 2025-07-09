@@ -58,31 +58,18 @@ setup_environment:
     - cd ..
 
     # Clone and install amk_tools
-    - conda install bokeh==2.3.2
     - git clone https://gitlab.com/dgarayr/amk_tools.git
     - cd amk_tools
     - python -m pip install -e .
     - cd ..
   script: 
     # Run unitary tests
-    - ls
-    - cd vizchemoton
     - python3 -m pip install -r requirements-dev.txt
     - python3 -m pytest
   artifacts:
     paths:
       - chemoton/
       - amk_tools/
-
-test_unittests:
-  stage: build
-  extends: .gcc
-  script:
-    - *pipeline_setup
-    - pip install --no-deps scine-utilities --index-url https://__token__:$SCINE_API_ACCESS@gitlab.chab.ethz.ch/api/v4/projects/159/packages/pypi/simple
-    - pip install --no-deps scine-molassembler --index-url https://__token__:$SCINE_API_ACCESS@gitlab.chab.ethz.ch/api/v4/projects/11/packages/pypi/simple
-    - python3 -m pip install -r requirements-dev.txt
-    - python3 -m pytest
 
 sphinx:devel:
   stage: build
