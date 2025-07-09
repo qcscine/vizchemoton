@@ -3,6 +3,6 @@ scine-database
 scine-utilities
 #scine-art==1.0.0
 scine_molassembler
-pyyaml==6.0.1
-networkx==2.5.1
-Jinja2==3.0.0
+pyyaml
+networkx
+Jinja2
