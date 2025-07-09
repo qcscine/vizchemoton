@@ -34,6 +34,47 @@ check_mypy:
     - python3 -m pip install -r requirements-dev.txt
     - python3 -m mypy --ignore-missing-imports -p vizchemoton
 
+
+setup_environment:
+  stage: build
+  image: continuumio/miniconda3  # Uses a base image with conda preinstalled
+  before_script:
+    # Initialize conda
+    - source /opt/conda/etc/profile.d/conda.sh
+    - conda config --set always_yes yes --set changeps1 no
+    # Create and activate conda environment
+    - conda create --name my_env python=3.6
+    - conda activate my_env
+    # Upgrade pip inside conda env
+    - python -m pip install --upgrade pip
+  script:
+    # Clone and install Chemoton
+    - git clone https://github.com/qcscine/chemoton.git
+    - cd chemoton
+    - git checkout 3.1.0
+    - python -m pip install -r requirements.txt
+    - python -m pip install .
+    - cd ..
+
+    # Clone and install amk_tools
+    - git clone https://gitlab.com/dgarayr/amk_tools.git
+    - cd amk_tools
+    - python -m pip install -e .
+    - cd ..
+
+    # Install VizChemoton
+    - git clone https://github.com/petrusen/vizchemoton.git
+    - cd vizchemoton
+    - python3 -m pip install -r ./requirements.txt
+    - python3 -m pip install .
+
+    # Run unitary tests
+    - python3 -m pytest
+  artifacts:
+    paths:
+      - chemoton/
+      - amk_tools/
+
 test_unittests:
   stage: build
   extends: .gcc
