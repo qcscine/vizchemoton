@@ -48,6 +48,7 @@ setup_environment:
     - conda config --set always_yes yes --set changeps1 no
     - conda create --name my_env python=3.8
     - conda activate my_env
+    - conda install -c conda-forge xyz2mol
     - python -m pip install --upgrade pip
     # Clone and install Chemoton
     - git clone https://github.com/qcscine/chemoton.git
