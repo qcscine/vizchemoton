@@ -49,7 +49,6 @@ setup_environment:
     - conda create --name my_env python=3.6
     - conda activate my_env
     - python -m pip install --upgrade pip
-  script:
     # Clone and install Chemoton
     - git clone https://github.com/qcscine/chemoton.git
     - cd chemoton
@@ -69,7 +68,7 @@ setup_environment:
     - cd vizchemoton
     - python3 -m pip install -r ./requirements.txt
     - python3 -m pip install .
-
+  script: 
     # Run unitary tests
     - python3 -m pytest
   artifacts:
