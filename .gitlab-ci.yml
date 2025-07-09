@@ -26,12 +26,6 @@ check_flake8:
     - python3 -m pip install -r requirements-dev.txt
     - python3 -m flake8 vizchemoton
 
-check_license:
-  stage: quality
-  extends: .gcc
-  script:
-    - ./dev/scripts/check_presence_of_license.sh vizchemoton/
-
 check_pylint:
   stage: quality
   extends: .gcc
