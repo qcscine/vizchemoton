@@ -58,6 +58,7 @@ setup_environment:
     - cd ..
 
     # Clone and install amk_tools
+    - conda install bokeh==2.3.2
     - git clone https://gitlab.com/dgarayr/amk_tools.git
     - cd amk_tools
     - python -m pip install -e .
