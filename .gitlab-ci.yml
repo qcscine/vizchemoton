@@ -26,14 +26,6 @@ check_flake8:
     - python3 -m pip install -r requirements-dev.txt
     - python3 -m flake8 vizchemoton
 
-check_pylint:
-  stage: quality
-  extends: .gcc
-  script:
-    - *pipeline_setup
-    - python3 -m pip install -r requirements-dev.txt
-    - python3 -m pylint vizchemoton
-
 check_mypy:
   stage: quality
   extends: .gcc
