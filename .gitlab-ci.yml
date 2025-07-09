@@ -42,17 +42,7 @@ test_unittests:
     - pip install --no-deps scine-utilities --index-url https://__token__:$SCINE_API_ACCESS@gitlab.chab.ethz.ch/api/v4/projects/159/packages/pypi/simple
     - pip install --no-deps scine-molassembler --index-url https://__token__:$SCINE_API_ACCESS@gitlab.chab.ethz.ch/api/v4/projects/11/packages/pypi/simple
     - python3 -m pip install -r requirements-dev.txt
-    - >-
-      python3 -m coverage run -m pytest vizchemoton
-    - python3 -m coverage report -m --precision=2
-    - python3 -m coverage xml
-  artifacts:
-    expire_in: 1 day
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
-  coverage: '/^TOTAL.+?(\d+.\d+\%)$/'
+    - python3 -m pytest
 
 sphinx:devel:
   stage: build
