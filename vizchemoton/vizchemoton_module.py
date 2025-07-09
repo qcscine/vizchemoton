@@ -847,6 +847,7 @@ def sort_edge_names(edge_tuple):
     lexico_tuple = tuple((str(nd) for nd in srt_pair))
     return lexico_tuple
 
+
 def preprocess_compounds(compounds):
     """
     Helper function to process compounds properties.
@@ -871,45 +872,51 @@ def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
     """
     if isinstance(comp["crn_id"], list):
         node_name = "+".join(comp["crn_id"])
-
         xyz_list = comp["xyz"]
         xyz0_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
         cntr = xyz0_arr.mean(axis=0)
-        xyz0 = [[item[0], list(xyz0_arr[ii])] for ii, item in enumerate(xyz_list[0])]
+        xyz0 = [[item[0], list(xyz0_arr[ii])]
+                for ii, item in enumerate(xyz_list[0])]
         xyz_full = xyz0
 
         for ii, xyz in enumerate(xyz_list[1:]):
             displ_vec = cntr + (ii + 1) * dist_adduct
-            xyz_arr = np.array([item[1] for item in xyz]) * bohr_to_ang + displ_vec
-            xyz_nw = [[item[0], list(xyz_arr[ii])] for ii, item in enumerate(xyz)]
+            xyz_arr = np.array([it[1] for it in xyz]) * bohr_to_ang + displ_vec
+            xyz_nw = [[item[0], list(xyz_arr[ii])]
+                      for ii, item in enumerate(xyz)]
             xyz_full += xyz_nw
     else:
         node_name = comp["crn_id"]
         xyz_list = [comp["xyz"]]
         xyz_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
-        xyz_full = [[item[0], list(xyz_arr[ii])] for ii, item in enumerate(xyz_list[0])]
+        xyz_full = [[item[0], list(xyz_arr[ii])]
+                    for ii, item in enumerate(xyz_list[0])]
 
     return node_name, xyz_full, xyz_list
 
 
-def add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang):
+def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
+                        bohr_to_ang):
     """
     Add nodes attributes to the graph for building the HTML file.
     """
     for nd in graph.nodes(data=True):
         comp = compounds[nd[0]]
-        node_name, xyz_full, xyz_list = get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang)
-
+        tmp = get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang)
+        node_name, xyz_full, xyz_list = tmp
         node_renaming[nd[0]] = node_name
-        xyz_block = "\n".join(["%s %.6f %.6f %.6f" % (item[0], *item[1]) for item in xyz_full])
-        nd[1]["geometry"] = xyz_block
+        strtmp = "%s %.6f %.6f %.6f"
+        _xyz = "\n".join([strtmp % (item[0], *item[1]) for item in xyz_full])
+        nd[1]["geometry"] = _xyz
         nd[1]["energy"] = sum(comp["energy"])
         nd[1]["ZPVE"] = 0.0
         nd[1]["name"] = node_name
         nd[1]["degree"] = graph.degree(nd[0])
         nd[1]["charge"] = "//".join([str(item) for item in comp["charge"]])
-        nd[1]["multiplicity"] = "//".join([str(item) for item in comp["multiplicity"]])
-        nd[1]["formula"] = "//".join([formula_from_xyz_block(xyz) for xyz in xyz_list])
+        tmpstr = [str(item) for item in comp["multiplicity"]]
+        nd[1]["multiplicity"] = "//".join(tmpstr)
+        tmpstr = [formula_from_xyz_block(xyz) for xyz in xyz_list]
+        nd[1]["formula"] = "//".join(tmpstr)
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
         nd[1]["smiles"] = comp.get("smiles", "None")
 
@@ -950,9 +957,12 @@ def add_edge_attributes(graph, compounds):
         ed[2]["deltaE2"] = "%.2f (%s)" % delta_e2
         ed[2]["energy"] = e_ts
         ed[2]["ZPVE"] = 0.0
-        ed[2]["charge"] = "//".join([str(item) for item in ts_compound["charge"]])
-        ed[2]["multiplicity"] = "//".join([str(item) for item in ts_compound["multiplicity"]])
-        ed[2]["formula"] = "//".join([formula_from_xyz_block(xyz) for xyz in xyz_list])
+        tmpstr = [str(item) for item in ts_compound["charge"]]
+        ed[2]["charge"] = "//".join(tmpstr)
+        tmpstr = [str(item) for item in ts_compound["multiplicity"]]
+        ed[2]["multiplicity"] = "//".join(tmpstr)
+        tmpstr = [formula_from_xyz_block(xyz) for xyz in xyz_list]
+        ed[2]["formula"] = "//".join(tmpstr)
 
 
 def process_graph(reaction_list, compounds, dist_adduct=3.0):
@@ -968,7 +978,8 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
 
     node_renaming = {}
     preprocess_compounds(compounds)
-    add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang)
+    add_node_attributes(graph, compounds, node_renaming, dist_adduct,
+                        bohr_to_ang)
     nx.relabel_nodes(graph, node_renaming, copy=False)
 
     # update neighbors after renaming
@@ -978,138 +989,3 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
     add_edge_attributes(graph, compounds)
 
     return graph
-
-
-#def process_graph(reaction_list, compounds, dist_adduct=3.0):
-#    """
-#    Wrapper function to generate a nx.Graph from a list of reactions and a
-#    dictionary of compounds, including XYZ-formatted geometries where
-#    individual geometries of the species forming adducts are joined.
-#
-#    Input:
-#    - reaction_list (list): list of tuples of integers of the form [n1,n2,ts]
-#    specifying the indices of nodes and transition states from the set of
-#    compounds to define all elementary reactions in the network.
-#    - compounds (dict): dictionary mapping node/ts indices to the different
-#    computed fields that are available
-#    - dist_adduct (float, optional): float, distance in angstrom between the
-#    centers of mass of adduct fragments for the joined 3D geometry.
-#
-#    Output:
-#    - G (nx.Graph): containing network structure and the information required
-#    by RXVisualizer module to build the final.
-#     dashboard.
-#    """
-#    bohr_to_ang = 0.529177
-#
-#    G = nx.Graph()
-#    edge_list = [(item[0], item[1], {"tsidx": item[2]})
-#                 for item in reaction_list]
-#    G.add_edges_from(edge_list)
-#    node_renaming = {}
-#
-#    # Preprocessing compounds: for consistency, convert single elements to
-#    # 1-element lists
-#    tgt_vars = ["energy", "charge", "multiplicity"]
-#    for comp in compounds.values():
-#        for vv in tgt_vars:
-#            if not isinstance(comp[vv], list):
-#                comp[vv] = [comp[vv]]
-#
-#    # add node information
-#    for nd in G.nodes(data=True):
-#        comp = compounds[nd[0]]
-#        # nodes will be renamed to allow compounds
-#        # check for adducts, where both molecules must be brought together ->
-#        # list of IDs
-#        if isinstance(comp["crn_id"], list):
-#            node_name = "+".join(comp["crn_id"])
-#
-#            xyz_list = comp["xyz"]
-#            xyz0_arr = np.array([item[1]
-#                                for item in xyz_list[0]]) * bohr_to_ang
-#            cntr = xyz0_arr.mean(axis=0)
-#            xyz0 = [[item[0], list(xyz0_arr[ii])]
-#                    for ii, item in enumerate(xyz_list[0])]
-#            xyz_full = xyz0
-#
-#            for ii, xyz in enumerate(xyz_list[1:]):
-#                displ_vec = cntr + (ii + 1) * dist_adduct
-#                xyz_arr = np.array([item[1]
-#                                   for item in xyz]) * bohr_to_ang + displ_vec
-#                xyz_nw = [[item[0], list(xyz_arr[ii])]
-#                          for ii, item in enumerate(xyz)]
-#                xyz_full += xyz_nw
-#
-#        else:
-#            node_name = comp["crn_id"]
-#            xyz_list = [comp["xyz"]]
-#            # scale to angstrom
-#            xyz_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
-#            xyz_full = [[item[0], list(xyz_arr[ii])]
-#                        for ii, item in enumerate(xyz_list[0])]
-#
-#        node_renaming[nd[0]] = node_name
-#        # add this to the graph, with xyz-block format
-#        xyz_block = "\n".join(["%s %.6f %.6f %.6f" %
-#                               (item[0], *item[1]) for item in xyz_full])
-#        nd[1]["geometry"] = xyz_block
-#
-#        nd[1]["energy"] = sum(comp["energy"])
-#        nd[1]["ZPVE"] = 0.0
-#        nd[1]["name"] = node_name
-#        nd[1]["degree"] = G.degree(nd[0])
-#        # handle charge and multiplicity as strings to treat fragments
-#        nd[1]["charge"] = "//".join([str(item) for item in comp["charge"]])
-#        nd[1]["multiplicity"] = "//".join([str(item)
-#                                          for item in comp["multiplicity"]])
-#        nd[1]["formula"] = "//".join([formula_from_xyz_block(xyz)
-#                                     for xyz in xyz_list])
-#        nd[1]["neighbors"] = list(G.neighbors(nd[0]))
-#
-#        nd[1]["smiles"] = comp.get("smiles", "None")
-#
-#    for ii, ed in enumerate(G.edges(data=True)):
-#        e1, e2 = [sum(compounds[nd]["energy"]) for nd in ed[0:2]]
-#        if ed[2]["tsidx"] == "None":
-#            e_ts = max(e1, e2)
-#            ed[2]["name"] = "TSb_%04d" % ii
-#            ed[2]["geometry"] = None
-#            ed[2]["energy"] = 0.0
-#            ed[2]["ZPVE"] = 0.0
-#            delta_e1 = (e_ts - e1, ed[0])
-#            delta_e2 = (e_ts - e2, ed[1])
-#            ed[2]["deltaE1"] = "%.2f (%s)" % delta_e1
-#            ed[2]["deltaE2"] = "%.2f (%s)" % delta_e2
-#            continue
-#        ts_compound = compounds[ed[2]["tsidx"]]
-#        xyz_list = [ts_compound["xyz"]]
-#        geom = scale_xyz_list(xyz_list[0])
-#        ed[2]["geometry"] = xyz_list_to_xyz_block(geom)
-#        # ed[2]["name"] = "TS_%04d" % int(ed[2]["tsidx"])
-#        ed[2]["name"] = ts_compound["crn_id"]
-#
-#        # compute activation energy
-#        e_ts = sum(ts_compound["energy"])
-#        delta_e1 = (e_ts - e1, ed[0])
-#        delta_e2 = (e_ts - e2, ed[1])
-#        # save string representations
-#        ed[2]["deltaE1"] = "%.2f (%s)" % delta_e1
-#        ed[2]["deltaE2"] = "%.2f (%s)" % delta_e2
-#        ed[2]["energy"] = sum(ts_compound["energy"])
-#        ed[2]["ZPVE"] = 0.0
-#        # handle charge and multiplicity as strings to treat fragments
-#        ed[2]["charge"] = "//".join(
-#                           [str(item) for item in ts_compound["charge"]])
-#        ed[2]["multiplicity"] = "//".join(
-#                           [str(item) for item in ts_compound["multiplicity"]])
-#
-#        ed[2]["formula"] = "//".join([formula_from_xyz_block(xyz)
-#                                     for xyz in xyz_list])
-#
-#    # Apply renaming
-#    nx.relabel_nodes(G, node_renaming, copy=False)
-#    # and add neighbors now to ensure right naming
-#    for nd in G.nodes(data=True):
-#        nd[1]["neighbors"] = list(G.neighbors(nd[0]))
-#    return G
