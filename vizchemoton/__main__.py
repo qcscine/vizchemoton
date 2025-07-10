@@ -48,6 +48,7 @@ def main():
     vizchemoton_header()
     if db_active:  # the Mongo-DB is reachable
         # read the pathfinder object (to speed-up the process)
+        reactions, compounds = [], {}
         if pathfinder_mode == 'read':
             manager, pathfinder = get_crn_as_pathfinder(ip, int(
                 port), db_name, dict_method, write_pathfinder=False,
@@ -66,7 +67,6 @@ def main():
 
         # write the reactions and compounds
         if reactions_mode == 'write' and compounds_mode == 'write':
-            reactions, compounds = [], {}
             write_compound_reactions_files(
                 reactions,
                 compounds,

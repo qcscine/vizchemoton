@@ -60,6 +60,100 @@ def load_config(config_file="config.yaml"):
         return yaml.safe_load(file)
 
 
+def get_crn_as_pathfinder(
+        ip,
+        port,
+        db_name,
+        dict_method,
+        read_pathfinder=False,
+        write_pathfinder=False,
+        verbose=False):
+
+    manager = db.Manager()
+    credentials = db.Credentials(ip, int(port), db_name)
+    manager.set_credentials(credentials)
+    if verbose:
+        print("## Connecting to the Mongo-DB")
+    manager.connect()
+    model1 = db.Model(
+        dict_method["method_family"],
+        dict_method["method"],
+        dict_method["basis_set"])
+    model1.program = dict_method["program"]
+
+    #########################################################################
+
+    # # # Load Pathfinder and assign NetworkX Digraph
+    pathfinder = pf(manager)
+
+    if isinstance(read_pathfinder, str):
+        if verbose:
+            print("## Reading pathfinder object with name " + read_pathfinder)
+        pathfinder.load_graph(read_pathfinder)
+    elif isinstance(write_pathfinder, str):
+        if verbose:
+            print("## Writing pathfinder object with name " + write_pathfinder)
+        pathfinder.options.model = model1
+        pathfinder.options.graph_handler = "barrier"
+        pathfinder.options.use_structure_model = True
+        pathfinder.options.structure_model = model1
+        pathfinder.build_graph()
+        pathfinder.export_graph(write_pathfinder)
+
+    return manager, pathfinder
+
+
+def _calculate_weight(structure: db.Structure, structures: db.Collection, dstoich, verbose=True):
+    """
+    Returns a dictionary with the weight and stoichiometry of a compound in the DB.
+    """
+    molec_dict = {}
+    structure.link(structures)
+    atoms = structure.get_atoms()
+    weight, tmp = 0.0, list()
+    for e in atoms.elements:
+        weight += utils.ElementInfo.mass(e)
+        tmp.append(str(e))
+    molec_dict['weight'] = weight
+    molec_dict['stoich'] = {d:tmp.count(d) for d in dstoich}
+    if verbose: print(molec_dict['stoich'])
+    return molec_dict
+
+
+def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoich):
+    
+    lhs, rhs = reactants
+    lhst, rhst = reactants_type
+    atomlist = dstoich.keys()
+    condlist = []
+    for lhsi, lhsti in zip(lhs, lhst):
+        compound_id = lhsi.string()
+        if lhsti.name == db.CompoundOrFlask.COMPOUND.name:
+            compound = db.Compound(db.ID(compound_id), compounds)
+        else:
+            compound = db.Flask(db.ID(compound_id), flasks)
+        structure = compound.get_centroid()
+        molec_dict = _calculate_weight(db.Structure(structure), structures, dstoich)
+        weight, dstoich_i = molec_dict['weight'], molec_dict['stoich']
+        for d in dstoich.keys():
+           condlist.append(dstoich_i[d] < dstoich[d])
+    for rhsi, rhsti in zip(rhs, rhst):
+        compound_id = rhsi.string()
+        if rhsti.name == db.CompoundOrFlask.COMPOUND.name:
+            compound = db.Compound(db.ID(compound_id), compounds)
+        else:
+            compound = db.Flask(db.ID(compound_id), flasks)
+        structure = compound.get_centroid()
+        molec_dict = _calculate_weight(db.Structure(structure), structures, dstoich)
+        weight, dstoich_j = molec_dict['weight'], molec_dict['stoich']
+        for d in dstoich.keys():
+           condlist.append(dstoich_j[d] < dstoich[d])
+    if all(condlist):
+        return True
+    else:
+        return False
+
+
 def get_energy_and_barriers(
         energy_type,
         es_id,
@@ -140,49 +234,6 @@ def convert_struct_to_smile(centroid):
     return dsmiles
 
 
-def get_crn_as_pathfinder(
-        ip,
-        port,
-        db_name,
-        dict_method,
-        read_pathfinder=False,
-        write_pathfinder=False,
-        verbose=False):
-
-    manager = db.Manager()
-    credentials = db.Credentials(ip, int(port), db_name)
-    manager.set_credentials(credentials)
-    if verbose:
-        print("## Connecting to the Mongo-DB")
-    manager.connect()
-    model1 = db.Model(
-        dict_method["method_family"],
-        dict_method["method"],
-        dict_method["basis_set"])
-    model1.program = dict_method["program"]
-
-    #########################################################################
-
-    # # # Load Pathfinder and assign NetworkX Digraph
-    pathfinder = pf(manager)
-
-    if isinstance(read_pathfinder, str):
-        if verbose:
-            print("## Reading pathfinder object with name " + read_pathfinder)
-        pathfinder.load_graph(read_pathfinder)
-    elif isinstance(write_pathfinder, str):
-        if verbose:
-            print("## Writing pathfinder object with name " + write_pathfinder)
-        pathfinder.options.model = model1
-        pathfinder.options.graph_handler = "barrier"
-        pathfinder.options.use_structure_model = True
-        pathfinder.options.structure_model = model1
-        pathfinder.build_graph()
-        pathfinder.export_graph(write_pathfinder)
-
-    return manager, pathfinder
-
-
 def get_reactions_and_compounds(manager, pathfinder, dict_method,
                                 calcsmiles=False, verbose=False):
     """
@@ -233,12 +284,15 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
         # Iterate through the reations of the network
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
+        reactants_type = rxn.get_reactant_types(db.Side.BOTH)
         lhs, rhs = reactants
         s_lhs, s_rhs = len(lhs), len(rhs)
-        reactants = (lhs, rhs)
-
-        if s_lhs < 3 and s_rhs < 3:
-
+        #reactants = (lhs, rhs)
+        print("!WARNING: hardcoded atomlist")
+        dstoich = {"C": 20, "H": 80}
+        vfilter = check_natoms(reactants, reactants_type, compounds, 
+                                flasks, structures, dstoich)
+        if s_lhs < 3 and s_rhs < 3: # and vfilter:
             # Get reactant indexes
             cmp_dict_keys = cmp_dict.keys()
             if len(reactants[0]) == 1:
@@ -452,7 +506,6 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
                                ]['smiles'] = smiles['smiles']
             else:
                 html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
-
     return html_reactions, html_compounds
 
 
@@ -476,7 +529,7 @@ def write_compound_reactions_files(
     - reaction_file (str): path to the reactions file
     - compounds_file (str): path to the compounds file
     """
-
+    
     if verbose:
         print(
             "## Writing {f1} and {f2} files".format(
@@ -544,7 +597,7 @@ def build_dashboard(graph, title, outfile, size=(1400, 800),
     """
     if verbose:
         print("## Writing {f1} output file".format(f1=outfile))
-
+    print(graph)
     # Define sizing
     w1 = int(size[0] * 4 / 7)
     w2 = int(size[0] * 3 / 7)
@@ -976,8 +1029,13 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
     bohr_to_ang = 0.529177
     graph = nx.Graph()
     edge_list = build_graph_edges(reaction_list)
+    print(edge_list)
     graph.add_edges_from(edge_list)
-
+    print("fucking graph", graph)
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    nx.draw(graph, ax=ax, with_labels=True, node_color='lightblue', edge_color='gray', node_size=500, font_size=16)
+    plt.show()
     node_renaming = {}
     preprocess_compounds(compounds)
     add_node_attributes(graph, compounds, node_renaming, dist_adduct,
