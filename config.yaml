@@ -9,6 +9,7 @@ method:
   method: "gfn2"
   basis_set: ""
   program: "xtb"
+  vfilter: {"C": 5, "H": 18}
 
 files:
   pathfinder:

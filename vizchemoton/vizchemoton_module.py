@@ -64,7 +64,7 @@ def get_crn_as_pathfinder(
         ip,
         port,
         db_name,
-        dict_method,
+        dmethod,
         read_pathfinder=False,
         write_pathfinder=False,
         verbose=False):
@@ -76,10 +76,10 @@ def get_crn_as_pathfinder(
         print("## Connecting to the Mongo-DB")
     manager.connect()
     model1 = db.Model(
-        dict_method["method_family"],
-        dict_method["method"],
-        dict_method["basis_set"])
-    model1.program = dict_method["program"]
+        dmethod["method_family"],
+        dmethod["method"],
+        dmethod["basis_set"])
+    model1.program = dmethod["program"]
 
     #########################################################################
 
@@ -234,7 +234,7 @@ def convert_struct_to_smile(centroid):
     return dsmiles
 
 
-def get_reactions_and_compounds(manager, pathfinder, dict_method,
+def get_reactions_and_compounds(manager, pathfinder, dmethod,
                                 calcsmiles=False, verbose=False):
     """
     Extract the chemical reactions, compounds and transition states from the
@@ -259,10 +259,10 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
     """
 
     model1 = db.Model(
-        dict_method["method_family"],
-        dict_method["method"],
-        dict_method["basis_set"])
-    model1.program = dict_method["program"]
+        dmethod["method_family"],
+        dmethod["method"],
+        dmethod["basis_set"])
+    model1.program = dmethod["program"]
     structures = manager.get_collection("structures")
     reactions = manager.get_collection("reactions")
     flasks = manager.get_collection("flasks")
@@ -288,10 +288,8 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
         lhs, rhs = reactants
         s_lhs, s_rhs = len(lhs), len(rhs)
         #reactants = (lhs, rhs)
-        print("!WARNING: hardcoded atomlist")
-        dstoich = {"C": 7, "H": 18}
         vfilter = check_natoms(reactants, reactants_type, compounds, 
-                                flasks, structures, dstoich)
+                                flasks, structures, dmethod["vfilter"])
         if s_lhs < 3 and s_rhs < 3 and vfilter:
             # Get reactant indexes
             cmp_dict_keys = cmp_dict.keys()
