@@ -117,7 +117,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         pathfinder.build_graph()
         # test the get_reactions_and_compounds()
         reactions, compounds = get_reactions_and_compounds(
-            manager, pathfinder, dmethod)
+            manager, pathfinder, dmethod, verbose=True)
         assert len(reactions) != 0
         assert isinstance(reactions, list)
         assert len(compounds.keys()) != 0
@@ -135,7 +135,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             rr, reaction_file), os.path.join(
             rr, compounds_file)
         reactions, compounds = read_compound_reactions_files(
-            rfile, cfile, verbose=False)
+            rfile, cfile, verbose=True)
         graph = process_graph(reactions, compounds, dist_adduct=3.0)
         assert len(graph.edges) == 24
         assert len(graph.nodes) == 25

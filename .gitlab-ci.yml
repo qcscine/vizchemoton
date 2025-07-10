@@ -38,6 +38,8 @@ setup_environment:
   stage: build
   image: ubuntu:22.04
   extends: .gcc
+  services:
+    - mongo:bionic
   before_script:
     - apt-get update && apt-get install -y wget git build-essential python3-pip
     - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh

@@ -222,11 +222,13 @@ def get_reactions_and_compounds(manager, pathfinder, dict_method,
     # # # List of compounds and reactions
     lhs_rxn_list = [
         node for node in pathfinder.graph_handler.graph.nodes if ";0;" in node]
-    cmp_idx = 1
+    cmp_idx, numreac = 1, len(lhs_rxn_list)
     cmp_dict, html_reactions, html_compounds = {}, [], {}
 
     if verbose:
-        print("## Iterating through reactions in the network")
+        tmpstr = "## Iterating through the {x} reactions in the network"
+        print(tmpstr.format(x=str(numreac)))
+    cmp_idx = 1
     for rxn_id in lhs_rxn_list:
         # Iterate through the reations of the network
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
