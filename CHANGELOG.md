@@ -8,7 +8,7 @@ Release 1.0.0
 **New Features**
 * Add SMILES search in the HTML file. This is done by adding a new key in the compounds.json dictionary where the canonical SMILES with rdkit are computed. The calculation of SMILES can be switched on (or off) in the config file.
 * Add static HTML documentation folder.
-
+* Add atom filter when iterating the reaction collection in order to make the HTML more interpretable for large CRNs. 
 
 Release 0.1.0
 -------------
