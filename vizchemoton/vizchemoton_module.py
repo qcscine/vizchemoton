@@ -290,9 +290,12 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
         lhs, rhs = reactants
         s_lhs, s_rhs = len(lhs), len(rhs)
-        #reactants = (lhs, rhs)
-        vfilter = check_natoms(reactants, reactants_type, compounds, 
-                                flasks, structures, dmethod["vfilter"])
+        if dmethod["vfilter"]:
+            vfilter = check_natoms(reactants, reactants_type, compounds,
+                                    flasks, structures, dmethod["vfilter"])
+        else:
+            vfilter = True 
+
         if s_lhs < 3 and s_rhs < 3 and vfilter:
             # Get reactant indexes
             cmp_dict_keys = cmp_dict.keys()
@@ -401,7 +404,10 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                     model1,
                     structures,
                     properties)
-                e_kj = e * utils.KJPERMOL_PER_HARTREE
+                if isinstance(e, (int, float)):
+                    e_kj = e * utils.KJPERMOL_PER_HARTREE
+                else:
+                    e_kj = 0
                 html_compounds[cmp_dict[compound_id]
                                ]['_mongodb_id'].append(_ids)
                 html_compounds[cmp_dict[compound_id]]['xyz'].append(xyz)
@@ -441,7 +447,10 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                 model1,
                 structures,
                 properties)
-            e_kj = e * utils.KJPERMOL_PER_HARTREE
+            if isinstance(e, (int, float)):
+                e_kj = e * utils.KJPERMOL_PER_HARTREE
+            else:
+                e_kj = 0
             html_compounds[cmp_dict[compound_id]
                            ]['crn_id'] = "ts" + str(cmp_dict[compound_id])
             html_compounds[cmp_dict[compound_id]]['mongodb_id'] = compound_id
@@ -483,7 +492,10 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                 properties)
             smiles = convert_struct_to_smile(
                 structure_obj) if calcsmiles else {'flag': False}
-            e_kj = e * utils.KJPERMOL_PER_HARTREE
+            if isinstance(e, (int, float)):
+                e_kj = e * utils.KJPERMOL_PER_HARTREE
+            else:
+                e_kj = 0
             html_compounds[cmp_dict[compound_id]]['mongodb_id'] = compound_id
             html_compounds[cmp_dict[compound_id]]['xyz'] = xyz
             html_compounds[cmp_dict[compound_id]]['charge'] = z
@@ -503,8 +515,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
             html_compounds[cmp_dict[compound_id]
                            ]['solvation'] = model1.solvation
             if smiles['flag']:
-                html_compounds[cmp_dict[compound_id]
-                               ]['smiles'] = smiles['smiles']
+                html_compounds[cmp_dict[compound_id]]['smiles'] = smiles['smiles']
             else:
                 html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
     return html_reactions, html_compounds

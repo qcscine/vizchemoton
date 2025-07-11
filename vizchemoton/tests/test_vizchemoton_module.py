@@ -55,7 +55,9 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
                       "test_ozonide.xyz",
                       "test_ozone.xyz",
                       "test_flask.xyz",
-                      "test_flask_3h2o.xyz"]
+                      "test_flask_3h2o.xyz",
+                      "test_ts.xyz",
+                      "test_h6.xyz"]
         # connect to test DB
         manager = db_setup.get_clean_db("chemoton_test_compound_creation")
         self.custom_setup(manager)
@@ -80,8 +82,9 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         assert dsmiles["test_ozone.xyz"]['smiles'] == 'O=[O+][O-]'
        # test two flask examples - tricky for smiles generation
         assert dsmiles["test_flask.xyz"]['smiles'] == 'Cl.O.[C-]#[O+]'
-        print(dsmiles["test_flask_3h2o.xyz"])
-        assert dsmiles["test_flask_3h2o.xyz"]['flag'] == False
+        assert dsmiles["test_flask_3h2o.xyz"]['smiles'] == 'O.O.O'
+        assert dsmiles["test_ts.xyz"]['smiles'] == 'Cl.[O-][O+]=CO'
+        assert dsmiles["test_h6.xyz"]["flag"] == False
 
     def test_get_reactions_and_compounds(self):
         """
@@ -109,7 +112,8 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             "method_family": "FAKE",
             "method": "FAKE",
             "basis_set": "F-AKE",
-            "program": "FA-KE"}
+            "program": "FA-KE",
+            "vfilter": None}
         # pylint: disable=no-member
         model1 = db.Model(
             dmethod["method_family"],
