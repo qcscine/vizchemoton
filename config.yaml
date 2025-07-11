@@ -9,17 +9,17 @@ method:
   method: "gfn2"
   basis_set: ""
   program: "xtb"
-  vfilter: {"Cl": 6, "O": 6, "C": 6, "H": 6}
+  vfilter: {"Cl": 4, "O": 6, "C": 4, "H": 6}
 
 files:
   pathfinder:
     path: "/home/petrusen22/vizchemoton/vizchemoton/resources/crn_dce_xtb_250530.json"
     mode: "read"
   reactions:
-    path: "./vizchemoton/resources/reactions_250711.csv"
+    path: "./vizchemoton/resources/reactions_250711_v4646.csv"
     mode: "read"
   compounds:
-    path: "./vizchemoton/resources/compounds_250711.json"
+    path: "./vizchemoton/resources/compounds_250711_v4646.json"
     mode: "read"
 
 output:
@@ -31,7 +31,7 @@ output:
 graph:
   dist_adduct: 3.0
   size: [1400, 800]
-  layout: "random"
+  layout: "kamada_kawai"
   map_field: "degree"
 
 
