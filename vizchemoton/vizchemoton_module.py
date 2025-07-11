@@ -103,9 +103,10 @@ def get_crn_as_pathfinder(
     return manager, pathfinder
 
 
-def _calculate_weight(structure: db.Structure, structures: db.Collection, dstoich, verbose=False):
+def _calculate_weight(structure: db.Structure, structures: db.Collection, 
+                      dstoich, verbose=False):
     """
-    Returns a dictionary with the weight and stoichiometry of a compound in the DB.
+    Returns a dictionary with the weight and stoichiometry of a structure.
     """
     molec_dict = {}
     structure.link(structures)
@@ -120,8 +121,11 @@ def _calculate_weight(structure: db.Structure, structures: db.Collection, dstoic
     return molec_dict
 
 
-def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoich):
-    
+def check_natoms(reactants, reactants_type, compounds, flasks, structures, 
+                 dstoich):
+    """
+    Applies an atom filter to disregard reactions in the final HTML file. 
+    """
     lhs, rhs = reactants
     lhst, rhst = reactants_type
     atomlist = dstoich.keys()
@@ -133,7 +137,8 @@ def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoi
         else:
             compound = db.Flask(db.ID(compound_id), flasks)
         structure = compound.get_centroid()
-        molec_dict = _calculate_weight(db.Structure(structure), structures, dstoich)
+        molec_dict = _calculate_weight(db.Structure(structure), structures, 
+                                       dstoich)
         weight, dstoich_i = molec_dict['weight'], molec_dict['stoich']
         for d in dstoich.keys():
            condlist.append(dstoich_i[d] < dstoich[d])
@@ -144,7 +149,8 @@ def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoi
         else:
             compound = db.Flask(db.ID(compound_id), flasks)
         structure = compound.get_centroid()
-        molec_dict = _calculate_weight(db.Structure(structure), structures, dstoich)
+        molec_dict = _calculate_weight(db.Structure(structure), structures,
+                                       dstoich)
         weight, dstoich_j = molec_dict['weight'], molec_dict['stoich']
         for d in dstoich.keys():
            condlist.append(dstoich_j[d] < dstoich[d])
@@ -219,7 +225,7 @@ def _convert_xyz_to_smiles(elements, coordinates, charge):
             return data
         else:
             return data
-    except:  # filter out cases such as hydrogen with two bonds (TSs and flasks)
+    except:  # filter out cases where a SMILES is not feasible
         print("WARNING! Aggregate could not be converted to SMILES format")
         return data
 
@@ -673,10 +679,94 @@ def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_k
         }
     }
     '''
+    # Custom locateMolecule function to support search by SMILES
+    locateMolecule = """
+		// source - source object for JSMol
+		// pass graph and fetch node and edge renderers
+		// from fig, we modify x_range and y_range. Default plot starts from -1.2 to 1.2,
+		var nrend = graph.node_renderer.data_source
+		var erend = graph.edge_renderer.data_source
+		var layout = graph.layout_provider.graph_layout
+		// fetch the query in the data sources, choosing the appropiate renderer depending on the query
+		var mol_query = text_input.value
+		if (mol_query.includes("TS") || mol_query.includes("ts")) {
+			var renderer = erend
+			var other_renderer = nrend
+		} else {
+			var renderer = nrend
+			var other_renderer = erend
+		}
+		var pool_names = renderer.data["name"]
+		var pool_smiles = renderer.data["smiles"]
 
+		// split species joined by + sign
+		var pool_species = pool_names.reduce((acc,name) =>
+					{acc.push(name.split("+"));
+					return acc},[])
+        // smiles are separated by // instead
+		var pool_smiles_split = pool_smiles.reduce((acc,smiles) =>
+					{acc.push(smiles.split("//"));
+					return acc},[])
+
+		// function to match results in the array
+		var getSubstringIndices = function(arr,query){
+			return arr.reduce(
+					function(matches,tgt,i){
+							if (tgt.includes(query))
+						{matches.push(i)};
+							return matches;
+					},
+					[]);
+		}
+
+		if (!mol_query.includes("+")) {
+			var ndx1 = getSubstringIndices(pool_species,mol_query)
+			var ndx2 = getSubstringIndices(pool_smiles_split,mol_query)
+		} else {
+			var ndx_u1 = pool_names.indexOf(mol_query)
+			var ndx_u2 = pool_smiles.indexOf(mol_query)
+
+			if (ndx_u1 < 0) {var ndx1 = []} 
+            else {var ndx1 = [ndx_u1]}
+
+            if (ndx_u2 < 0) {var ndx2 = []} 
+            else {var ndx2 = [ndx_u2]}
+		}
+        
+        // check both -> only choose the ones having matches, if both do, prefer SMILES
+        if ((ndx1.length == 0) && (ndx2.length == 0)){
+            var ndx = []
+        } else if ((ndx1.length > 0) && (ndx2.length == 0)){
+            var ndx = ndx1 
+        } else if (ndx2.length > 0) {
+            var ndx = ndx2
+        }
+
+		// locate positions of the node or of the nodes defining an edge
+		if (mol_query.includes("TS") || mol_query.includes("ts")) {
+			var n1 = renderer.data["start"][ndx]
+			var n2 = renderer.data["end"][ndx]
+			var pos1 = layout[n1]
+			var pos2 = layout[n2]
+			var positions = new Array(2)
+			positions[0] = 0.5*(pos1[0]+pos2[0])
+			positions[1] = 0.5*(pos1[1]+pos2[1])
+		} else {
+			var positions = layout[pool_names[ndx[0]]]
+		}
+		if (ndx.length > 0) {
+			// clearing other sel. avoids problems for model loading sometimes
+			other_renderer.selected.indices = []
+			renderer.selected.indices = ndx
+			fig.x_range.start = positions[0] - 0.5
+			fig.x_range.end = positions[0] + 0.5
+			fig.y_range.start = positions[1] - 0.5
+			fig.y_range.end = positions[1] + 0.5
+		}
+		"""
     hover_node = bkm.HoverTool(description="Node hover",renderers=[bk_graph.node_renderer],
                                tooltips=[("tag","@name"),("charge","@charge"),("multiplicity","@multiplicity"),
-                                         ("formula","@formula")],
+                                         ("formula","@formula"),("smiles","@smiles")],
                                formatters={"@energy":"printf"})
     bk_fig.add_tools(hover_node)
     hover_edge = bkm.HoverTool(description="Edge hover",renderers=[bk_graph.edge_renderer],
@@ -696,11 +786,19 @@ def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_k
 
     sel_row = lay.children[0][0].children[2]
     sel_row.children = sel_row.children[0:2] + [b_highlight] + [sel_row.children[-1]]
+
+    # Modify the callback of the locate molecule button
+    text_input = sel_row.children[0]
+    js_mol_locator_nw = bkm.CustomJS(args = {"graph":bk_graph,"fig":bk_fig,"text_input":text_input},
+								     code = locateMolecule)
+    sel_button = sel_row.children[1]
+    sel_button.js_event_callbacks['button_click'] = [js_mol_locator_nw]
+    sel_button.js_on_click(js_mol_locator_nw)
+
     bokeh.plotting.output_file(outfile,title=title,mode="cdn")
     bokeh.plotting.save(lay,template=style_template)
 
     return lay,bk_fig,bk_graph
-
 
 def scale_xyz_list(xyz, displ_vector=np.zeros(3)):
     """

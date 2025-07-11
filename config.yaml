@@ -1,29 +1,29 @@
 db:
-  active: True
-  name: "eth_o2_s3"
+  active: False
+  name: "ozone_dce_xtb"
   ip: "localhost"
-  port: "27017"
+  port: "8888"
 
 method:
   method_family: "gfn2"
   method: "gfn2"
   basis_set: ""
   program: "xtb"
-  vfilter: {"C": 4, "H": 16}
+  vfilter: {"Cl": 6, "O": 6, "C": 6, "H": 6}
 
 files:
   pathfinder:
-    path: "./vizchemoton/resources/crn_pathfinder.json"
-    mode: "write"
+    path: "/home/petrusen22/vizchemoton/vizchemoton/resources/crn_dce_xtb_250530.json"
+    mode: "read"
   reactions:
-    path: "./vizchemoton/resources/reactions.csv"
-    mode: "write"
+    path: "./vizchemoton/resources/reactions_250711.csv"
+    mode: "read"
   compounds:
-    path: "./vizchemoton/resources/compounds.json"
-    mode: "write"
+    path: "./vizchemoton/resources/compounds_250711.json"
+    mode: "read"
 
 output:
-  file: "network.html"
+  file: "network_250711.html"
   title: "Chemoton graph"
   smiles: True
   verbose: True
@@ -31,7 +31,7 @@ output:
 graph:
   dist_adduct: 3.0
   size: [1400, 800]
-  layout: "kamada_kawai"
+  layout: "random"
   map_field: "degree"
 
 
