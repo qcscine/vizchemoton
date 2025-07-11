@@ -207,18 +207,22 @@ def _convert_xyz_to_smiles(elements, coordinates, charge):
     Convert xyz file to smiles using the external xyz2mol library.
     """
     # deprecated - now implemented in rdkit
-    molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
-                        embed_chiral=False, allow_charged_fragments=True)
-
     data = {'flag': False}
-    if len(molformat) != 0:
-        flag = True
-        smiles = MolToSmiles(molformat[0])
-        m = MolFromSmiles(smiles)
-        smiles = MolToSmiles(m)
-        data = {'flag': flag, 'smiles': smiles}
-    return data
+    try:  
+        molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
+                            embed_chiral=False, allow_charged_fragments=True)
 
+        if molformat:
+            smiles = Chem.MolToSmiles(molformat[0])
+            m = Chem.MolFromSmiles(smiles)
+            smiles = Chem.MolToSmiles(m)
+            data = {'flag': True, 'smiles': smiles}
+            return data
+        else:
+            return data
+    except:  # filter out cases such as hydrogen with two bonds (TSs and flasks)
+        print("WARNING! Aggregate could not be converted to SMILES format")
+        return data
 
 def convert_struct_to_smile(centroid):
     """
