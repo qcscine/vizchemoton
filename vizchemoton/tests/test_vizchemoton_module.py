@@ -53,7 +53,9 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
                       "test_h2o2.xyz",
                       "test_hoocohcl.xyz",
                       "test_ozonide.xyz",
-                      "test_ozone.xyz"]
+                      "test_ozone.xyz",
+                      "test_flask.xyz",
+                      "test_flask_3h2o.xyz"]
         # connect to test DB
         manager = db_setup.get_clean_db("chemoton_test_compound_creation")
         self.custom_setup(manager)
@@ -70,11 +72,16 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         for ipath, icentr in zip(test_molec, lcentroids):
             dsmiles[ipath] = convert_struct_to_smile(icentr)
         # check five typical ozonation products
+        print(dsmiles)
         assert dsmiles["test_carbondioxide.xyz"]['smiles'] == 'O=C=O'
         assert dsmiles["test_h2o2.xyz"]['smiles'] == 'OO'
         assert dsmiles["test_hoocohcl.xyz"]['smiles'] == 'OOC(O)Cl'
         assert dsmiles["test_ozonide.xyz"]['smiles'] == 'C1COOO1'
         assert dsmiles["test_ozone.xyz"]['smiles'] == 'O=[O+][O-]'
+       # test two flask examples - tricky for smiles generation
+        assert dsmiles["test_flask.xyz"]['smiles'] == 'Cl.O.[C-]#[O+]'
+        print(dsmiles["test_flask_3h2o.xyz"])
+        assert dsmiles["test_flask_3h2o.xyz"]['flag'] == False
 
     def test_get_reactions_and_compounds(self):
         """

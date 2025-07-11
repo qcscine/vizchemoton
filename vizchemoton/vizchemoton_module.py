@@ -211,11 +211,10 @@ def _convert_xyz_to_smiles(elements, coordinates, charge):
     try:  
         molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
                             embed_chiral=False, allow_charged_fragments=True)
-
-        if molformat:
-            smiles = Chem.MolToSmiles(molformat[0])
-            m = Chem.MolFromSmiles(smiles)
-            smiles = Chem.MolToSmiles(m)
+        if len(molformat) != 0:
+            smiles = MolToSmiles(molformat[0])
+            m = MolFromSmiles(smiles)
+            smiles = MolToSmiles(m)
             data = {'flag': True, 'smiles': smiles}
             return data
         else:
