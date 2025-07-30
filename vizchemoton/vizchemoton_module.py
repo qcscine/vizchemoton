@@ -9,6 +9,7 @@ HTML dashboards to visualize GRRM-generated reaction networks.
 # Standard Library Imports
 from collections import Counter
 import json
+import copy
 
 # Third-Party Library Imports
 import yaml
@@ -679,6 +680,62 @@ def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_k
         }
     }
     '''
+        
+    hide_barrlessJS = '''
+        var erend = graph.edge_renderer.data_source
+        var nrend = graph.node_renderer.data_source
+        var edgenames = erend.data["name"]
+        var nodenames = nrend.data["name"]
+        var numEdges = edgenames.length
+        var numNodes = nodenames.length
+        var statusCounter = counter[0]
+        var connectedNodes = []
+        var labsNodes = figure.center[2].source.data
+        
+    
+        if (statusCounter == 0){
+        // remove and set 1
+            for (let j = 0; j < numEdges; j++){
+                var is_tsb = edgenames[j].includes("TSb")
+                if (is_tsb) {
+                    erend.data["start"][j] = null            
+                    erend.data["end"][j] = null            
+                }
+                else {
+                    connectedNodes.push(erend.data["start"][j])
+                    connectedNodes.push(erend.data["end"][j])
+                }
+            }
+            for (let i = 0; i < numNodes; i++){
+                var nname = nodenames[i]
+                if (!connectedNodes.includes(nname)) {
+                    nrend.data["index"][i] = null
+                    labsNodes["nnames"][i] = " "
+                }
+            }
+            statusCounter = 1
+        } else {
+        // restore and set counter back to zero
+             for (let j = 0; j < numEdges; j++){
+                var is_tsb = edgenames[j].includes("TSb")
+                if (is_tsb){
+                    erend.data["start"][j] = backupEdgeRoutes["start"][j]            
+                    erend.data["end"][j] = backupEdgeRoutes["end"][j]
+                }
+            }
+            for (let i = 0; i < numNodes; i++) {
+                if (nrend.data["index"][i] == null){
+                    nrend.data["index"][i] = backupNodes["index"][i]
+                    labsNodes["nnames"][i] = backupNodes["name"][i]
+                }
+            }
+            statusCounter = 0
+        }
+        counter[0] = statusCounter
+        nrend.change.emit()
+        erend.change.emit()
+        '''
+
     # Custom locateMolecule function to support search by SMILES
     locateMolecule = """
 		// source - source object for JSMol
@@ -776,16 +833,29 @@ def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_k
 
     highl_callback = bkm.CustomJS(args={"graph":bk_graph}, code=arxviz.js_callback_dict["highlightNeighbors"])
 
+    # We need edge backups
+    edgesource = bk_graph.edge_renderer.data_source
+    backup_edges = {"start":copy.deepcopy(edgesource.data["start"]),
+					"end":copy.deepcopy(edgesource.data["end"])}
+    backup_nodes = {"index":bk_graph.node_renderer.data_source.data["index"],
+                    "name":bk_graph.node_renderer.data_source.data["name"]}
+
+    hide_barrless_callback = bkm.CustomJS(args={"graph":bk_graph,"figure":bk_fig,"counter":[0],
+                                                "backupNodes":backup_nodes,
+                                                "backupEdgeRoutes":backup_edges}, code=hide_barrlessJS)
 
     lay = arxviz.full_view_layout(bk_fig,bk_graph,sizing_dict=sizing_dict)
 
     # add a button to the layout
-    b_highlight = bkm.Button(label="Highlight neighbors",max_width=int(w1/4),align="center")
+    b_highlight = bkm.Button(label="Highlight neighbors",max_width=int(w1/6),align="center")
     b_highlight.js_on_click(highl_callback)
+    b_hidebarrless = bkm.Button(label="Hide barrierless",max_width=int(w1/6),align="center")
+    b_hidebarrless.js_on_click(hide_barrless_callback)
 
 
     sel_row = lay.children[0][0].children[2]
-    sel_row.children = sel_row.children[0:2] + [b_highlight] + [sel_row.children[-1]]
+    sel_row.children[1].max_width = int(w1/6)
+    sel_row.children = sel_row.children[0:2] + [b_highlight,b_hidebarrless] + [sel_row.children[-1]]
 
     # Modify the callback of the locate molecule button
     text_input = sel_row.children[0]

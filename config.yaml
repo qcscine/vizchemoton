@@ -1,38 +1,34 @@
 db:
   active: False
-  name: "ozone_dce_xtb"
+  name: "ozone_tme_lcpbe"
   ip: "localhost"
-  port: "8888"
+  port: "8889"
 
 method:
-  method_family: "gfn2"
-  method: "gfn2"
-  basis_set: ""
-  program: "xtb"
-  vfilter: {"Cl": 4, "O": 6, "C": 4, "H": 6}
+  method_family: "dft"
+  method: "lc-pbe"
+  basis_set: "def2-svp"
+  program: "orca"
 
 files:
   pathfinder:
-    path: "/home/petrusen22/vizchemoton/vizchemoton/resources/crn_dce_xtb_250530.json"
+    path: "./vizchemoton/resources/crn_pathfinder.json"
     mode: "read"
   reactions:
-    path: "./vizchemoton/resources/reactions_250711_v4646.csv"
+    path: "./vizchemoton/resources/reactions.csv"
     mode: "read"
   compounds:
-    path: "./vizchemoton/resources/compounds_250711_v4646.json"
+    path: "./vizchemoton/resources/compounds.json"
     mode: "read"
 
 output:
-  file: "network_250711.html"
+  file: "network.html"
   title: "Chemoton graph"
-  smiles: True
   verbose: True
+  smiles: True
 
 graph:
   dist_adduct: 3.0
   size: [1400, 800]
   layout: "kamada_kawai"
   map_field: "degree"
-
-
-
