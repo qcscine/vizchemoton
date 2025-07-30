@@ -2,15 +2,16 @@ Changelog
 =========
 
 
-Release 1.0.0
+Release 2.0.0
 -------------
 
 **New Features**
 * Add SMILES search in the HTML file. This is done by adding a new key in the compounds.json dictionary where the canonical SMILES with rdkit are computed. The calculation of SMILES can be switched on (or off) in the config file.
 * Add static HTML documentation folder.
 * Add atom filter when iterating the reaction collection in order to make the HTML more interpretable for large CRNs. 
+* Add button in the HTML dashboard for hiding barrierless reactions, thus easing the interpretation of large/complex CRNs. 
 
-Release 0.1.0
+Release 1.0.0
 -------------
 
 First implementation of VizChemoton. The package is a light-weight alternative to Heron to access and visualize the compounds, reactions, and transition states of a reaction network, without requiring any hard-to-installl dependencies nor any particular operating system.
