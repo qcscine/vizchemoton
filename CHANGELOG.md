@@ -6,10 +6,11 @@ Release 2.0.0
 -------------
 
 **New Features**
-* Add SMILES search in the HTML file. This is done by adding a new key in the compounds.json dictionary where the canonical SMILES with rdkit are computed. The calculation of SMILES can be switched on (or off) in the config file.
-* Add static HTML documentation folder.
-* Add atom filter when iterating the reaction collection in order to make the HTML more interpretable for large CRNs. 
-* Add button in the HTML dashboard for hiding barrierless reactions, thus easing the interpretation of large/complex CRNs. 
+* Added SMILES search in the HTML file. This is done by adding a new key in the compounds.json dictionary where the canonical SMILES with rdkit are computed. The calculation of SMILES can be switched on (or off) in the config file.
+* Added static HTML documentation folder.
+* Added atom filter when iterating the reaction collection in order to make the HTML more interpretable for large CRNs. 
+* Added button in the HTML dashboard for hiding barrierless reactions, thus easing the interpretation of large/complex CRNs. 
+* Added a custom JSON dump function to improve the readability of the compounds.json file. 
 
 Release 1.0.0
 -------------

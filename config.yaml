@@ -17,10 +17,10 @@ files:
     mode: "read"
   reactions:
     path: "./vizchemoton/resources/reactions2.csv"
-    mode: "write"
+    mode: "read"
   compounds:
     path: "./vizchemoton/resources/compounds2.json"
-    mode: "write"
+    mode: "read"
 
 output:
   file: "network.html"
