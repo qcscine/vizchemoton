@@ -528,6 +528,36 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
     return html_reactions, html_compounds
 
 
+def custom_json_dump(obj, indent=2, level=0):
+    """
+    Recursively dump JSON with indent, compacting lists (like 'xyz') to a single line
+    unless they contain dicts.
+    """
+    space = ' ' * (indent * level)
+    space_next = ' ' * (indent * (level + 1))
+
+    if isinstance(obj, dict):
+        items = []
+        for k, v in obj.items():
+            dumped_v = custom_json_dump(v, indent, level + 1)
+            items.append(f'{space_next}"{k}": {dumped_v}')
+        return '{\n' + ',\n'.join(items) + '\n' + space + '}'
+
+    elif isinstance(obj, list):
+        if not obj:
+            return '[]'
+        # Check if list of dicts → pretty print
+        if all(isinstance(i, dict) for i in obj):
+            items = [custom_json_dump(i, indent, level + 1) for i in obj]
+            return '[\n' + ',\n'.join(space_next + item for item in items) + '\n' + space + ']'
+        else:
+            # Otherwise compact it
+            return json.dumps(obj, separators=(',', ':'))
+
+    else:
+        return json.dumps(obj)
+
+
 def write_compound_reactions_files(
         html_reactions,
         html_compounds,
@@ -560,10 +590,9 @@ def write_compound_reactions_files(
         for item in html_reactions:
             r, p, ts = item
             f.write("{r},{p},{ts}\n".format(r=r, p=p, ts=ts))
-
-    with open(compound_file, 'w') as file:
-        # use `json.loads` to do the revers
-        file.write(json.dumps(html_compounds))
+    
+    with open(compound_file, "w") as f:
+        f.write(custom_json_dump(html_compounds, indent=2))
 
 
 def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
