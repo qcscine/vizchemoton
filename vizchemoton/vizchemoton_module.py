@@ -20,7 +20,8 @@ import bokeh.models as bkm
 import RXVisualizer as arxviz
 import networkx as nx
 from xyz2mol import xyz2mol
-from rdkit.Chem import MolToSmiles, MolFromSmiles
+from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors
+from rdkit.Chem import GetPeriodicTable
 from sklearn.cluster import KMeans
 
 # Project-Specific SCINE imports
@@ -225,6 +226,13 @@ def _convert_xyz_to_smiles(elements, coordinates, charge):
             m = MolFromSmiles(smiles)
             smiles = MolToSmiles(m)
             data = {'flag': True, 'smiles': smiles}
+            # Example: simple descriptor vector [MolWt, LogP, NumHDonors]
+            #desc = np.array([
+            #    Descriptors.MolWt(mol),
+            #    Descriptors.MolLogP(mol),
+            #    Descriptors.NumHDonors(mol)
+            #])
+            #data = {'flag': True, 'smiles': smiles} #, 'chemsim': desc}
             return data
         else:
             return data
@@ -441,7 +449,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                 else:
                     html_compounds[cmp_dict[compound_id]
                                    ]['_smiles'].append('None')
-                html_compounds[cmp_dict[compound_id]]['_chemsim'].append([random.uniform(0, 1) for _ in range(3)])
+                html_compounds[cmp_dict[compound_id]]['_chemsim'].append(get_cartesian_descriptors(xyz))
             html_compounds[cmp_dict[compound_id]]['mongodb_id'] = "//".join(
                 html_compounds[cmp_dict[compound_id]]['_mongodb_id'])
             html_compounds[cmp_dict[compound_id]]['smiles'] = "//".join(
@@ -481,8 +489,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
             html_compounds[cmp_dict[compound_id]
                            ]['solvation'] = model1.solvation
             html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
-            print("WARNING! CHANGE THIS BACK, TS SHOULD NOT HAVE COORDINATES")
-            html_compounds[cmp_dict[compound_id]]['chemsim'] = [random.uniform(0, 1) for _ in range(3)]
+            html_compounds[cmp_dict[compound_id]]['chemsim'] = 'None' 
         else:  # checking compounds
             type_object = pathfinder.graph_handler.graph.nodes(data=True)[
                 compound_id]["type"]
@@ -531,10 +538,40 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                            ]['solvation'] = model1.solvation
             if smiles['flag']:
                 html_compounds[cmp_dict[compound_id]]['smiles'] = smiles['smiles']
+                #html_compounds[cmp_dict[compound_id]]['chemsim'] = smiles['chemsim']
             else:
                 html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
-            html_compounds[cmp_dict[compound_id]]['chemsim'] = [random.uniform(0, 1) for _ in range(3)]
+                #html_compounds[cmp_dict[compound_id]]['chemsim'] = [0, 0, 0]
+            html_compounds[cmp_dict[compound_id]]['chemsim'] = get_cartesian_descriptors(xyz)
     return html_reactions, html_compounds
+
+
+def get_cartesian_descriptors(xyz):
+    """
+    Custom function to extract basic cartesian descriptors for the post-clustering step.
+    """
+    atom_list = [a for a,_ in xyz]
+    pt = GetPeriodicTable()
+    atom_masses = np.array([pt.GetAtomicWeight(a) for a in atom_list])
+    coords = [b for _,b in xyz]
+    counts = Counter(atom_list)  # e.g., ['C', 'H', 'H', 'O']
+    total_atoms = sum(counts.values())
+    heavy_atoms = sum(counts[a] for a in counts if a != 'H')
+
+    coords = np.array(coords)
+    if atom_masses is None:
+        atom_masses = np.ones(len(coords))  # default: equal mass
+
+    total_mass = np.sum(atom_masses)
+    center_of_mass = np.sum(coords * atom_masses[:, None], axis=0) / total_mass
+
+    # Radius of gyration
+    rg = np.sqrt(np.sum(atom_masses[:, None] * (coords - center_of_mass)**2) / total_mass)
+
+    # Bounding box
+    bbox = np.ptp(coords, axis=0)  # peak-to-peak along each axis
+    descripcart = [total_atoms, heavy_atoms, rg, bbox[0] * bbox[1] * bbox[2]]
+    return descripcart
 
 
 def custom_json_dump(obj, indent=2, level=0):
@@ -633,11 +670,30 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
 
     return reaction_tuples, compounds
 
+# --- Step 1: Compute chemical descriptors ---
+def compute_descriptors(molecules):
+    """
+    molecules: dict of {node_id: SMILES string or RDKit Mol object}
+    Returns: dict of {node_id: descriptor_vector}
+    """
+    descriptors = {}
+    for node_id, mol in molecules.items():
+        if isinstance(mol, str):
+            mol = Chem.MolFromSmiles(mol)
+        # Example: simple descriptor vector [MolWt, LogP, NumHDonors]
+        desc = np.array([
+            Descriptors.MolWt(mol),
+            Descriptors.MolLogP(mol),
+            Descriptors.NumHDonors(mol)
+        ])
+        descriptors[node_id] = desc
+    return descriptors
+
 # --- Step 2: Cluster nodes based on descriptors ---
-def cluster_nodes(descriptors, n_clusters=3):
+def cluster_nodes(descriptors):
     node_ids = list(descriptors.keys())
     X = np.array([descriptors[n] for n in node_ids])
-
+    n_clusters = 5 #int(np.sqrt(X.shape[0]/2))
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
     cluster_labels = kmeans.fit_predict(X)
 
@@ -662,7 +718,6 @@ def assign_coordinates(graph, clusters):
 
     pos = {}
     for node in graph.nodes:
-        print(node)
         center = cluster_centers[clusters[node]]
         # small random offset within cluster
         offset = np.random.normal(scale=0.1, size=2)
@@ -717,27 +772,28 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
     </style>
     {% endblock %}
     """
-    #posx = layout_function(G)
-    
-    descriptors = {}
-    for c in compounds:
-        if isinstance(compounds[c]["chemsim"], list):
-            
-            if isinstance(compounds[c]["crn_id"], list):
-                key = "+".join(compounds[c]["crn_id"])
-            else:
-                key = compounds[c]["crn_id"]
-            print(key)
-            descriptors[key] = compounds[c]["chemsim"]
-    
-    clusters = cluster_nodes(descriptors, n_clusters=5)
-    pos = assign_coordinates(G, clusters)
+    if layout_function == 'KMeans':  # custom clustering of nodes
+        descriptors = {}
+        for c in compounds:
+            if isinstance(compounds[c]["chemsim"], list):
 
+                if isinstance(compounds[c]["crn_id"], list):
+                    key = "+".join(compounds[c]["crn_id"])
+                else:
+                    key = compounds[c]["crn_id"]
+                descriptors[key] = compounds[c]["chemsim"]
+
+        clusters = cluster_nodes(descriptors) #, n_clusters=5)
+        posx = assign_coordinates(G, clusters)
+    else:
+        layout_function = getattr(nx, f"{config['graph']['layout']}_layout") 
+        posx = layout_function(G)
+    
     # Add model field to all nodes and edges & also vibrations
     arxviz.add_models(G)
 
     # Bokeh-powered visualization via RXVisualizer
-    bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=pos,graph_title=title,width=w1,height=h,
+    bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=posx,graph_title=title,width=w1,height=h,
                                                 map_field=map_field,hide_energy=True)
 
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()

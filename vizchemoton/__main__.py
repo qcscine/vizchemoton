@@ -41,7 +41,8 @@ def main():
 
     dist_adduct = config["graph"]["dist_adduct"]
     size = tuple(config["graph"]["size"])
-    layout_function = getattr(nx, f"{config['graph']['layout']}_layout")
+    layout_function = config['graph']['layout']
+    #layout_function = getattr(nx, f"{config['graph']['layout']}_layout")
     map_field = config["graph"]["map_field"]
 
     # Start of Vizchemoton
