@@ -10,6 +10,7 @@ HTML dashboards to visualize GRRM-generated reaction networks.
 from collections import Counter
 import json
 import copy
+import random
 
 # Third-Party Library Imports
 import yaml
@@ -20,6 +21,7 @@ import RXVisualizer as arxviz
 import networkx as nx
 from xyz2mol import xyz2mol
 from rdkit.Chem import MolToSmiles, MolFromSmiles
+from sklearn.cluster import KMeans
 
 # Project-Specific SCINE imports
 import scine_utilities as utils
@@ -387,6 +389,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
             html_compounds[cmp_dict[compound_id]]['solvation'] = []
             html_compounds[cmp_dict[compound_id]]['_smiles'] = []
             html_compounds[cmp_dict[compound_id]]['smiles'] = []
+            html_compounds[cmp_dict[compound_id]]['_chemsim'] = []
+            html_compounds[cmp_dict[compound_id]]['chemsim'] = []
             for _ids in ids:
                 type_object = pathfinder.graph_handler.graph.nodes(data=True)[
                     _ids]["type"]
@@ -437,10 +441,13 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                 else:
                     html_compounds[cmp_dict[compound_id]
                                    ]['_smiles'].append('None')
+                html_compounds[cmp_dict[compound_id]]['_chemsim'].append([random.uniform(0, 1) for _ in range(3)])
             html_compounds[cmp_dict[compound_id]]['mongodb_id'] = "//".join(
                 html_compounds[cmp_dict[compound_id]]['_mongodb_id'])
             html_compounds[cmp_dict[compound_id]]['smiles'] = "//".join(
                 html_compounds[cmp_dict[compound_id]]['_smiles'])
+            _sima, _simb = html_compounds[cmp_dict[compound_id]]['_chemsim']  # assuming always two
+            html_compounds[cmp_dict[compound_id]]['chemsim'] = [np.mean(s) for s in zip(_sima, _simb)]
 
         elif ";" in compound_id:  # checking the transitions states
             structure = compound_id[0:-1]
@@ -474,7 +481,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
             html_compounds[cmp_dict[compound_id]
                            ]['solvation'] = model1.solvation
             html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
-
+            print("WARNING! CHANGE THIS BACK, TS SHOULD NOT HAVE COORDINATES")
+            html_compounds[cmp_dict[compound_id]]['chemsim'] = [random.uniform(0, 1) for _ in range(3)]
         else:  # checking compounds
             type_object = pathfinder.graph_handler.graph.nodes(data=True)[
                 compound_id]["type"]
@@ -525,6 +533,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                 html_compounds[cmp_dict[compound_id]]['smiles'] = smiles['smiles']
             else:
                 html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
+            html_compounds[cmp_dict[compound_id]]['chemsim'] = [random.uniform(0, 1) for _ in range(3)]
     return html_reactions, html_compounds
 
 
@@ -624,8 +633,43 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
 
     return reaction_tuples, compounds
 
+# --- Step 2: Cluster nodes based on descriptors ---
+def cluster_nodes(descriptors, n_clusters=3):
+    node_ids = list(descriptors.keys())
+    X = np.array([descriptors[n] for n in node_ids])
 
-def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_kawai_layout,  map_field="energy", verbose=True):
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    cluster_labels = kmeans.fit_predict(X)
+
+    # map node_id -> cluster label
+    clusters = {node_id: int(label) for node_id, label in zip(node_ids, cluster_labels)}
+    return clusters
+
+
+# --- Step 3: Assign coordinates for visualization ---
+def assign_coordinates(graph, clusters):
+    """
+    Creates positions for NetworkX nodes such that nodes in the same cluster
+    are closer together.
+    """
+    # Simple layout: place clusters on a circle, nodes in cluster randomly around center
+    cluster_centers = {}
+    n_clusters = len(set(clusters.values()))
+    angle_step = 2 * np.pi / n_clusters
+
+    for i, cluster_id in enumerate(sorted(set(clusters.values()))):
+        cluster_centers[cluster_id] = np.array([np.cos(i * angle_step), np.sin(i * angle_step)])
+
+    pos = {}
+    for node in graph.nodes:
+        print(node)
+        center = cluster_centers[clusters[node]]
+        # small random offset within cluster
+        offset = np.random.normal(scale=0.1, size=2)
+        pos[node] = center + offset
+    return pos
+
+def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function=nx.kamada_kawai_layout,  map_field="energy", verbose=True):
     """
     Wrapper function to generate HTML visualizations for a given network.
 
@@ -673,12 +717,27 @@ def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_k
     </style>
     {% endblock %}
     """
-    posx = layout_function(G)
+    #posx = layout_function(G)
+    
+    descriptors = {}
+    for c in compounds:
+        if isinstance(compounds[c]["chemsim"], list):
+            
+            if isinstance(compounds[c]["crn_id"], list):
+                key = "+".join(compounds[c]["crn_id"])
+            else:
+                key = compounds[c]["crn_id"]
+            print(key)
+            descriptors[key] = compounds[c]["chemsim"]
+    
+    clusters = cluster_nodes(descriptors, n_clusters=5)
+    pos = assign_coordinates(G, clusters)
+
     # Add model field to all nodes and edges & also vibrations
     arxviz.add_models(G)
 
     # Bokeh-powered visualization via RXVisualizer
-    bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=posx,graph_title=title,width=w1,height=h,
+    bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=pos,graph_title=title,width=w1,height=h,
                                                 map_field=map_field,hide_energy=True)
 
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()
@@ -1046,7 +1105,7 @@ def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
         nd[1]["formula"] = "//".join(tmpstr)
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
         nd[1]["smiles"] = comp.get("smiles", "None")
-
+        nd[1]["chemsim"] = comp["chemsim"]
 
 def add_edge_attributes(graph, compounds):
     """

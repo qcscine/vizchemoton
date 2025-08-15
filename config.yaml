@@ -14,13 +14,13 @@ method:
 files:
   pathfinder:
     path: "/home/petrusen22/gitlab_vizchemoton/scine_scripts/kinetic_plotting/output.json" #./vizchemoton/resources/crn_pathfinder.json"
-    mode: "read"
+    mode: "write"
   reactions:
     path: "./vizchemoton/resources/reactions2.csv"
-    mode: "read"
+    mode: "write"
   compounds:
     path: "./vizchemoton/resources/compounds2.json"
-    mode: "read"
+    mode: "write"
 
 output:
   file: "network.html"

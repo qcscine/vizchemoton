@@ -81,6 +81,7 @@ def main():
     graph = process_graph(reactions, compounds, dist_adduct)
     build_dashboard(
         graph,
+        compounds,
         title_html,
         output_file,
         size=size,
