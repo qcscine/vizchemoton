@@ -11,6 +11,7 @@ Release 2.0.0
 * Added atom filter when iterating the reaction collection in order to make the HTML more interpretable for large CRNs. 
 * Added button in the HTML dashboard for hiding barrierless reactions, thus easing the interpretation of large/complex CRNs. 
 * Added a custom JSON dump function to improve the readability of the compounds.json file. 
+* Added a custom layout function for plotting the graph in HTML format. This bypasses the use of the "kamada\_kawai" option in NetworkX because it consumes too much memory for large CRNs. The custom function uses Cartesian geometric descriptors for each structure in order to then perform a K-Means clustering. The (x,y) position of each structure according to the clustering is then input in the NetworkX plotting function.
 
 Release 1.0.0
 -------------
