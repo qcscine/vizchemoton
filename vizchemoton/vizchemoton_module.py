@@ -358,7 +358,8 @@ def read_compound_reactions_files(reaction_file,compounds_file, verbose=True):
     return reaction_tuples,compounds
 
 
-def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_kawai_layout,  map_field="energy", verbose=True):
+def build_dashboard(G,title,outfile,size=(1400,800),layout_function=nx.kamada_kawai_layout,
+                      map_field="energy",verbose=True,**kwargs):
     """
     Wrapper function to generate HTML visualizations for a given network.
 
@@ -383,6 +384,9 @@ def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_k
 
     sizing_dict = {'w1':w1,'w2':w2,'wu':wu,'h':h}
 
+    # Other properties
+    node_size = kwargs.get("node_size",30)
+    
     ### Define custom classes
 
     style_template = """
@@ -413,7 +417,7 @@ def build_dashboard(G,title,outfile,size=(1400,800), layout_function=nx.kamada_k
     # Bokeh-powered visualization via RXVisualizer
     bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=posx,graph_title=title,width=w1,height=h,
                                                 map_field=map_field,hide_energy=True)
-
+    bk_graph.node_renderer.glyph.size = node_size
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()
     bk_graph.selection_policy = bkm.EdgesAndLinkedNodes()
 
