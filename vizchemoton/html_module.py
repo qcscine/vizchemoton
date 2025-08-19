@@ -459,8 +459,9 @@ def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
     """
     Helper function to retrieve the node name and geometry.
     """
-    if isinstance(comp["crn_id"], list):
-        node_name = "+".join(comp["crn_id"])
+    if "+" in comp["crn_id"]:
+        #node_name = "+".join(comp["crn_id"])
+        node_name = comp["crn_id"]
         xyz_list = comp["xyz"]
         xyz0_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
         cntr = xyz0_arr.mean(axis=0)

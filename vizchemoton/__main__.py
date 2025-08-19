@@ -7,12 +7,16 @@ visualize GRRM-generated reaction networks.
 '''
 
 import networkx as nx
-from .vizchemoton_module import (vizchemoton_header, get_crn_as_pathfinder,
-                                 get_reactions_and_compounds,
-                                 write_compound_reactions_files,
-                                 read_compound_reactions_files, process_graph,
-                                 build_dashboard, load_config)
+#from .vizchemoton_module import (vizchemoton_header, get_crn_as_pathfinder,
+#                                 get_reactions_and_compounds,
+#                                 write_compound_reactions_files,
+#                                 read_compound_reactions_files, process_graph,
+#                                 build_dashboard, load_config)
 
+from .text_module import (vizchemoton_header, write_compound_reactions_files,
+                          read_compound_reactions_files, load_config)
+from .scine_module import (get_crn_as_pathfinder, get_reactions_and_compounds)
+from .html_module import (process_graph, build_dashboard)
 
 def main():
     # Load configuration

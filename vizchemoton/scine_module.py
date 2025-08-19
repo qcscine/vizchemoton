@@ -338,180 +338,123 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
     html_compounds = _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, calcsmiles, verbose)
     return html_reactions, html_compounds
 
+def init_list_fields():
+    """Initialize all list-based fields for flask compounds."""
+    return {k: [] for k in [
+        "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
+        "energy", "method", "basis_set", "program", "solvent", "solvation", 
+        "smiles", "chemsim"
+    ]}
+
+def extract_structure_data(structure_obj, model, structures, properties, calcsmiles):
+    """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
+    xyz = [(str(o.element), tuple(o.position))
+           for o in structure_obj.get_atoms()]
+    z, s = structure_obj.get_charge(), structure_obj.multiplicity
+    dsmiles = _convert_struct_to_smile(
+        structure_obj) if calcsmiles else {'flag': False}
+    if dsmiles['flag']:
+        smiles = dsmiles['smiles']
+    else:
+        smiles = 'None'
+    e = get_energy_for_structure(
+        structure_obj,
+        'electronic_energy',
+        model,
+        structures,
+        properties)
+    if isinstance(e, (int, float)):
+        e_kj = e * utils.KJPERMOL_PER_HARTREE
+    else:
+        e_kj = 0
+    chemsim = get_cartesian_descriptors(xyz)   
+ 
+    return {
+        "xyz": xyz,
+        "charge": z,
+        "multiplicity": s,
+        "energy": e_kj,
+        "method": model.method,
+        "basis_set": model.basis_set,
+        "program": f"{model.program} {model.version}",
+        "solvent": model.solvent,
+        "solvation": model.solvation,
+        "smiles": smiles, 
+        "chemsim": chemsim,
+    }
+
 def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, calcsmiles=False, verbose=False):    
     if verbose:
         print("## Creating compounds and reaction objects")
     html_compounds = {}
     for compound_id in cmp_dict:
-        html_compounds[cmp_dict[compound_id]] = {}
+        compound_key = str(cmp_dict[compound_id])
         if "//" in compound_id:  # checking the flasks
             # if the user is interested in uploading the data in ioChem-BD,
             # this conditional block should be disregarded by deactivating
             # the following line:
             # continue
             ids = compound_id.split("//")
-            html_compounds[cmp_dict[compound_id]]['crn_id'] = []
-            html_compounds[cmp_dict[compound_id]]['_mongodb_id'] = []
-            html_compounds[cmp_dict[compound_id]]['mongodb_id'] = []
-            html_compounds[cmp_dict[compound_id]]['xyz'] = []
-            html_compounds[cmp_dict[compound_id]]['charge'] = []
-            html_compounds[cmp_dict[compound_id]]['multiplicity'] = []
-            html_compounds[cmp_dict[compound_id]]['energy'] = []
-            html_compounds[cmp_dict[compound_id]]['method'] = []
-            html_compounds[cmp_dict[compound_id]]['basis_set'] = []
-            html_compounds[cmp_dict[compound_id]]['program'] = []
-            html_compounds[cmp_dict[compound_id]]['solvent'] = []
-            html_compounds[cmp_dict[compound_id]]['solvation'] = []
-            html_compounds[cmp_dict[compound_id]]['_smiles'] = []
-            html_compounds[cmp_dict[compound_id]]['smiles'] = []
-            html_compounds[cmp_dict[compound_id]]['_chemsim'] = []
-            html_compounds[cmp_dict[compound_id]]['chemsim'] = []
+            html_compounds[compound_key] = init_list_fields()
             for _ids in ids:
                 type_object = pathfinder.graph_handler.graph.nodes(data=True)[
                     _ids]["type"]
                 if type_object == db.CompoundOrFlask.COMPOUND.name:
                     compound = db.Compound(db.ID(_ids), compounds)
-                    html_compounds[cmp_dict[compound_id]]['crn_id'].append(
-                        "c" + str(cmp_dict[_ids]))
+                    crn_id = "c" + str(cmp_dict[_ids])
                 else:
                     compound = db.Flask(db.ID(_ids), flasks)
-                    html_compounds[cmp_dict[compound_id]]['crn_id'].append(
-                        "f" + str(cmp_dict[_ids]))
+                    crn_id = "f" + str(cmp_dict[_ids])
                 structure = compound.get_centroid()
                 structure_obj = db.Structure(structure, structures)
-                xyz = [(str(o.element), tuple(o.position))
-                       for o in structure_obj.get_atoms()]
-                z, s = structure_obj.get_charge(), structure_obj.multiplicity
-                smiles = _convert_struct_to_smile(
-                    structure_obj) if calcsmiles else {'flag': False}
-                e = get_energy_for_structure(
-                    structure_obj,
-                    'electronic_energy',
-                    model1,
-                    structures,
-                    properties)
-                if isinstance(e, (int, float)):
-                    e_kj = e * utils.KJPERMOL_PER_HARTREE
-                else:
-                    e_kj = 0
-                html_compounds[cmp_dict[compound_id]
-                               ]['_mongodb_id'].append(_ids)
-                html_compounds[cmp_dict[compound_id]]['xyz'].append(xyz)
-                html_compounds[cmp_dict[compound_id]]['charge'].append(z)
-                html_compounds[cmp_dict[compound_id]]['multiplicity'].append(s)
-                html_compounds[cmp_dict[compound_id]]['energy'].append(e_kj)
-                html_compounds[cmp_dict[compound_id]
-                               ]['method'].append(model1.method)
-                html_compounds[cmp_dict[compound_id]
-                               ]['basis_set'].append(model1.basis_set)
-                html_compounds[cmp_dict[compound_id]]['program'].append(
-                    model1.program + " " + model1.version)
-                html_compounds[cmp_dict[compound_id]
-                               ]['solvent'].append(model1.solvent)
-                html_compounds[cmp_dict[compound_id]
-                               ]['solvation'].append(model1.solvation)
-                if smiles['flag']:
-                    html_compounds[cmp_dict[compound_id]
-                                   ]['_smiles'].append(smiles['smiles'])
-                else:
-                    html_compounds[cmp_dict[compound_id]
-                                   ]['_smiles'].append('None')
-                html_compounds[cmp_dict[compound_id]]['_chemsim'].append(get_cartesian_descriptors(xyz))
-            html_compounds[cmp_dict[compound_id]]['mongodb_id'] = "//".join(
-                html_compounds[cmp_dict[compound_id]]['_mongodb_id'])
-            html_compounds[cmp_dict[compound_id]]['smiles'] = "//".join(
-                html_compounds[cmp_dict[compound_id]]['_smiles'])
-            _sima, _simb = html_compounds[cmp_dict[compound_id]]['_chemsim']  # assuming always two
-            html_compounds[cmp_dict[compound_id]]['chemsim'] = [np.mean(s) for s in zip(_sima, _simb)]
+                struct_data = extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
+                html_compounds[compound_key]["crn_id"].append(crn_id)
+                html_compounds[compound_key]["mongodb_id"].append(_ids)
+                for k, v in struct_data.items():
+                    html_compounds[compound_key][k].append(v)
+            for s, k in [("+", "crn_id"), ("//", "mongodb_id"), ("//", "smiles")]:
+                copy = html_compounds[compound_key][k].copy()
+                tmpstr = s.join(copy)
+                html_compounds[compound_key][k] = tmpstr
+            _sima, _simb = html_compounds[compound_key]['chemsim']
+            tmpchemsim = [np.mean(s) for s in zip(_sima, _simb)]
+            html_compounds[compound_key]['chemsim'] = tmpchemsim
 
         elif ";" in compound_id:  # checking the transitions states
+            html_compounds[compound_key] = {}
             structure = compound_id[0:-1]
             structure_obj = db.Structure(db.ID(structure), structures)
-            xyz = [(str(o.element), tuple(o.position))
-                   for o in structure_obj.get_atoms()]
-            z, s = structure_obj.get_charge(), structure_obj.multiplicity
-            e = get_energy_for_structure(
-                structure_obj,
-                'electronic_energy',
-                model1,
-                structures,
-                properties)
-            if isinstance(e, (int, float)):
-                e_kj = e * utils.KJPERMOL_PER_HARTREE
-            else:
-                e_kj = 0
-            html_compounds[cmp_dict[compound_id]
-                           ]['crn_id'] = "ts" + str(cmp_dict[compound_id])
-            html_compounds[cmp_dict[compound_id]]['mongodb_id'] = compound_id
-            html_compounds[cmp_dict[compound_id]]['xyz'] = xyz
-            html_compounds[cmp_dict[compound_id]]['charge'] = z
-            html_compounds[cmp_dict[compound_id]]['multiplicity'] = s
-            html_compounds[cmp_dict[compound_id]]['energy'] = e_kj
-            html_compounds[cmp_dict[compound_id]]['method'] = model1.method
-            html_compounds[cmp_dict[compound_id]
-                           ]['basis_set'] = model1.basis_set
-            html_compounds[cmp_dict[compound_id]
-                           ]['program'] = model1.program + " 5.0.3"
-            html_compounds[cmp_dict[compound_id]]['solvent'] = model1.solvent
-            html_compounds[cmp_dict[compound_id]
-                           ]['solvation'] = model1.solvation
-            html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
-            html_compounds[cmp_dict[compound_id]]['chemsim'] = 'None' 
+            struct_data = extract_structure_data(structure_obj, model1, structures, properties, calcsmiles=False)
+            crn_id = "ts" + compound_key
+            html_compounds[compound_key] = {
+            **struct_data,
+            "crn_id": crn_id,
+            "mongodb_id": compound_id,}
+
         else:  # checking compounds
+            html_compounds[compound_key] = {}
             type_object = pathfinder.graph_handler.graph.nodes(data=True)[
                 compound_id]["type"]
             if type_object == db.CompoundOrFlask.COMPOUND.name:
+                crn_id = "c" + compound_key #str(cmp_dict[compound_id])
                 compound = db.Compound(db.ID(compound_id), compounds)
-                html_compounds[cmp_dict[compound_id]
-                               ]['crn_id'] = "c" + str(cmp_dict[compound_id])
             else:
-                html_compounds[cmp_dict[compound_id]
-                               ]['crn_id'] = "f" + str(cmp_dict[compound_id])
+                crn_id = "f" + compound_key #str(cmp_dict[compound_id])
                 compound = db.Flask(db.ID(compound_id), flasks)
             structure = compound.get_centroid()
             structure_obj = db.Structure(structure, structures)
-            xyz = [(str(o.element), tuple(o.position))
-                   for o in structure_obj.get_atoms()]
-            z, s = structure_obj.get_charge(), structure_obj.multiplicity
-            e = get_energy_for_structure(
-                structure_obj,
-                'electronic_energy',
-                model1,
-                structures,
-                properties)
-            smiles = _convert_struct_to_smile(
-                structure_obj) if calcsmiles else {'flag': False}
-            if isinstance(e, (int, float)):
-                e_kj = e * utils.KJPERMOL_PER_HARTREE
-            else:
-                e_kj = 0
-            html_compounds[cmp_dict[compound_id]]['mongodb_id'] = compound_id
-            html_compounds[cmp_dict[compound_id]]['xyz'] = xyz
-            html_compounds[cmp_dict[compound_id]]['charge'] = z
-            html_compounds[cmp_dict[compound_id]]['multiplicity'] = s
-            html_compounds[cmp_dict[compound_id]]['energy'] = e_kj
-            html_compounds[cmp_dict[compound_id]
-                           ]['method'] = model1.method  # model_obj.method
-            # model_obj.basis_set
-            html_compounds[cmp_dict[compound_id]
-                           ]['basis_set'] = model1.basis_set
-            # model_obj.program+" "+model_obj.version
-            html_compounds[cmp_dict[compound_id]
-                           ]['program'] = model1.program + " 5.0.3"
-            html_compounds[cmp_dict[compound_id]
-                           ]['solvent'] = model1.solvent  # model_obj.solvent
-            # model_obj.solvation
-            html_compounds[cmp_dict[compound_id]
-                           ]['solvation'] = model1.solvation
-            if smiles['flag']:
-                html_compounds[cmp_dict[compound_id]]['smiles'] = smiles['smiles']
-                #html_compounds[cmp_dict[compound_id]]['chemsim'] = smiles['chemsim']
-            else:
-                html_compounds[cmp_dict[compound_id]]['smiles'] = 'None'
-                #html_compounds[cmp_dict[compound_id]]['chemsim'] = [0, 0, 0]
-            html_compounds[cmp_dict[compound_id]]['chemsim'] = get_cartesian_descriptors(xyz)
+            struct_data = extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
+            html_compounds[compound_key] = {
+            **struct_data,
+            "crn_id": crn_id,
+            "mongodb_id": compound_id,
+            }
+        tmpdict = html_compounds[compound_key].copy()
+        html_compounds[compound_key] = sort_dict_keys(tmpdict)
     return html_compounds
 
+def sort_dict_keys(d):
+    return {k: d[k] for k in sorted(d)}
 
 def get_cartesian_descriptors(xyz):
     """
