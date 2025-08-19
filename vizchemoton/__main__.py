@@ -44,6 +44,7 @@ def main():
     layout_function = config['graph']['layout']
     #layout_function = getattr(nx, f"{config['graph']['layout']}_layout")
     map_field = config["graph"]["map_field"]
+    node_size = float(config["graph"]["node_size"])
 
     # Start of Vizchemoton
     vizchemoton_header()
@@ -87,7 +88,8 @@ def main():
         output_file,
         size=size,
         layout_function=layout_function,
-        map_field=map_field)
+        map_field=map_field,
+        node_size=node_size)
 
 
 if __name__ == '__main__':

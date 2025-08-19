@@ -1,6 +1,6 @@
 '''
-Enric Petrus, December 2024. Added SCINE helper functiosn to link with the
-amk-tools generation of html files.
+Enric Petrus, December 2024. Added SCINE helper function to link with the
+amk-tools generation of HTML files.
 Diego Garay-Ruiz, November 2023. Collection of helper functions to link
 amk-tools and grrm-tools, generating interactive
 HTML dashboards to visualize GRRM-generated reaction networks.
@@ -724,7 +724,7 @@ def assign_coordinates(graph, clusters):
         pos[node] = center + offset
     return pos
 
-def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function=nx.kamada_kawai_layout,  map_field="energy", verbose=True):
+def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function=nx.kamada_kawai_layout,  map_field="energy", verbose=True, **kwargs):
     """
     Wrapper function to generate HTML visualizations for a given network.
 
@@ -791,10 +791,14 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
     
     # Add model field to all nodes and edges & also vibrations
     arxviz.add_models(G)
+    
+    # Other properties
+    node_size = kwargs.get("node_size", 30)
 
     # Bokeh-powered visualization via RXVisualizer
     bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=posx,graph_title=title,width=w1,height=h,
                                                 map_field=map_field,hide_energy=True)
+    bk_graph.node_renderer.glyph.size = node_size
 
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()
     bk_graph.selection_policy = bkm.EdgesAndLinkedNodes()
