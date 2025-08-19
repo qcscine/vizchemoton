@@ -19,29 +19,33 @@ import bokeh.plotting
 import bokeh.models as bkm
 import RXVisualizer as arxviz
 import networkx as nx
-from xyz2mol import xyz2mol
-from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors
-from rdkit.Chem import GetPeriodicTable
 from sklearn.cluster import KMeans
-
-# Project-Specific SCINE imports
-import scine_utilities as utils
-import scine_database as db
-from scine_chemoton.gears.pathfinder import Pathfinder as pf
-from scine_database.energy_query_functions import (
-    get_energy_change,
-    get_barriers_for_elementary_step_by_type,
-    get_energy_for_structure)
+from sklearn.metrics import silhouette_score
 
 
-def cluster_nodes(descriptors):
+def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
     node_ids = list(descriptors.keys())
     X = np.array([descriptors[n] for n in node_ids])
-    n_clusters = 5 #int(np.sqrt(X.shape[0]/2))
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+
+    if n_clusters == "silhouettes":
+        silhouettes = []
+        k_values = range(2, int(np.sqrt(len(X)/2)))  # candidate k values
+        for k in k_values:
+            kmeans = KMeans(n_clusters=k, random_state=42, n_init='auto').fit(X)
+            score = silhouette_score(X, kmeans.labels_)
+            silhouettes.append(score)
+            if verbose:
+                print(f"Silhouette iteration {k} = {score:.3f}")
+
+        # pick the k that gave the max silhouette
+        best_index = np.argmax(silhouettes)
+        n_clusters = k_values[best_index]   # <-- use k_values, not X
+        if verbose:
+            print("## Optimal number of clusters:", n_clusters)
+
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init='auto')
     cluster_labels = kmeans.fit_predict(X)
 
-    # map node_id -> cluster label
     clusters = {node_id: int(label) for node_id, label in zip(node_ids, cluster_labels)}
     return clusters
 

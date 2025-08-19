@@ -18,7 +18,6 @@ import numpy as np
 from xyz2mol import xyz2mol
 from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors
 from rdkit.Chem import GetPeriodicTable
-from sklearn.cluster import KMeans
 
 # Project-Specific SCINE imports
 import scine_utilities as utils
@@ -335,10 +334,13 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                         [cmp_dict[node_x], cmp_dict[node_y],
                          cmp_dict[node_ts]])
 
-    html_compounds = _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, calcsmiles, verbose)
+    # Create a dictionary for the compounds and their properties
+    html_compounds = _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, 
+                                             compounds, flasks, properties, calcsmiles,
+                                             verbose)
     return html_reactions, html_compounds
 
-def init_list_fields():
+def _init_list_fields():
     """Initialize all list-based fields for flask compounds."""
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
@@ -346,7 +348,7 @@ def init_list_fields():
         "smiles", "chemsim"
     ]}
 
-def extract_structure_data(structure_obj, model, structures, properties, calcsmiles):
+def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles):
     """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
     xyz = [(str(o.element), tuple(o.position))
            for o in structure_obj.get_atoms()]
@@ -367,7 +369,7 @@ def extract_structure_data(structure_obj, model, structures, properties, calcsmi
         e_kj = e * utils.KJPERMOL_PER_HARTREE
     else:
         e_kj = 0
-    chemsim = get_cartesian_descriptors(xyz)   
+    chemsim = _get_cartesian_descriptors(xyz)   
  
     return {
         "xyz": xyz,
@@ -383,80 +385,7 @@ def extract_structure_data(structure_obj, model, structures, properties, calcsmi
         "chemsim": chemsim,
     }
 
-def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, calcsmiles=False, verbose=False):    
-    if verbose:
-        print("## Creating compounds and reaction objects")
-    html_compounds = {}
-    for compound_id in cmp_dict:
-        compound_key = str(cmp_dict[compound_id])
-        if "//" in compound_id:  # checking the flasks
-            # if the user is interested in uploading the data in ioChem-BD,
-            # this conditional block should be disregarded by deactivating
-            # the following line:
-            # continue
-            ids = compound_id.split("//")
-            html_compounds[compound_key] = init_list_fields()
-            for _ids in ids:
-                type_object = pathfinder.graph_handler.graph.nodes(data=True)[
-                    _ids]["type"]
-                if type_object == db.CompoundOrFlask.COMPOUND.name:
-                    compound = db.Compound(db.ID(_ids), compounds)
-                    crn_id = "c" + str(cmp_dict[_ids])
-                else:
-                    compound = db.Flask(db.ID(_ids), flasks)
-                    crn_id = "f" + str(cmp_dict[_ids])
-                structure = compound.get_centroid()
-                structure_obj = db.Structure(structure, structures)
-                struct_data = extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
-                html_compounds[compound_key]["crn_id"].append(crn_id)
-                html_compounds[compound_key]["mongodb_id"].append(_ids)
-                for k, v in struct_data.items():
-                    html_compounds[compound_key][k].append(v)
-            for s, k in [("+", "crn_id"), ("//", "mongodb_id"), ("//", "smiles")]:
-                copy = html_compounds[compound_key][k].copy()
-                tmpstr = s.join(copy)
-                html_compounds[compound_key][k] = tmpstr
-            _sima, _simb = html_compounds[compound_key]['chemsim']
-            tmpchemsim = [np.mean(s) for s in zip(_sima, _simb)]
-            html_compounds[compound_key]['chemsim'] = tmpchemsim
-
-        elif ";" in compound_id:  # checking the transitions states
-            html_compounds[compound_key] = {}
-            structure = compound_id[0:-1]
-            structure_obj = db.Structure(db.ID(structure), structures)
-            struct_data = extract_structure_data(structure_obj, model1, structures, properties, calcsmiles=False)
-            crn_id = "ts" + compound_key
-            html_compounds[compound_key] = {
-            **struct_data,
-            "crn_id": crn_id,
-            "mongodb_id": compound_id,}
-
-        else:  # checking compounds
-            html_compounds[compound_key] = {}
-            type_object = pathfinder.graph_handler.graph.nodes(data=True)[
-                compound_id]["type"]
-            if type_object == db.CompoundOrFlask.COMPOUND.name:
-                crn_id = "c" + compound_key #str(cmp_dict[compound_id])
-                compound = db.Compound(db.ID(compound_id), compounds)
-            else:
-                crn_id = "f" + compound_key #str(cmp_dict[compound_id])
-                compound = db.Flask(db.ID(compound_id), flasks)
-            structure = compound.get_centroid()
-            structure_obj = db.Structure(structure, structures)
-            struct_data = extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
-            html_compounds[compound_key] = {
-            **struct_data,
-            "crn_id": crn_id,
-            "mongodb_id": compound_id,
-            }
-        tmpdict = html_compounds[compound_key].copy()
-        html_compounds[compound_key] = sort_dict_keys(tmpdict)
-    return html_compounds
-
-def sort_dict_keys(d):
-    return {k: d[k] for k in sorted(d)}
-
-def get_cartesian_descriptors(xyz):
+def _get_cartesian_descriptors(xyz):
     """
     Custom function to extract basic cartesian descriptors for the post-clustering step.
     """
@@ -482,5 +411,84 @@ def get_cartesian_descriptors(xyz):
     bbox = np.ptp(coords, axis=0)  # peak-to-peak along each axis
     descripcart = [total_atoms, heavy_atoms, rg, bbox[0] * bbox[1] * bbox[2]]
     return descripcart
+
+def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
+    """
+    Return the compound object and its crn_id
+    """
+    type_object = pathfinder.graph_handler.graph.nodes(data=True)[mongoid]["type"]
+    if type_object == db.CompoundOrFlask.COMPOUND.name:
+        compound = db.Compound(db.ID(mongoid), compounds)
+        crn_id = "c" + str(cmp_dict[mongoid])
+    else:
+        compound = db.Flask(db.ID(mongoid), flasks)
+        crn_id = "f" + str(cmp_dict[mongoid])
+
+    return compound, crn_id
+
+def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, calcsmiles=False, verbose=False):    
+    """
+    Create a dictionary with the compounds and their chemical properties (xyz, charge, etc) for the chemical reaction    network.
+    """
+    if verbose:
+        print("## Creating compounds and reaction objects")
+    html_compounds = {}
+    for compound_id in cmp_dict:
+        compound_key = str(cmp_dict[compound_id])
+        if "//" in compound_id:  # adducts of two aggregates 
+            # if the user is interested in uploading the data in ioChem-BD,
+            # this conditional block should be disregarded by deactivating
+            # the following line:
+            # continue
+            ids = compound_id.split("//")
+            html_compounds[compound_key] = _init_list_fields()
+            for _ids in ids:
+                compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, _ids, compounds, flasks)
+                structure = compound.get_centroid()
+                structure_obj = db.Structure(structure, structures)
+                struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
+                html_compounds[compound_key]["crn_id"].append(crn_id)
+                html_compounds[compound_key]["mongodb_id"].append(_ids)
+                for k, v in struct_data.items():
+                    html_compounds[compound_key][k].append(v)
+            for s, k in [("+", "crn_id"), ("//", "mongodb_id"), ("//", "smiles")]:
+                copy = html_compounds[compound_key][k].copy()
+                tmpstr = s.join(copy)
+                html_compounds[compound_key][k] = tmpstr
+            _sima, _simb = html_compounds[compound_key]['chemsim']
+            tmpchemsim = [np.mean(s) for s in zip(_sima, _simb)]
+            html_compounds[compound_key]['chemsim'] = tmpchemsim
+
+        elif ";" in compound_id:  # transition state structure
+            html_compounds[compound_key] = {}
+            structure = compound_id[0:-1]
+            structure_obj = db.Structure(db.ID(structure), structures)
+            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles=False)
+            crn_id = "ts" + compound_key
+            html_compounds[compound_key] = {
+            **struct_data,
+            "crn_id": crn_id,
+            "mongodb_id": compound_id,}
+
+        else:  # unimolecular reaction side
+            compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, compound_id, compounds, flasks)
+            structure = compound.get_centroid()
+            structure_obj = db.Structure(structure, structures)
+            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
+            html_compounds[compound_key] = {
+            **struct_data,
+            "crn_id": crn_id,
+            "mongodb_id": compound_id,
+            }
+        # Sort keys in alphabetical order
+        tmpdict = html_compounds[compound_key].copy()
+        html_compounds[compound_key] = _sort_dict_keys(tmpdict)
+    return html_compounds
+
+def _sort_dict_keys(d):
+    """
+    Custom function to sort alphabetically a dictionary
+    """
+    return {k: d[k] for k in sorted(d)}
 
 
