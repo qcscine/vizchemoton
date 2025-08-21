@@ -27,6 +27,7 @@ from scine_database.energy_query_functions import (
     get_energy_change,
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
+from .cheminfo_module import get_cartesian_descriptors, convert_struct_to_smile
 
 
 def get_crn_as_pathfinder(
@@ -179,42 +180,6 @@ def get_energy_and_barriers(
     return energy, barriers, not_none
 
 
-def _convert_xyz_to_smiles(elements, coordinates, charge):
-    """
-    Convert xyz file to smiles using the external xyz2mol library.
-    """
-    # deprecated - now implemented in rdkit
-    data = {'flag': False}
-    try:  
-        molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
-                            embed_chiral=False, allow_charged_fragments=True)
-        if len(molformat) != 0:
-            smiles = MolToSmiles(molformat[0])
-            m = MolFromSmiles(smiles)
-            smiles = MolToSmiles(m)
-            data = {'flag': True, 'smiles': smiles}
-            return data
-        else:
-            return data
-    except:  # filter out cases where a SMILES is not feasible
-        print("WARNING! Aggregate could not be converted to SMILES format")
-        return data
-
-
-def _convert_struct_to_smile(centroid):
-    """
-    Convert structure instance to a smile.
-    """
-    conv2angs = 0.529177  # conversion of bohrs to anstrongs
-    elements = [atom.value for atom in centroid.get_atoms().elements]
-    coordinates = [[cj * conv2angs for cj in ci]
-                   for ci in centroid.get_atoms().positions.tolist()]
-    charge = centroid.get_charge()
-    dsmiles = _convert_xyz_to_smiles(
-        elements, coordinates, charge)
-    return dsmiles
-
-
 def get_reactions_and_compounds(manager, pathfinder, dmethod,
                                 calcsmiles=False, verbose=False):
     """
@@ -345,7 +310,7 @@ def _init_list_fields():
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
-        "smiles", "chemsim"
+        "smiles", "xyzdes"
     ]}
 
 def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles):
@@ -353,7 +318,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     xyz = [(str(o.element), tuple(o.position))
            for o in structure_obj.get_atoms()]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
-    dsmiles = _convert_struct_to_smile(
+    dsmiles = convert_struct_to_smile(
         structure_obj) if calcsmiles else {'flag': False}
     if dsmiles['flag']:
         smiles = dsmiles['smiles']
@@ -369,7 +334,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         e_kj = e * utils.KJPERMOL_PER_HARTREE
     else:
         e_kj = 0
-    chemsim = _get_cartesian_descriptors(xyz)   
+    xyzdes = get_cartesian_descriptors(xyz)   
  
     return {
         "xyz": xyz,
@@ -382,35 +347,9 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "solvent": model.solvent,
         "solvation": model.solvation,
         "smiles": smiles, 
-        "chemsim": chemsim,
+        "xyzdes": xyzdes,
     }
 
-def _get_cartesian_descriptors(xyz):
-    """
-    Custom function to extract basic cartesian descriptors for the post-clustering step.
-    """
-    atom_list = [a for a,_ in xyz]
-    pt = GetPeriodicTable()
-    atom_masses = np.array([pt.GetAtomicWeight(a) for a in atom_list])
-    coords = [b for _,b in xyz]
-    counts = Counter(atom_list)  # e.g., ['C', 'H', 'H', 'O']
-    total_atoms = sum(counts.values())
-    heavy_atoms = sum(counts[a] for a in counts if a != 'H')
-
-    coords = np.array(coords)
-    if atom_masses is None:
-        atom_masses = np.ones(len(coords))  # default: equal mass
-
-    total_mass = np.sum(atom_masses)
-    center_of_mass = np.sum(coords * atom_masses[:, None], axis=0) / total_mass
-
-    # Radius of gyration
-    rg = np.sqrt(np.sum(atom_masses[:, None] * (coords - center_of_mass)**2) / total_mass)
-
-    # Bounding box
-    bbox = np.ptp(coords, axis=0)  # peak-to-peak along each axis
-    descripcart = [total_atoms, heavy_atoms, rg, bbox[0] * bbox[1] * bbox[2]]
-    return descripcart
 
 def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
     """
@@ -455,9 +394,9 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
                 copy = html_compounds[compound_key][k].copy()
                 tmpstr = s.join(copy)
                 html_compounds[compound_key][k] = tmpstr
-            _sima, _simb = html_compounds[compound_key]['chemsim']
+            _sima, _simb = html_compounds[compound_key]['xyzdes']
             tmpchemsim = [np.mean(s) for s in zip(_sima, _simb)]
-            html_compounds[compound_key]['chemsim'] = tmpchemsim
+            html_compounds[compound_key]['xyzdes'] = tmpchemsim
 
         elif ";" in compound_id:  # transition state structure
             html_compounds[compound_key] = {}

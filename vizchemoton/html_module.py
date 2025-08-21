@@ -23,7 +23,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 
-def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
+def cluster_nodes(descriptors, n_clusters='ilhouettes', verbose=True):
     node_ids = list(descriptors.keys())
     X = np.array([descriptors[n] for n in node_ids])
 
@@ -31,7 +31,7 @@ def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
         silhouettes = []
         k_values = range(2, int(np.sqrt(len(X)/2)))  # candidate k values
         for k in k_values:
-            kmeans = KMeans(n_clusters=k, random_state=42, n_init='auto').fit(X)
+            kmeans = KMeans(n_clusters=k, random_state=42, n_init=10).fit(X)
             score = silhouette_score(X, kmeans.labels_)
             silhouettes.append(score)
             if verbose:
@@ -43,7 +43,9 @@ def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
         if verbose:
             print("## Optimal number of clusters:", n_clusters)
 
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init='auto')
+    n_clusters = 10
+
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(X)
 
     clusters = {node_id: int(label) for node_id, label in zip(node_ids, cluster_labels)}
@@ -122,13 +124,13 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
     if layout_function == 'KMeans':  # custom clustering of nodes
         descriptors = {}
         for c in compounds:
-            if isinstance(compounds[c]["chemsim"], list):
+            if isinstance(compounds[c]["xyzdes"], list):
 
                 if isinstance(compounds[c]["crn_id"], list):
                     key = "+".join(compounds[c]["crn_id"])
                 else:
                     key = compounds[c]["crn_id"]
-                descriptors[key] = compounds[c]["chemsim"]
+                descriptors[key] = compounds[c]["xyzdes"]
 
         clusters = cluster_nodes(descriptors) #, n_clusters=5)
         posx = assign_coordinates(G, clusters)
@@ -171,12 +173,65 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
         } else {
             hover.tooltips = [["tag","@name"],["charge","@charge"],
                                 ["multiplicity","@multiplicity"],["formula","@formula"],
-                                [label1,"@deltaE1"],[label2,"@deltaE2"]]
-        }
-    }
+                                [label1,"@deltaE1"],[label2,"@delt10
     '''
         
+    
     hide_barrlessJS = '''
+    var erend = graph.edge_renderer.data_source
+    var nrend = graph.node_renderer.data_source
+    var edgenames = erend.data["name"]
+    var nodenames = nrend.data["name"]
+    var numEdges = edgenames.length
+    var numNodes = nodenames.length
+    var statusCounter = counter[0]
+    var connectedNodes = []
+    var labsNodes = figure.center[2].source.data
+    
+    if (statusCounter == 0){
+        // hide edge labels and disconnected nodes
+        for (let j = 0; j < numEdges; j++){
+            var is_tsb = edgenames[j].includes("TSb")
+            if (is_tsb) {
+                // blank out edge label instead of removing edge
+                erend.data["name"][j] = " "
+            }
+            else {
+                connectedNodes.push(erend.data["start"][j])
+                connectedNodes.push(erend.data["end"][j])
+            }
+        }
+        for (let i = 0; i < numNodes; i++){
+            var nname = nodenames[i]
+            if (!connectedNodes.includes(nname)) {
+                nrend.data["index"][i] = null
+                labsNodes["nnames"][i] = " "
+            }
+        }
+        statusCounter = 1
+    } else {
+        // restore edge labels and nodes
+        for (let j = 0; j < numEdges; j++){
+            var is_tsb = backupEdgeRoutes["name"][j].includes("TSb")
+            if (is_tsb){
+                erend.data["name"][j] = backupEdgeRoutes["name"][j]
+            }
+        }
+        for (let i = 0; i < numNodes; i++) {
+            if (nrend.data["index"][i] == null){
+                nrend.data["index"][i] = backupNodes["index"][i]
+                labsNodes["nnames"][i] = backupNodes["name"][i]
+            }
+        }
+        statusCounter = 0
+    }
+    
+    counter[0] = statusCounter
+    nrend.change.emit()
+    erend.change.emit()
+    '''
+     
+    _hide_barrlessJS = '''
         var erend = graph.edge_renderer.data_source
         var nrend = graph.node_renderer.data_source
         var edgenames = erend.data["name"]
@@ -513,7 +568,7 @@ def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
         nd[1]["formula"] = "//".join(tmpstr)
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
         nd[1]["smiles"] = comp.get("smiles", "None")
-        nd[1]["chemsim"] = comp["chemsim"]
+        nd[1]["xyzdes"] = comp["xyzdes"]
 
 def add_edge_attributes(graph, compounds):
     """
