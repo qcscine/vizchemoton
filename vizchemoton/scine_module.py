@@ -27,7 +27,8 @@ from scine_database.energy_query_functions import (
     get_energy_change,
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
-from .cheminfo_module import get_cartesian_descriptors, convert_struct_to_smile
+from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smile, 
+                             get_bio_properties)
 
 
 def get_crn_as_pathfinder(
@@ -310,7 +311,7 @@ def _init_list_fields():
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
-        "smiles", "xyzdes"
+        "smiles", "xyzdes", "logP", "TPSA", "MolWt",
     ]}
 
 def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles):
@@ -319,11 +320,11 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
            for o in structure_obj.get_atoms()]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
     dsmiles = convert_struct_to_smile(
-        structure_obj) if calcsmiles else {'flag': False}
-    if dsmiles['flag']:
-        smiles = dsmiles['smiles']
-    else:
-        smiles = 'None'
+        structure_obj) if calcsmiles else {'smiles': None}
+    if calcsmiles and dsmiles['smiles'] != None:
+        dprop = get_bio_properties(dsmiles['smiles'])
+    else: 
+        dprop = {"MolWt": None, "LogP": None, "TPSA": None}
     e = get_energy_for_structure(
         structure_obj,
         'electronic_energy',
@@ -346,8 +347,11 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "program": f"{model.program} {model.version}",
         "solvent": model.solvent,
         "solvation": model.solvation,
-        "smiles": smiles, 
+        "smiles": dsmiles['smiles'], 
         "xyzdes": xyzdes,
+        "logP": dprop["LogP"],
+        "TPSA": dprop["TPSA"],
+        "MolWt": dprop["MolWt"],
     }
 
 
@@ -392,7 +396,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
                     html_compounds[compound_key][k].append(v)
             for s, k in [("+", "crn_id"), ("//", "mongodb_id"), ("//", "smiles")]:
                 copy = html_compounds[compound_key][k].copy()
-                tmpstr = s.join(copy)
+                tmpstr = s.join([str(o) for o in copy])
                 html_compounds[compound_key][k] = tmpstr
             _sima, _simb = html_compounds[compound_key]['xyzdes']
             tmpchemsim = [np.mean(s) for s in zip(_sima, _simb)]
