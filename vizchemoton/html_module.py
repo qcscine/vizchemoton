@@ -135,7 +135,7 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
         clusters = cluster_nodes(descriptors) #, n_clusters=5)
         posx = assign_coordinates(G, clusters)
     else:
-        layout_function = getattr(nx, f"{config['graph']['layout']}_layout") 
+        layout_function = getattr(nx, f"{layout_function}_layout") 
         posx = layout_function(G)
     
     # Add model field to all nodes and edges & also vibrations
@@ -173,7 +173,9 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
         } else {
             hover.tooltips = [["tag","@name"],["charge","@charge"],
                                 ["multiplicity","@multiplicity"],["formula","@formula"],
-                                [label1,"@deltaE1"],[label2,"@delt10
+                                [label1,"@deltaE1"],[label2,"@deltaE2"]]
+        }
+    }
     '''
         
     
@@ -371,9 +373,13 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
 			fig.y_range.end = positions[1] + 0.5
 		}
 		"""
+    
+    tooltips = [("tag","@name"),("charge","@charge"),("multiplicity","@multiplicity"),
+                                         ("formula","@formula"),("smiles","@smiles")]
+    tooltips += kwargs.get("custom_hovers",[])
+
     hover_node = bkm.HoverTool(description="Node hover",renderers=[bk_graph.node_renderer],
-                               tooltips=[("tag","@name"),("charge","@charge"),("multiplicity","@multiplicity"),
-                                         ("formula","@formula"),("smiles","@smiles")],
+                               tooltips=tooltips,
                                formatters={"@energy":"printf"})
     bk_fig.add_tools(hover_node)
     hover_edge = bkm.HoverTool(description="Edge hover",renderers=[bk_graph.edge_renderer],
@@ -481,6 +487,7 @@ def formula_from_xyz_block(xyz):
 
 
 def sort_edge_names(edge_tuple):
+    #a aa
     """
     Helper function to sort edge tuples lexicographically.
 

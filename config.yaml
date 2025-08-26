@@ -1,5 +1,5 @@
 db:
-  active: True
+  active: False
   name: "eth_o2_s3"
   ip: "localhost"
   port: "27017"
@@ -14,13 +14,13 @@ method:
 files:
   pathfinder:
     path: "/home/petrusen22/gitlab_vizchemoton/scine_scripts/kinetic_plotting/output.json" #./vizchemoton/resources/crn_pathfinder.json"
-    mode: "write"
+    mode: "read"
   reactions:
     path: "./vizchemoton/resources/reactions2.csv"
-    mode: "write"
+    mode: "read"
   compounds:
     path: "./vizchemoton/resources/compounds2.json"
-    mode: "write"
+    mode: "read"
 
 output:
   file: "network.html"
@@ -31,8 +31,8 @@ output:
 graph:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "KMeans" #"kamada_kawai"
-  map_field: "degree"
-  node_size: 5
+  layout: "kamada_kawai" #"kamada_kawai"
+  map_field: "pubchemRank"
+  node_size: 25
 
 

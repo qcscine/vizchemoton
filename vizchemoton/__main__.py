@@ -17,6 +17,7 @@ from .text_module import (vizchemoton_header, write_compound_reactions_files,
                           read_compound_reactions_files, load_config)
 from .scine_module import (get_crn_as_pathfinder, get_reactions_and_compounds)
 from .html_module import (process_graph, build_dashboard)
+from .cheminfo_module import (pubchem_node_check)
 
 def main():
     # Load configuration
@@ -85,6 +86,12 @@ def main():
     reactions, compounds = read_compound_reactions_files(
         reactions_file, compounds_file, verbose=verbose)
     graph = process_graph(reactions, compounds, dist_adduct)
+
+    kwargs_dash =  {}
+    if map_field == "pubchemRank":
+        pubchem_node_check(graph,compounds)
+        kwargs_dash["custom_hovers"] = [("pubchemIds","@pubchemInfo")]
+    
     build_dashboard(
         graph,
         compounds,
@@ -93,7 +100,8 @@ def main():
         size=size,
         layout_function=layout_function,
         map_field=map_field,
-        node_size=node_size)
+        node_size=node_size,
+        **kwargs_dash)
 
 
 if __name__ == '__main__':

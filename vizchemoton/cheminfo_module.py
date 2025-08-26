@@ -122,3 +122,31 @@ def get_bio_properties(smiles):
     tpsa = rdMolDescriptors.CalcTPSA(mol)
     dprop = {"MolWt": mw, "LogP": logp, "TPSA": tpsa}
     return dprop
+
+def pubchem_node_check(graph,compounds):
+    """
+    Checks whether the nodes in the graph have PubChem IDs, to state colors:
+    0 - not present, 1 - some species present, 2 - all species present
+    """
+    pubchem_mapping = {v["crn_id"]:v["pubchem"] for k,v in compounds.items()}
+    for nd in graph.nodes(data=True):
+        pubchem_info = pubchem_mapping.get(nd[0],None)
+        if not isinstance(pubchem_info,list):
+            pubchem_info = [pubchem_info]
+            
+        if not pubchem_info:
+            rnk = 0
+        elif isinstance(pubchem_info,int):
+            rnk = 2
+        elif isinstance(pubchem_info,list):
+            if all(pubchem_info):
+                rnk = 2
+            elif any(pubchem_info):
+                rnk = 1
+            else:
+                rnk = 0
+        
+        nd[1]["pubchemRank"] = rnk 
+        nd[1]["pubchemInfo"] = "//".join([str(pchm) for pchm in pubchem_info])
+
+    return None
