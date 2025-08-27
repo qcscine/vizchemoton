@@ -316,7 +316,6 @@ def _init_list_fields(rdkitprop):
 
 def _extract_structure_data(structure_obj, model, structures, properties, apikey, calcsmiles, rdkitprop, databases):
     """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
-    print(rdkitprop)
     dprop = {k:None for k in rdkitprop}
     dpub = {"cid": None}
     dchembl = {"id": None}

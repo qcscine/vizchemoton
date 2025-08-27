@@ -110,7 +110,8 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
             dpub["cid"] = compounds[0].cid
     except BadRequestError:
         dpub["cid"] = None  # PubChem rejected the request
-    if verbose: print("#### Querying PuChem. CID is " + str(dpub["cid"]))
+    strtmp = "#### Querying PubChem. {s} has id = {b}"
+    if verbose: print(strtmp.format(s=smiles, b=str(dpub["cid"])))
 
     return dpub
 
@@ -125,8 +126,10 @@ def get_chembl_id(smiles, verbose=True):
     dchembl = {"id": None}
     if len(results) > 0:
         idchembl = results[0]['molecule_chembl_id']
-        dchembl["id"] = idchembl
-    if verbose: print("#### Querying ChEMBL. ID is " + str(dchembl["id"]))
+        number = int(''.join(filter(str.isdigit, idchembl)))
+        dchembl["id"] = number
+    strtmp = "#### Querying ChEMBL. {s} has id = {b}"
+    if verbose: print(strtmp.format(s=smiles, b=str(dchembl["id"])))
     return dchembl
 
 def get_chemspider_id(smiles, apikey, verbose=True):
@@ -142,7 +145,8 @@ def get_chemspider_id(smiles, apikey, verbose=True):
     if len(results) > 0:
         idchemspi = results[0].csid
         dchemspi["id"] = idchemspi
-    if verbose: print("#### Querying ChemSpider. ID is " + str(dchemspi["id"]))
+    strtmp = "#### Querying ChemSpider. {s} has id = {b}"
+    if verbose: print(strtmp.format(s=smiles, b=str(dchemspi["id"])))
     return dchemspi
 
 def _get_rdkit_descriptor(mol, name, modules):
