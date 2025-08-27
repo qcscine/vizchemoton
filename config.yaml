@@ -1,28 +1,17 @@
-db:
+scine:
   active: True
   name: "eth_o2_s3"
   ip: "localhost"
   port: "27017"
-
-method:
-  method_family: "gfn2"
-  method: "gfn2"
-  basis_set: ""
-  program: "xtb"
-  vfilter: False
-
-files:
+  method:
+    method_family: "gfn2"
+    method: "gfn2"
+    basis_set: ""
+    program: "xtb"
+    vfilter: False
   pathfinder:
     path: "./vizchemoton/resources/crn_pathfinder.json"
     mode: "write"
-  reactions:
-    path: "./vizchemoton/resources/reactions2.csv"
-    mode: "write"
-  compounds:
-    path: "./vizchemoton/resources/compounds2.json"
-    mode: "write"
-  html:
-    path: "network.html"
 
 cheminfo:
   smiles: True
@@ -32,12 +21,19 @@ cheminfo:
   chemspider: False
   verbose: True
 
-graph:
+files:
+  reactions:
+    path: "./vizchemoton/resources/reactions2.csv"
+    mode: "write"
+  compounds:
+    path: "./vizchemoton/resources/compounds2.json"
+    mode: "write"
+
+html:
   dist_adduct: 3.0
   size:  [1400, 800]
   layout: "kamada_kawai" #"kamada_kawai"
   map_field: "pubchemRank"
   node_size: 25
   title: "Chemoton graph"
-
-
+  path: "network.html"

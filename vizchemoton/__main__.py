@@ -24,22 +24,20 @@ def main():
     config = load_config()
 
     # Parameters from config
-    db_active = config["db"]["active"]
-    db_name = config["db"]["name"]
-    ip = config["db"]["ip"]
-    port = config["db"]["port"]
-    dict_method = config["method"]
+    db_active = config["scine"]["active"]
+    db_name = config["scine"]["name"]
+    ip = config["scine"]["ip"]
+    port = config["scine"]["port"]
+    dict_method = config["scine"]["method"]
 
-    pathfinder_file = config["files"]["pathfinder"]["path"]
-    pathfinder_mode = config["files"]["pathfinder"]["mode"]
+    pathfinder_file = config["scine"]["pathfinder"]["path"]
+    pathfinder_mode = config["scine"]["pathfinder"]["mode"]
 
     reactions_file = config["files"]["reactions"]["path"]
     reactions_mode = config["files"]["reactions"]["mode"]
 
     compounds_file = config["files"]["compounds"]["path"]
     compounds_mode = config["files"]["compounds"]["mode"]
-    
-    output_file = config["files"]["html"]["path"]
     
     smiles = config["cheminfo"]["smiles"]
     rdkitprop = config["cheminfo"]["rdkitprop"]
@@ -48,13 +46,13 @@ def main():
     chemspider = config["cheminfo"]["chemspider"]
     databases = {"pubchem": pubchem, "chembl": chembl, "chemspider": chemspider}
 
-    dist_adduct = config["graph"]["dist_adduct"]
-    size = tuple(config["graph"]["size"])
-    layout_function = config['graph']['layout']
-    #layout_function = getattr(nx, f"{config['graph']['layout']}_layout")
-    map_field = config["graph"]["map_field"]
-    node_size = float(config["graph"]["node_size"])
-    title_html = config["graph"]["title"]
+    dist_adduct = config["html"]["dist_adduct"]
+    size = tuple(config["html"]["size"])
+    layout_function = config['html']['layout']
+    map_field = config["html"]["map_field"]
+    node_size = float(config["html"]["node_size"])
+    title_html = config["html"]["title"]
+    output_file = config["html"]["path"]
 
     verbose = True; print("TODO - now verbose hardcoded")
     # Start of Vizchemoton
