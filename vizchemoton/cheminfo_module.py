@@ -85,6 +85,10 @@ def is_valid_smiles(smiles):
     """Check if a SMILES string is valid using RDKit."""
     return Chem.MolFromSmiles(smiles) is not None
 
+def _get_inchikey_from_smiles(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    return Chem.inchi.MolToInchiKey(mol)
+
 def get_pubchem_cid(smiles, delay=0.5, verbose=True):
     """
     Check if SMILES are in PubChem.
@@ -96,10 +100,11 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
     Returns:
         dict: {SMILES: True/False} indicating whether the compound exists in PubChem.
     """
+    inchikey = _get_inchikey_from_smiles(smiles)
     time.sleep(delay)  # Avoid PubChem rate limits
     dpub = {"cid": None}
     try:
-        compounds = get_compounds(smiles, 'smiles')
+        compounds = get_compounds(inchikey, 'inchikey')
         if len(compounds) > 0:  # True if found
             dpub["cid"] = compounds[0].cid
     except BadRequestError:
@@ -108,18 +113,20 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
 
     return dpub
 
-def get_ChEMBL_id():
+def get_chembl_id(smiles, verbose=True):
     """
     Check if InChIKey is in ChEMBL database using their Python API.
     """
-    mol = Chem.MolFromSmiles(smiles)
-    inchikey = Chem.inchi.MolToInchiKey(mol)
+    inchikey = _get_inchikey_from_smiles(smiles)
     # Query ChEMBL by InChIKey
     molecule = new_client.molecule
     results = molecule.filter(molecule_structures__standard_inchi_key=inchikey)
-    if 'molecule_chembl_id' in results.keys():
-        return 
-    
+    dchembl = {"id": None}
+    if len(results) > 0:
+        idchembl = results[0]['molecule_chembl_id']
+        dchembl["id"] = idchembl
+    if verbose: print("#### Querying ChEMBL. ID is " + str(dchembl["id"]))
+    return dchembl
 
 def get_bio_properties(smiles):
     """

@@ -28,7 +28,7 @@ from scine_database.energy_query_functions import (
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
 from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smile, 
-                             get_bio_properties, get_pubchem_cid)
+                             get_bio_properties, get_pubchem_cid, get_chembl_id)
 
 
 def get_crn_as_pathfinder(
@@ -311,7 +311,7 @@ def _init_list_fields():
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
-        "smiles", "xyzdes", "logp", "tpsa", "molwt", "pubchem"
+        "smiles", "xyzdes", "logp", "tpsa", "molwt", "pubchem", "chembl"
     ]}
 
 def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles):
@@ -323,10 +323,13 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         structure_obj) if calcsmiles else {'smiles': None}
     if calcsmiles and dsmiles['smiles'] != None:
         dprop = get_bio_properties(dsmiles['smiles'])
+        # use InChIKey to do the search faster and more precise
         dpub = get_pubchem_cid(dsmiles['smiles'])
+        dchembl = get_chembl_id(dsmiles['smiles'])
     else: 
         dprop = {"molwt": None, "logp": None, "tpsa": None}
         dpub = {"cid": None}
+        dchembl = {"id": None}
     e = get_energy_for_structure(
         structure_obj,
         'electronic_energy',
@@ -338,7 +341,6 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     else:
         e_kj = 0
     xyzdes = get_cartesian_descriptors(xyz)   
-    print(dprop)
     return {
         "xyz": xyz,
         "charge": z,
@@ -354,7 +356,8 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "logp": dprop["logp"],
         "tpsa": dprop["tpsa"],
         "molwt": dprop["molwt"],
-        "pubchem": dpub["cid"]
+        "pubchem": dpub["cid"],
+        "chembl": dchembl["id"],
     }
 
 
