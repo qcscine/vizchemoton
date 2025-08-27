@@ -10,8 +10,8 @@ import networkx as nx
 from .text_module import (vizchemoton_header, write_compound_reactions_files,
                           read_compound_reactions_files, load_config)
 from .scine_module import (get_crn_as_pathfinder, get_reactions_and_compounds)
-from .html_module import (process_graph, build_dashboard)
-from .cheminfo_module import (pubchem_node_check)
+from .html_module import (process_graph, build_dashboard, aggregate_property)
+from .cheminfo_module import (pubchem_node_check,compute_cheminf_props)
 
 
 def main():
@@ -91,11 +91,28 @@ def main():
         reactions_file, compounds_file, verbose=verbose)
     graph = process_graph(reactions, compounds, dist_adduct)
 
-    kwargs_dash =  {}
+    kwargs_dash =  {"custom_hovers":[]}
     if map_field == "pubchemRank":
         pubchem_node_check(graph,compounds)
-        kwargs_dash["custom_hovers"] = [("pubchemIds","@pubchemInfo")]
+        kwargs_dash["custom_hovers"] += [("pubchemIds","@pubchemInfoStr")]
     
+    
+    #### adapting collision of modifications
+    if rdkitprop:
+        compute_cheminf_props(graph,rdkitprop)
+        property_hovers = [(prop,f"@{prop}Str") for prop in rdkitprop]
+        kwargs_dash["custom_hovers"] += property_hovers
+    # For color-mapping cheminf properties, we need some preprocessing
+    if map_field not in ["energy","degree","pubchemRank"]:
+        fun = "mean"
+        mapping_values,mapping_flags = aggregate_property(graph,map_field)
+        map_field_name = map_field + "_" + fun
+        field_to_nodes = {nd:{map_field_name:val} 
+                          for nd,val in zip(graph.nodes,mapping_values)}
+        nx.set_node_attributes(graph,field_to_nodes)
+    else:
+        map_field_name = map_field
+   
     build_dashboard(
         graph,
         compounds,
@@ -103,7 +120,7 @@ def main():
         output_file,
         size=size,
         layout_function=layout_function,
-        map_field=map_field,
+        map_field=map_field_name,
         node_size=node_size,
         **kwargs_dash)
 

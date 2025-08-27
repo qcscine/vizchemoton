@@ -23,7 +23,8 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 
-def cluster_nodes(descriptors, n_clusters='ilhouettes', verbose=True):
+
+def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
     node_ids = list(descriptors.keys())
     X = np.array([descriptors[n] for n in node_ids])
 
@@ -73,7 +74,18 @@ def assign_coordinates(graph, clusters):
         pos[node] = center + offset
     return pos
 
-def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function=nx.kamada_kawai_layout,  map_field="energy", verbose=True, **kwargs):
+def complete_cluster(node_list,cluster_dict,cluster_idx):
+    """
+    Convenience function to assign a cluster index for unassigned nodes in a dictionary
+    """
+    unassigned = set(node_list).difference(set(cluster_dict.keys()))
+    new_assignments = [(nd,cluster_idx) for nd in unassigned]
+    cluster_dict.update(dict(new_assignments))
+    return cluster_dict
+    
+def build_dashboard(G, compounds, title,outfile,size=(1400,800), 
+                    layout_function=nx.kamada_kawai_layout,  
+                    map_field="energy", verbose=True, **kwargs):
     """
     Wrapper function to generate HTML visualizations for a given network.
 
@@ -122,16 +134,11 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
     {% endblock %}
     """
     if layout_function == 'KMeans':  # custom clustering of nodes
+        # this should be modifiable later
+        cluster_property = "xyzdes"
         descriptors = {}
-        for c in compounds:
-            if isinstance(compounds[c]["xyzdes"], list):
-
-                if isinstance(compounds[c]["crn_id"], list):
-                    key = "+".join(compounds[c]["crn_id"])
-                else:
-                    key = compounds[c]["crn_id"]
-                descriptors[key] = compounds[c]["xyzdes"]
-
+        prop_values,flag = aggregate_property(G,cluster_property,"none")
+        descriptors = dict(zip(G.nodes(),prop_values))
         clusters = cluster_nodes(descriptors) #, n_clusters=5)
         posx = assign_coordinates(G, clusters)
     else:
@@ -171,8 +178,8 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
         if (tsname.includes('TSb')){
             hover.tooltips = [["tag","@name"]]
         } else {
-            hover.tooltips = [["tag","@name"],["charge","@charge"],
-                                ["multiplicity","@multiplicity"],["formula","@formula"],
+            hover.tooltips = [["tag","@name"],["charge","@chargeStr"],
+                                ["multiplicity","@multiplicityStr"],["formula","@formulaStr"],
                                 [label1,"@deltaE1"],[label2,"@deltaE2"]]
         }
     }
@@ -232,61 +239,6 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
     nrend.change.emit()
     erend.change.emit()
     '''
-     
-    _hide_barrlessJS = '''
-        var erend = graph.edge_renderer.data_source
-        var nrend = graph.node_renderer.data_source
-        var edgenames = erend.data["name"]
-        var nodenames = nrend.data["name"]
-        var numEdges = edgenames.length
-        var numNodes = nodenames.length
-        var statusCounter = counter[0]
-        var connectedNodes = []
-        var labsNodes = figure.center[2].source.data
-        
-    
-        if (statusCounter == 0){
-        // remove and set 1
-            for (let j = 0; j < numEdges; j++){
-                var is_tsb = edgenames[j].includes("TSb")
-                if (is_tsb) {
-                    erend.data["start"][j] = null            
-                    erend.data["end"][j] = null            
-                }
-                else {
-                    connectedNodes.push(erend.data["start"][j])
-                    connectedNodes.push(erend.data["end"][j])
-                }
-            }
-            for (let i = 0; i < numNodes; i++){
-                var nname = nodenames[i]
-                if (!connectedNodes.includes(nname)) {
-                    nrend.data["index"][i] = null
-                    labsNodes["nnames"][i] = " "
-                }
-            }
-            statusCounter = 1
-        } else {
-        // restore and set counter back to zero
-             for (let j = 0; j < numEdges; j++){
-                var is_tsb = edgenames[j].includes("TSb")
-                if (is_tsb){
-                    erend.data["start"][j] = backupEdgeRoutes["start"][j]            
-                    erend.data["end"][j] = backupEdgeRoutes["end"][j]
-                }
-            }
-            for (let i = 0; i < numNodes; i++) {
-                if (nrend.data["index"][i] == null){
-                    nrend.data["index"][i] = backupNodes["index"][i]
-                    labsNodes["nnames"][i] = backupNodes["name"][i]
-                }
-            }
-            statusCounter = 0
-        }
-        counter[0] = statusCounter
-        nrend.change.emit()
-        erend.change.emit()
-        '''
 
     # Custom locateMolecule function to support search by SMILES
     locateMolecule = """
@@ -374,8 +326,8 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800), layout_function
 		}
 		"""
     
-    tooltips = [("tag","@name"),("charge","@charge"),("multiplicity","@multiplicity"),
-                                         ("formula","@formula"),("smiles","@smiles")]
+    tooltips = [("tag","@name"),("charge","@chargeStr"),("multiplicity","@multiplicityStr"),
+                                         ("formula","@formulaStr"),("smiles","@smiles")]
     tooltips += kwargs.get("custom_hovers",[])
 
     hover_node = bkm.HoverTool(description="Node hover",renderers=[bk_graph.node_renderer],
@@ -487,7 +439,6 @@ def formula_from_xyz_block(xyz):
 
 
 def sort_edge_names(edge_tuple):
-    #a aa
     """
     Helper function to sort edge tuples lexicographically.
 
@@ -568,13 +519,11 @@ def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
         nd[1]["ZPVE"] = 0.0
         nd[1]["name"] = node_name
         nd[1]["degree"] = graph.degree(nd[0])
-        nd[1]["charge"] = "//".join([str(item) for item in comp["charge"]])
-        tmpstr = [str(item) for item in comp["multiplicity"]]
-        nd[1]["multiplicity"] = "//".join(tmpstr)
-        tmpstr = [formula_from_xyz_block(xyz) for xyz in xyz_list]
-        nd[1]["formula"] = "//".join(tmpstr)
+        nd[1]["charge"] = comp["charge"]
+        nd[1]["multiplicity"] = comp["multiplicity"]
+        nd[1]["formula"] = [formula_from_xyz_block(xyz) for xyz in xyz_list]
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
-        nd[1]["smiles"] = comp.get("smiles", "None")
+        nd[1]["smiles"] = str(comp.get("smiles", "None")).split("//")
         nd[1]["xyzdes"] = comp["xyzdes"]
 
 def add_edge_attributes(graph, compounds):
@@ -613,13 +562,28 @@ def add_edge_attributes(graph, compounds):
         ed[2]["deltaE2"] = "%.2f (%s)" % delta_e2
         ed[2]["energy"] = e_ts
         ed[2]["ZPVE"] = 0.0
-        tmpstr = [str(item) for item in ts_compound["charge"]]
-        ed[2]["charge"] = "//".join(tmpstr)
-        tmpstr = [str(item) for item in ts_compound["multiplicity"]]
-        ed[2]["multiplicity"] = "//".join(tmpstr)
-        tmpstr = [formula_from_xyz_block(xyz) for xyz in xyz_list]
-        ed[2]["formula"] = "//".join(tmpstr)
+        ed[2]["charge"] = ts_compound["charge"]
+        ed[2]["multiplicity"] = ts_compound["multiplicity"]
+        ed[2]["formula"] = [formula_from_xyz_block(xyz) for xyz in xyz_list]
 
+def format_string_attributes(graph):
+    """
+    Processes node & edge attributes that are shown as strings in the
+    final dashboard
+    """
+    node_attrs = ["charge","multiplicity","formula","smiles"]
+    edge_attrs = ["charge","multiplicity","formula"]
+    for nd in graph.nodes(data=True):
+        for tgt in node_attrs:
+            nd[1][tgt + "Str"] = "//".join([str(item) for item in nd[1][tgt]])
+
+    for ed in graph.edges(data=True):
+        for tgt in edge_attrs:
+            if tgt not in ed[2].keys():
+                continue
+            ed[2][tgt + "Str"] = "//".join([str(item) for item in ed[2][tgt]])
+
+    return None 
 
 def process_graph(reaction_list, compounds, dist_adduct=3.0):
     """
@@ -642,5 +606,37 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
 
     add_edge_attributes(graph, compounds)
+    format_string_attributes(graph)
 
     return graph
+
+def format_value_list(val_list,fmt="%.4f",sep="//"):
+    return sep.join([fmt % vv if vv is not None else "None" for vv in val_list])
+
+def aggregate_property(Gx,prop_name,agg_func="mean",na_value=0):
+    fmap = {"max":np.max,"min":np.min,"mean":np.mean,"sum":np.sum,
+            "none":lambda x: x}
+    func = fmap.get(agg_func,np.mean)
+    agg_values = []
+    flags = []
+    for nd in Gx.nodes(data=True):
+        prop = nd[1][prop_name]
+        flag = 0
+        if isinstance(prop,float) or isinstance(prop,int):
+            val = prop 
+        elif isinstance(prop,list):
+            values = [item if item is not None else np.nan for item in nd[1][prop_name]]
+            mask = np.isnan(values)
+            values = np.where(mask,na_value,values)
+            if np.all(mask):
+                flag = 2
+            elif np.any(mask):
+                flag = 1 
+            val = func(values)
+        elif prop is None:
+            val = na_value 
+            flag = 2
+
+        agg_values.append(val)
+        flags.append(flag)
+    return agg_values,flags

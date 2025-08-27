@@ -1,5 +1,5 @@
 scine:
-  active: True
+  active: False
   name: "eth_o2_s3"
   ip: "localhost"
   port: "27017"
@@ -17,23 +17,23 @@ cheminfo:
   smiles: True
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
   pubchem: True
-  chembl: True
+  chembl: False
   chemspider: False
   verbose: True
 
 files:
   reactions:
     path: "./vizchemoton/resources/reactions2.csv"
-    mode: "write"
+    mode: "read"
   compounds:
     path: "./vizchemoton/resources/compounds2.json"
-    mode: "write"
+    mode: "read"
 
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
   layout: "kamada_kawai" #"kamada_kawai"
-  map_field: "pubchemRank"
+  map_field: "MolWt"
   node_size: 25
   title: "Chemoton graph"
   path: "network.html"

@@ -3,7 +3,7 @@ Enric Petrus, August 2025. Cheminformatics helper functions.
 '''
 
 # Standard Library Imports
-from collections import Counter
+from collections import Counter,defaultdict
 import json
 import copy
 import random
@@ -19,6 +19,8 @@ from rdkit import Chem
 from chembl_webresource_client.new_client import new_client
 from pubchempy import get_compounds, BadRequestError
 from chemspipy import ChemSpider
+
+from vizchemoton.html_module import (format_value_list)
 
 def get_cartesian_descriptors(xyz):
     """
@@ -195,6 +197,31 @@ def pubchem_node_check(graph,compounds):
                 rnk = 0
         
         nd[1]["pubchemRank"] = rnk 
-        nd[1]["pubchemInfo"] = "//".join([str(pchm) for pchm in pubchem_info])
+        nd[1]["pubchemInfo"] = [str(pchm) for pchm in pubchem_info]
+        nd[1]["pubchemInfoStr"] = "//".join(nd[1]["pubchemInfo"])
 
+    return None
+
+def compute_cheminf_props(graph,prop_keys):
+    id_to_props = {}
+    for nd in graph.nodes(data=True):
+        id_list = nd[0].split("+")
+        smiles_list = nd[1]["smiles"]
+        current_elements = defaultdict(list)
+        for spid,smi in zip(id_list,smiles_list):
+            if smi == "None":
+                current = {k:None for k in prop_keys}
+            elif spid in id_to_props.keys(): 
+                current = id_to_props[spid]
+            else:
+                current = get_bio_properties(smi,prop_keys)
+                id_to_props[spid] = current
+                
+            for k in prop_keys:
+                current_elements[k].append(current[k])
+                # Apply these to the graph
+                nd[1][k] = current_elements[k]
+        # And prepare string formatting too
+        for k in prop_keys:
+            nd[1][k + "Str"] = format_value_list(current_elements[k])
     return None
