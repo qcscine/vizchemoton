@@ -5,21 +5,21 @@ Diego Garay-Ruiz, November 2023. Collection of helper functions to link
 amk-tools and grrm-tools, generating interactive HTML dashboards to
 visualize GRRM-generated reaction networks.
 '''
-
+import sys
 import networkx as nx
-#from .vizchemoton_module import (vizchemoton_header, get_crn_as_pathfinder,
-#                                 get_reactions_and_compounds,
-#                                 write_compound_reactions_files,
-#                                 read_compound_reactions_files, process_graph,
-#                                 build_dashboard, load_config)
-
 from .text_module import (vizchemoton_header, write_compound_reactions_files,
                           read_compound_reactions_files, load_config)
 from .scine_module import (get_crn_as_pathfinder, get_reactions_and_compounds)
 from .html_module import (process_graph, build_dashboard)
 from .cheminfo_module import (pubchem_node_check)
 
+
 def main():
+    print(sys.argv)
+    if len(sys.argv) == 2:
+        apikey = sys.argv[1]
+    else:
+        apikey = None
     # Load configuration
     config = load_config()
 
@@ -61,7 +61,7 @@ def main():
                 port), db_name, dict_method, write_pathfinder=False,
                 read_pathfinder=pathfinder_file, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, calcsmiles=smiles,
+                manager, pathfinder, dict_method, apikey, calcsmiles=smiles,
                 verbose=verbose)
 
         elif pathfinder_mode == 'write':  # write the pathfinder object
@@ -69,7 +69,7 @@ def main():
                 port), db_name, dict_method, write_pathfinder=pathfinder_file,
                 read_pathfinder=False, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, calcsmiles=smiles,
+                manager, pathfinder, dict_method, apikey, calcsmiles=smiles,
                 verbose=verbose)
 
         # write the reactions and compounds

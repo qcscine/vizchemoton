@@ -28,7 +28,8 @@ from scine_database.energy_query_functions import (
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
 from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smile, 
-                             get_bio_properties, get_pubchem_cid, get_chembl_id)
+                             get_bio_properties, get_pubchem_cid, get_chembl_id,
+                             get_chemspider_id)
 
 
 def get_crn_as_pathfinder(
@@ -181,7 +182,7 @@ def get_energy_and_barriers(
     return energy, barriers, not_none
 
 
-def get_reactions_and_compounds(manager, pathfinder, dmethod,
+def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
                                 calcsmiles=False, verbose=False):
     """
     Extract the chemical reactions, compounds and transition states from the
@@ -302,7 +303,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
 
     # Create a dictionary for the compounds and their properties
     html_compounds = _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, 
-                                             compounds, flasks, properties, calcsmiles,
+                                             compounds, flasks, properties, apikey, calcsmiles,
                                              verbose)
     return html_reactions, html_compounds
 
@@ -311,10 +312,10 @@ def _init_list_fields():
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
-        "smiles", "xyzdes", "logp", "tpsa", "molwt", "pubchem", "chembl"
+        "smiles", "xyzdes", "logp", "tpsa", "molwt", "pubchem", "chembl", "chemspider"
     ]}
 
-def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles):
+def _extract_structure_data(structure_obj, model, structures, properties, apikey, calcsmiles):
     """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
     xyz = [(str(o.element), tuple(o.position))
            for o in structure_obj.get_atoms()]
@@ -326,10 +327,12 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         # use InChIKey to do the search faster and more precise
         dpub = get_pubchem_cid(dsmiles['smiles'])
         dchembl = get_chembl_id(dsmiles['smiles'])
+        dchemspi = get_chemspider_id(dsmiles['smiles'], apikey)
     else: 
         dprop = {"molwt": None, "logp": None, "tpsa": None}
         dpub = {"cid": None}
         dchembl = {"id": None}
+        dchemspi = {"id": None}
     e = get_energy_for_structure(
         structure_obj,
         'electronic_energy',
@@ -358,6 +361,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "molwt": dprop["molwt"],
         "pubchem": dpub["cid"],
         "chembl": dchembl["id"],
+        "chemspider": dchemspi["id"],
     }
 
 
@@ -375,7 +379,7 @@ def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
 
     return compound, crn_id
 
-def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, calcsmiles=False, verbose=False):    
+def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, apikey, calcsmiles=False, verbose=False):    
     """
     Create a dictionary with the compounds and their chemical properties (xyz, charge, etc) for the chemical reaction    network.
     """
@@ -395,7 +399,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
                 compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, _ids, compounds, flasks)
                 structure = compound.get_centroid()
                 structure_obj = db.Structure(structure, structures)
-                struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
+                struct_data = _extract_structure_data(structure_obj, model1, structures, properties, apikey, calcsmiles)
                 html_compounds[compound_key]["crn_id"].append(crn_id)
                 html_compounds[compound_key]["mongodb_id"].append(_ids)
                 for k, v in struct_data.items():
@@ -412,7 +416,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             html_compounds[compound_key] = {}
             structure = compound_id[0:-1]
             structure_obj = db.Structure(db.ID(structure), structures)
-            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles=False)
+            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, apikey, calcsmiles=False)
             crn_id = "ts" + compound_key
             html_compounds[compound_key] = {
             **struct_data,
@@ -423,7 +427,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, compound_id, compounds, flasks)
             structure = compound.get_centroid()
             structure_obj = db.Structure(structure, structures)
-            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles)
+            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, apikey, calcsmiles)
             html_compounds[compound_key] = {
             **struct_data,
             "crn_id": crn_id,

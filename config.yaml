@@ -21,11 +21,14 @@ files:
   compounds:
     path: "./vizchemoton/resources/compounds2.json"
     mode: "write"
+  html:
+    path: "network.html"
 
-output:
-  file: "network.html"
-  title: "Chemoton graph"
+cheminfo:
   smiles: True
+  properties: ["logp", "tpsa", "molwt"]
+  pubchem: True
+  chembl: True
   verbose: True
 
 graph:
@@ -34,5 +37,6 @@ graph:
   layout: "kamada_kawai" #"kamada_kawai"
   map_field: "pubchemRank"
   node_size: 25
+  title: "Chemoton graph"
 
 

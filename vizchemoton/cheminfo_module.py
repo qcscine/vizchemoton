@@ -18,6 +18,7 @@ from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
 from chembl_webresource_client.new_client import new_client
 from pubchempy import get_compounds, BadRequestError
+from chemspipy import ChemSpider
 
 def get_cartesian_descriptors(xyz):
     """
@@ -127,6 +128,22 @@ def get_chembl_id(smiles, verbose=True):
         dchembl["id"] = idchembl
     if verbose: print("#### Querying ChEMBL. ID is " + str(dchembl["id"]))
     return dchembl
+
+def get_chemspider_id(smiles, apikey, verbose=True):
+    """
+    Check if InChIKey is in ChemSpider database using their Python API.
+    """
+    print(apikey)
+    cs = ChemSpider(apikey)
+    print(cs, apikey)
+    inchikey = _get_inchikey_from_smiles(smiles)
+    results = cs.search(inchikey)
+    dchemspi = {"id": None}
+    if len(results) > 0:
+        idchemspi = results[0].csid
+        dchemspi["id"] = idchemspi
+    if verbose: print("#### Querying ChemSpider. ID is " + str(dchemspi["id"]))
+    return dchemspi
 
 def get_bio_properties(smiles):
     """
