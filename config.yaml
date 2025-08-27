@@ -26,9 +26,10 @@ files:
 
 cheminfo:
   smiles: True
-  properties: ["logp", "tpsa", "molwt"]
+  rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
   pubchem: True
   chembl: True
+  chemspider: False
   verbose: True
 
 graph:

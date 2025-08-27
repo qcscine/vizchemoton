@@ -38,11 +38,15 @@ def main():
 
     compounds_file = config["files"]["compounds"]["path"]
     compounds_mode = config["files"]["compounds"]["mode"]
-
-    output_file = config["output"]["file"]
-    title_html = config["output"]["title"]
-    smiles = config["output"]["smiles"]
-    verbose = config["output"]["verbose"]
+    
+    output_file = config["files"]["html"]["path"]
+    
+    smiles = config["cheminfo"]["smiles"]
+    rdkitprop = config["cheminfo"]["rdkitprop"]
+    pubchem = config["cheminfo"]["pubchem"]
+    chembl = config["cheminfo"]["chembl"]
+    chemspider = config["cheminfo"]["chemspider"]
+    databases = {"pubchem": pubchem, "chembl": chembl, "chemspider": chemspider}
 
     dist_adduct = config["graph"]["dist_adduct"]
     size = tuple(config["graph"]["size"])
@@ -50,7 +54,9 @@ def main():
     #layout_function = getattr(nx, f"{config['graph']['layout']}_layout")
     map_field = config["graph"]["map_field"]
     node_size = float(config["graph"]["node_size"])
+    title_html = config["graph"]["title"]
 
+    verbose = True; print("TODO - now verbose hardcoded")
     # Start of Vizchemoton
     vizchemoton_header()
     if db_active:  # the Mongo-DB is reachable
@@ -61,16 +67,16 @@ def main():
                 port), db_name, dict_method, write_pathfinder=False,
                 read_pathfinder=pathfinder_file, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, apikey, calcsmiles=smiles,
-                verbose=verbose)
+                manager, pathfinder, dict_method, apikey, smiles,
+                rdkitprop, databases=databases, verbose=verbose)
 
         elif pathfinder_mode == 'write':  # write the pathfinder object
             manager, pathfinder = get_crn_as_pathfinder(ip, int(
                 port), db_name, dict_method, write_pathfinder=pathfinder_file,
                 read_pathfinder=False, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, apikey, calcsmiles=smiles,
-                verbose=verbose)
+                manager, pathfinder, dict_method, apikey, smiles,
+                rdkitprop, databases, verbose=verbose)
 
         # write the reactions and compounds
         if reactions_mode == 'write' and compounds_mode == 'write':

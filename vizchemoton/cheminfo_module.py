@@ -145,17 +145,26 @@ def get_chemspider_id(smiles, apikey, verbose=True):
     if verbose: print("#### Querying ChemSpider. ID is " + str(dchemspi["id"]))
     return dchemspi
 
-def get_bio_properties(smiles):
+def _get_rdkit_descriptor(mol, name, modules):
+    for module in modules:
+        if hasattr(module, name):
+            func = getattr(module, name)
+            return func(mol)
+    raise ValueError(f"Descriptor '{name}' not found in RDKit modules.")
+
+def get_bio_properties(smiles, rdkitprop):
     """
     Compute MW, logP, and TPSA for a list of SMILES.
     
     Returns a Pandas DataFrame.
     """
+    modules = [Descriptors, Crippen, rdMolDescriptors]
     mol = Chem.MolFromSmiles(smiles)
-    mw = Descriptors.MolWt(mol)
-    logp = Crippen.MolLogP(mol)
-    tpsa = rdMolDescriptors.CalcTPSA(mol)
-    dprop = {"molwt": mw, "logp": logp, "tpsa": tpsa}
+    #mw = Descriptors.MolWt(mol)
+    #logp = Crippen.MolLogP(mol)
+    #tpsa = rdMolDescriptors.CalcTPSA(mol)
+    dprop = {k:_get_rdkit_descriptor(mol, k, modules) for k in rdkitprop}
+    #dprop = {"molwt": mw, "logp": logp, "tpsa": tpsa}
     return dprop
 
 def pubchem_node_check(graph,compounds):
