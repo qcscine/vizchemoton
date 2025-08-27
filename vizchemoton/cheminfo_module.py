@@ -7,6 +7,7 @@ from collections import Counter
 import json
 import copy
 import random
+import time
 
 # Third-Party Library Imports
 import yaml
@@ -15,6 +16,8 @@ from xyz2mol import xyz2mol
 from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors, Crippen, rdMolDescriptors
 from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
+from chembl_webresource_client.new_client import new_client
+from pubchempy import get_compounds, BadRequestError
 
 def get_cartesian_descriptors(xyz):
     """
@@ -82,7 +85,7 @@ def is_valid_smiles(smiles):
     """Check if a SMILES string is valid using RDKit."""
     return Chem.MolFromSmiles(smiles) is not None
 
-def query_pubchem(smiles_list, delay=0.5, verbose=True):
+def get_pubchem_cid(smiles, delay=0.5, verbose=True):
     """
     Check if SMILES are in PubChem.
 
@@ -93,22 +96,30 @@ def query_pubchem(smiles_list, delay=0.5, verbose=True):
     Returns:
         dict: {SMILES: True/False} indicating whether the compound exists in PubChem.
     """
-    results = {}
-    totalsmi = len(smiles_list)
-    for ind, smi in enumerate(smiles_list):
-        if not is_valid_smiles(smi):
-            results[smi] = None  # Invalid SMILES, cannot be in PubChem
-            continue
-        time.sleep(delay)  # Avoid PubChem rate limits
-        try:
-            compounds = get_compounds(smi, 'smiles')
-            if len(compounds) > 0:  # True if found
-                results[smi] = compounds[0].cid
-        except BadRequestError:
-            results[smi] = None  # PubChem rejected the request
-        if verbose: print(results[smi], smi)
+    time.sleep(delay)  # Avoid PubChem rate limits
+    dpub = {"cid": None}
+    try:
+        compounds = get_compounds(smiles, 'smiles')
+        if len(compounds) > 0:  # True if found
+            dpub["cid"] = compounds[0].cid
+    except BadRequestError:
+        dpub["cid"] = None  # PubChem rejected the request
+    if verbose: print("#### Querying PuChem. CID is " + str(dpub["cid"]))
 
-    return results
+    return dpub
+
+def get_ChEMBL_id():
+    """
+    Check if InChIKey is in ChEMBL database using their Python API.
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    inchikey = Chem.inchi.MolToInchiKey(mol)
+    # Query ChEMBL by InChIKey
+    molecule = new_client.molecule
+    results = molecule.filter(molecule_structures__standard_inchi_key=inchikey)
+    if 'molecule_chembl_id' in results.keys():
+        return 
+    
 
 def get_bio_properties(smiles):
     """
@@ -120,7 +131,7 @@ def get_bio_properties(smiles):
     mw = Descriptors.MolWt(mol)
     logp = Crippen.MolLogP(mol)
     tpsa = rdMolDescriptors.CalcTPSA(mol)
-    dprop = {"MolWt": mw, "LogP": logp, "TPSA": tpsa}
+    dprop = {"molwt": mw, "logp": logp, "tpsa": tpsa}
     return dprop
 
 def pubchem_node_check(graph,compounds):

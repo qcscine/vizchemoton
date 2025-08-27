@@ -1,5 +1,5 @@
 db:
-  active: False
+  active: True
   name: "eth_o2_s3"
   ip: "localhost"
   port: "27017"
@@ -13,14 +13,14 @@ method:
 
 files:
   pathfinder:
-    path: "/home/petrusen22/gitlab_vizchemoton/scine_scripts/kinetic_plotting/output.json" #./vizchemoton/resources/crn_pathfinder.json"
-    mode: "read"
+    path: "./vizchemoton/resources/crn_pathfinder.json"
+    mode: "write"
   reactions:
-    path: "./vizchemoton/resources/reactions2.csv"
-    mode: "read"
+    path: "./vizchemoton/resources/reactions3.csv"
+    mode: "write"
   compounds:
-    path: "./vizchemoton/resources/compounds2.json"
-    mode: "read"
+    path: "./vizchemoton/resources/compounds3.json"
+    mode: "write"
 
 output:
   file: "network.html"

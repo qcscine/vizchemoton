@@ -1,245 +1,1941 @@
 {
-    "66fc451e86b7e546842f112b;0;": {
-        "66fc44ec86b7e5467f2f1139": {
-            "weight": 0.0,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f113d"
-            ]
-        },
-        "66fc44ec86b7e5467f2f113d": {
-            "weight": 0.0,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f1139"
-            ]
-        },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc451c8274c922bb4a00ee"
-    },
-    "66fc451e86b7e546842f112b;1;": {
-        "66fc39dc86b7e5467f2f1131": {
-            "weight": 0.0,
-            "required_compounds": [
-                "66fc39dc86b7e5467f2f1131"
-            ]
-        },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc451c8274c922bb4a00ee"
-    },
-    "66fc39dc86b7e5467f2f1131": {
-        "66fc451e86b7e546842f112b;0;": {
-            "weight": 105.18808997923621,
-            "required_compounds": [
-                "66fc39dc86b7e5467f2f1131"
-            ],
-            "required_compound_costs": null
-        },
-        "66fc4b8886b7e546842f112d;0;": {
-            "weight": 1.386294361119917,
-            "required_compounds": [
-                "66fc39dc86b7e5467f2f1131"
-            ],
-            "required_compound_costs": null
-        },
-        "66fc4b9c86b7e546842f1131;0;": {
-            "weight": 129.41206418788954,
-            "required_compounds": [
-                "66fc39dc86b7e5467f2f1131"
-            ],
-            "required_compound_costs": null
-        },
-        "type": "COMPOUND"
-    },
-    "66fc44ec86b7e5467f2f1139": {
-        "66fc451e86b7e546842f112b;1;": {
-            "weight": 206.66522196394862,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f113d"
-            ],
-            "required_compound_costs": null
-        },
-        "66fc4b8886b7e546842f112f;1;": {
-            "weight": 91.98743139424386,
-            "required_compounds": [
-                "66fc4b4c86b7e5467f2f1141"
-            ],
-            "required_compound_costs": null
-        },
-        "66fc4b9c86b7e546842f1131;1;": {
-            "weight": 93.82062174204049,
-            "required_compounds": [
-                "66fc4b4c86b7e5467f2f1141"
-            ],
-            "required_compound_costs": null
-        },
-        "66fc519786b7e546842f1133;1;": {
-            "weight": 1.386294361119917,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f1139",
-                "66fc44ec86b7e5467f2f1139"
-            ],
-            "required_compound_costs": null
-        },
-        "type": "COMPOUND"
-    },
-    "66fc44ec86b7e5467f2f113d": {
-        "66fc451e86b7e546842f112b;1;": {
-            "weight": 206.66522196394862,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f1139"
-            ],
-            "required_compound_costs": null
-        },
-        "type": "COMPOUND"
-    },
-    "66fc4b8886b7e546842f112d;0;": {
-        "66fc4b7e86b7e5467f2f1143": {
+    "681a2c222509764a00040cb8;0;": {
+        "681a2c18bdbbf6464c040cc0": {
             "weight": 0.0,
             "required_compounds": []
         },
         "type": "rxn_node",
-        "elementary_step_id": "66fc4b7cf90eea38161545a1"
+        "elementary_step_id": "681a3cba9e66115e9308fce1"
     },
-    "66fc4b8886b7e546842f112d;1;": {
-        "66fc39dc86b7e5467f2f1131": {
+    "681a2c222509764a00040cb8;1;": {
+        "681a2a56bdbbf6464c040cbc": {
             "weight": 0.0,
             "required_compounds": [
-                "66fc39dc86b7e5467f2f1131"
+                "681a2a56bdbbf6464c040cbc"
             ]
         },
         "type": "rxn_node",
-        "elementary_step_id": "66fc4b7cf90eea38161545a1"
+        "elementary_step_id": "681a3cba9e66115e9308fce1"
     },
-    "66fc4b7e86b7e5467f2f1143": {
-        "66fc4b8886b7e546842f112d;1;": {
-            "weight": 1.386294361119917,
+    "681a2a56bdbbf6464c040cbc": {
+        "681a2c222509764a00040cb8;0;": {
+            "weight": 114.89196746376338,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681a2d082509764a00040cba;0;": {
+            "weight": 81.97662755995289,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681a2d122509764a00040cbc;0;": {
+            "weight": 149.65085793421198,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681a2d122509764a00040cbc;1;": {
+            "weight": 88.39334131773289,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06d7;0;": {
+            "weight": 25.58123817440466,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06d9;0;": {
+            "weight": 128.3275858526442,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06d9;1;": {
+            "weight": 8.992559235105258,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06db;0;": {
+            "weight": 32.931505823497446,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06db;1;": {
+            "weight": 65.6283258395381,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0977fb872fc3d00f06dd;0;": {
+            "weight": 35.07102879840586,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0978fb872fc3d00f06df;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e3"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0978fb872fc3d00f06e1;0;": {
+            "weight": 159.77403585275582,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0978fb872fc3d00f06e3;0;": {
+            "weight": 112.76431657566447,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ],
+            "required_compound_costs": null
+        },
+        "681b097dfb872fc3d00f06e5;0;": {
+            "weight": 72.43098871103787,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b097efb872fc3d00f06e7;0;": {
+            "weight": 60.40729121855157,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0984fb872fc3d00f06eb;1;": {
+            "weight": 156.93964217846417,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083453;1;": {
+            "weight": 140.45017673586437,
+            "required_compounds": [
+                "681a2cfebdbbf6464c040cc2"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083455;0;": {
+            "weight": 163.8941621074572,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083457;0;": {
+            "weight": 161.7993769111141,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083459;0;": {
+            "weight": 125.28039119568633,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345b;0;": {
+            "weight": 88.54999339703116,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345d;0;": {
+            "weight": 172.595274842024,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345f;0;": {
+            "weight": 193.58443372009367,
+            "required_compounds": [
+                "681a2cfebdbbf6464c040cc2"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345f;1;": {
+            "weight": 115.15317341222695,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "68419ff2b51ecb087e083461"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083461;0;": {
+            "weight": 134.9487675025315,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083463;0;": {
+            "weight": 140.84753984708988,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a03676749d9d8b083467;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "6841a036b51ecb087e08346d"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a04a76749d9d8b08346b;0;": {
+            "weight": 139.32933466366902,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a04a76749d9d8b08346b;1;": {
+            "weight": 49.76838125933992,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "6841a04ab51ecb087e08346f"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a11676749d9d8b08346d;0;": {
+            "weight": 135.55882348709306,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a12a76749d9d8b08346f;0;": {
+            "weight": 156.02357873455713,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a12a76749d9d8b08346f;1;": {
+            "weight": 38.72226765175366,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "6841a120b51ecb087e083473"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a16476749d9d8b083471;0;": {
+            "weight": 187.6256236345114,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a16476749d9d8b083471;1;": {
+            "weight": 180.32718187757078,
+            "required_compounds": [
+                "681a2cfebdbbf6464c040cc2"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a1bc76749d9d8b083475;0;": {
+            "weight": 188.95398172336402,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a37c76749d9d8b083477;0;": {
+            "weight": 127.44651922741846,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681a2c18bdbbf6464c040cc0": {
+        "681a2c222509764a00040cb8;1;": {
+            "weight": 164.61223636857062,
             "required_compounds": [],
             "required_compound_costs": null
         },
-        "66fc4b8886b7e546842f112f;0;": {
-            "weight": 117.7568003702515,
+        "681b0975fb872fc3d00f06d3;1;": {
+            "weight": 185.93315191627278,
             "required_compounds": [],
             "required_compound_costs": null
         },
-        "66fc519786b7e546842f1135;0;": {
-            "weight": 31.26511803024351,
+        "68419ffc76749d9d8b083455;0;": {
+            "weight": 163.8941621074572,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083457;0;": {
+            "weight": 161.7993769111141,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083459;0;": {
+            "weight": 125.28039119568633,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345b;0;": {
+            "weight": 88.54999339703116,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345d;0;": {
+            "weight": 172.595274842024,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083461;0;": {
+            "weight": 134.9487675025315,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083463;0;": {
+            "weight": 140.84753984708988,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a04a76749d9d8b08346b;0;": {
+            "weight": 139.32933466366902,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a11676749d9d8b08346d;0;": {
+            "weight": 135.55882348709306,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a12a76749d9d8b08346f;0;": {
+            "weight": 156.02357873455713,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a16476749d9d8b083471;0;": {
+            "weight": 187.6256236345114,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a1bc76749d9d8b083473;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e3"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a1bc76749d9d8b083475;0;": {
+            "weight": 188.95398172336402,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a37c76749d9d8b083477;0;": {
+            "weight": 127.44651922741846,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681a2d082509764a00040cba;0;": {
+        "681a2cfebdbbf6464c040cc2": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a4b36b5c6fbbd8006ffc1"
+    },
+    "681a2d082509764a00040cba;1;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a4b36b5c6fbbd8006ffc1"
+    },
+    "681a2cfebdbbf6464c040cc2": {
+        "681a2d082509764a00040cba;1;": {
+            "weight": 124.39845470781947,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "681b0975fb872fc3d00f06d3;0;": {
+            "weight": 178.62741477809652,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "681b0978fb872fc3d00f06e3;1;": {
+            "weight": 214.7324573895062,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083453;1;": {
+            "weight": 140.45017673586437,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345f;0;": {
+            "weight": 193.58443372009367,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a16476749d9d8b083471;1;": {
+            "weight": 180.32718187757078,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681a2d122509764a00040cbc;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2d08bdbbf6464c040cc6": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3737acad5aafca06ffc4"
+    },
+    "681a2d122509764a00040cbc;1;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3737acad5aafca06ffc4"
+    },
+    "681a2d08bdbbf6464c040cc4": {
+        "681a2d122509764a00040cbc;1;": {
+            "weight": 88.39334131773289,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06db;1;": {
+            "weight": 65.6283258395381,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0978fb872fc3d00f06e3;0;": {
+            "weight": 112.76431657566447,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0984fb872fc3d00f06eb;1;": {
+            "weight": 156.93964217846417,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083453;0;": {
+            "weight": 33.35040639127623,
+            "required_compounds": [
+                "68419ff2b51ecb087e083453"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b083457;1;": {
+            "weight": 147.9419141713267,
+            "required_compounds": [
+                "68419ff2b51ecb087e083459"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345d;1;": {
+            "weight": 152.973082556248,
+            "required_compounds": [
+                "68419ff2b51ecb087e08345f"
+            ],
+            "required_compound_costs": null
+        },
+        "68419ffc76749d9d8b08345f;1;": {
+            "weight": 115.15317341222695,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc",
+                "68419ff2b51ecb087e083461"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a04a76749d9d8b08346b;1;": {
+            "weight": 49.76838125933992,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc",
+                "6841a04ab51ecb087e08346f"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a12a76749d9d8b08346f;1;": {
+            "weight": 38.72226765175366,
+            "required_compounds": [
+                "6841a120b51ecb087e083473",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681a2d08bdbbf6464c040cc6": {
+        "681a2d122509764a00040cbc;1;": {
+            "weight": 88.39334131773289,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06db;1;": {
+            "weight": 65.6283258395381,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0977fb872fc3d00f06dd;1;": {
+            "weight": 155.05871277563676,
+            "required_compounds": [
+                "681b096b5af3fca5200f06dd"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0978fb872fc3d00f06e3;0;": {
+            "weight": 112.76431657566447,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b097efb872fc3d00f06e7;1;": {
+            "weight": 56.690781254108664,
+            "required_compounds": [
+                "681b096b5af3fca5200f06dd"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0984fb872fc3d00f06e9;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e3"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0984fb872fc3d00f06eb;1;": {
+            "weight": 156.93964217846417,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681b0975fb872fc3d00f06d3;0;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3a3723404e6f9208fce4"
+    },
+    "681b0975fb872fc3d00f06d3;1;": {
+        "681a2cfebdbbf6464c040cc2": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3a3723404e6f9208fce4"
+    },
+    "681b0976fb872fc3d00f06d5;0;": {
+        "681b096b5af3fca5200f06db": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06dd"
+            ]
+        },
+        "681b096b5af3fca5200f06dd": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06db"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3aefb8c0b5252c08fcea"
+    },
+    "681b0976fb872fc3d00f06d5;1;": {
+        "681b096b5af3fca5200f06d3": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3aefb8c0b5252c08fcea"
+    },
+    "681b096b5af3fca5200f06d3": {
+        "681b0976fb872fc3d00f06d5;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06d7;1;": {
+            "weight": 65.85493559628203,
             "required_compounds": [],
             "required_compound_costs": null
         },
         "type": "FLASK"
     },
-    "66fc4b8886b7e546842f112f;0;": {
-        "66fc44ec86b7e5467f2f1139": {
-            "weight": 0.0,
+    "681b096b5af3fca5200f06db": {
+        "681b0976fb872fc3d00f06d5;1;": {
+            "weight": 30.1803564619623,
             "required_compounds": [
-                "66fc4b4c86b7e5467f2f1141"
-            ]
-        },
-        "66fc4b4c86b7e5467f2f1141": {
-            "weight": 0.0,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f1139"
-            ]
-        },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc4b7cf90eea38161545a2"
-    },
-    "66fc4b8886b7e546842f112f;1;": {
-        "66fc4b7e86b7e5467f2f1143": {
-            "weight": 0.0,
-            "required_compounds": []
-        },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc4b7cf90eea38161545a2"
-    },
-    "66fc4b4c86b7e5467f2f1141": {
-        "66fc4b8886b7e546842f112f;1;": {
-            "weight": 91.98743139424386,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f1139"
-            ],
-            "required_compound_costs": null
-        },
-        "66fc4b9c86b7e546842f1131;1;": {
-            "weight": 93.82062174204049,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f1139"
+                "681b096b5af3fca5200f06dd"
             ],
             "required_compound_costs": null
         },
         "type": "COMPOUND"
     },
-    "66fc4b9c86b7e546842f1131;0;": {
-        "66fc44ec86b7e5467f2f1139": {
-            "weight": 0.0,
+    "681b096b5af3fca5200f06dd": {
+        "681b0976fb872fc3d00f06d5;1;": {
+            "weight": 30.1803564619623,
             "required_compounds": [
-                "66fc4b4c86b7e5467f2f1141"
-            ]
+                "681b096b5af3fca5200f06db"
+            ],
+            "required_compound_costs": null
         },
-        "66fc4b4c86b7e5467f2f1141": {
-            "weight": 0.0,
+        "681b0977fb872fc3d00f06dd;1;": {
+            "weight": 155.05871277563676,
             "required_compounds": [
-                "66fc44ec86b7e5467f2f1139"
-            ]
+                "681a2d08bdbbf6464c040cc6"
+            ],
+            "required_compound_costs": null
         },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc4b925d915403e9341d4e"
+        "681b097efb872fc3d00f06e7;1;": {
+            "weight": 56.690781254108664,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a37c76749d9d8b083477;1;": {
+            "weight": 126.08402472413046,
+            "required_compounds": [
+                "68419ff2b51ecb087e083461"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
     },
-    "66fc4b9c86b7e546842f1131;1;": {
-        "66fc39dc86b7e5467f2f1131": {
-            "weight": 0.0,
-            "required_compounds": [
-                "66fc39dc86b7e5467f2f1131"
-            ]
-        },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc4b925d915403e9341d4e"
-    },
-    "66fc519786b7e546842f1133;0;": {
-        "66fc44ec86b7e5467f2f1139": {
-            "weight": 0.0,
-            "required_compounds": [
-                "66fc44ec86b7e5467f2f1139",
-                "66fc44ec86b7e5467f2f1139"
-            ]
-        },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc518a4749e6245a11a0a8"
-    },
-    "66fc519786b7e546842f1133;1;": {
-        "66fc518d86b7e5467f2f1145": {
+    "681b0976fb872fc3d00f06d7;0;": {
+        "681b096b5af3fca5200f06d3": {
             "weight": 0.0,
             "required_compounds": []
         },
         "type": "rxn_node",
-        "elementary_step_id": "66fc518a4749e6245a11a0a8"
+        "elementary_step_id": "681a4625b767f5a17706ffcb"
     },
-    "66fc518d86b7e5467f2f1145": {
-        "66fc519786b7e546842f1133;0;": {
-            "weight": 1.386294361119917,
+    "681b0976fb872fc3d00f06d7;1;": {
+        "681b096b5af3fca5200f06d9": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a4625b767f5a17706ffcb"
+    },
+    "681b096b5af3fca5200f06d9": {
+        "681b0976fb872fc3d00f06d7;0;": {
+            "weight": 25.58123817440466,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06d9;1;": {
+            "weight": 8.992559235105258,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0976fb872fc3d00f06db;0;": {
+            "weight": 32.931505823497446,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0977fb872fc3d00f06dd;0;": {
+            "weight": 35.07102879840586,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681b0976fb872fc3d00f06d9;0;": {
+        "681b096b5af3fca5200f06d9": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3e97fe4067e68008fce4"
+    },
+    "681b0976fb872fc3d00f06d9;1;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3e97fe4067e68008fce4"
+    },
+    "681b0976fb872fc3d00f06db;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2d08bdbbf6464c040cc6": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a41e5196b0c63ce08fcea"
+    },
+    "681b0976fb872fc3d00f06db;1;": {
+        "681b096b5af3fca5200f06d9": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a41e5196b0c63ce08fcea"
+    },
+    "681b0977fb872fc3d00f06dd;0;": {
+        "681a2d08bdbbf6464c040cc6": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06dd"
+            ]
+        },
+        "681b096b5af3fca5200f06dd": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3d5c948f11a2e508fce7"
+    },
+    "681b0977fb872fc3d00f06dd;1;": {
+        "681b096b5af3fca5200f06d9": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06d9"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3d5c948f11a2e508fce7"
+    },
+    "681b0978fb872fc3d00f06df;0;": {
+        "681b096c5af3fca5200f06e1": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e3",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681b096c5af3fca5200f06e3": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e3"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3fa30a43c168fd06ffc7"
+    },
+    "681b0978fb872fc3d00f06df;1;": {
+        "681b096b5af3fca5200f06d5": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3fa30a43c168fd06ffc7"
+    },
+    "681b096b5af3fca5200f06d5": {
+        "681b0978fb872fc3d00f06df;0;": {
+            "weight": 30.1803564619623,
             "required_compounds": [],
             "required_compound_costs": null
         },
-        "66fc519786b7e546842f1135;1;": {
-            "weight": 52.97691160110631,
+        "681b0978fb872fc3d00f06e1;1;": {
+            "weight": 0.8219985970759848,
             "required_compounds": [],
             "required_compound_costs": null
         },
         "type": "FLASK"
     },
-    "66fc519786b7e546842f1135;0;": {
-        "66fc518d86b7e5467f2f1145": {
-            "weight": 0.0,
-            "required_compounds": []
+    "681b096c5af3fca5200f06e1": {
+        "681b0978fb872fc3d00f06df;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e3",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
         },
-        "type": "rxn_node",
-        "elementary_step_id": "66fc518a4749e6245a11a0a9"
+        "681b0984fb872fc3d00f06e9;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681a2d08bdbbf6464c040cc6",
+                "681b096c5af3fca5200f06e3"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a03676749d9d8b083465;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "6841a036b51ecb087e08346b"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a03676749d9d8b083467;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "6841a036b51ecb087e08346d",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a1bc76749d9d8b083473;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0",
+                "681b096c5af3fca5200f06e3"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
     },
-    "66fc519786b7e546842f1135;1;": {
-        "66fc4b7e86b7e5467f2f1143": {
+    "681b096c5af3fca5200f06e3": {
+        "681b0978fb872fc3d00f06df;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "681b0984fb872fc3d00f06e9;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681a2d08bdbbf6464c040cc6"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a1bc76749d9d8b083473;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681a2c18bdbbf6464c040cc0"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681b0978fb872fc3d00f06e1;0;": {
+        "681b096b5af3fca5200f06d5": {
             "weight": 0.0,
             "required_compounds": []
         },
         "type": "rxn_node",
-        "elementary_step_id": "66fc518a4749e6245a11a0a9"
+        "elementary_step_id": "681a3fa30a43c168fd06ffc8"
+    },
+    "681b0978fb872fc3d00f06e1;1;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a3fa30a43c168fd06ffc8"
+    },
+    "681b0978fb872fc3d00f06e3;0;": {
+        "681a2cfebdbbf6464c040cc2": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a400d9fc3ac614908fce4"
+    },
+    "681b0978fb872fc3d00f06e3;1;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2d08bdbbf6464c040cc6": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a400d9fc3ac614908fce4"
+    },
+    "681b097dfb872fc3d00f06e5;0;": {
+        "681b096d5af3fca5200f06e5": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a4c7ff503c1834208fce1"
+    },
+    "681b097dfb872fc3d00f06e5;1;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a4c7ff503c1834208fce1"
+    },
+    "681b096d5af3fca5200f06e5": {
+        "681b097dfb872fc3d00f06e5;1;": {
+            "weight": 158.38645211207555,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "681b097efb872fc3d00f06e7;0;": {
+        "681a2d08bdbbf6464c040cc6": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06dd"
+            ]
+        },
+        "681b096b5af3fca5200f06dd": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a4fdb7e6d4aba9106ffc1"
+    },
+    "681b097efb872fc3d00f06e7;1;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a4fdb7e6d4aba9106ffc1"
+    },
+    "681b0984fb872fc3d00f06e9;0;": {
+        "681b096b5af3fca5200f06d7": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a5329af23b0a32806ffd6"
+    },
+    "681b0984fb872fc3d00f06e9;1;": {
+        "681b096c5af3fca5200f06e1": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681a2d08bdbbf6464c040cc6",
+                "681b096c5af3fca5200f06e3"
+            ]
+        },
+        "681a2d08bdbbf6464c040cc6": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e3"
+            ]
+        },
+        "681b096c5af3fca5200f06e3": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e1",
+                "681a2d08bdbbf6464c040cc6"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a5329af23b0a32806ffd6"
+    },
+    "681b096b5af3fca5200f06d7": {
+        "681b0984fb872fc3d00f06e9;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "681b0984fb872fc3d00f06eb;0;": {
+            "weight": 1.298436108353175,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "FLASK"
+    },
+    "681b0984fb872fc3d00f06eb;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc6",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2d08bdbbf6464c040cc6": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2d08bdbbf6464c040cc6"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a5329af23b0a32806ffd7"
+    },
+    "681b0984fb872fc3d00f06eb;1;": {
+        "681b096b5af3fca5200f06d7": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "681a5329af23b0a32806ffd7"
+    },
+    "68419ffc76749d9d8b083453;0;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2cfebdbbf6464c040cc2"
+            ]
+        },
+        "681a2cfebdbbf6464c040cc2": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419cf8390acd071b04261a"
+    },
+    "68419ffc76749d9d8b083453;1;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "68419ff2b51ecb087e083453"
+            ]
+        },
+        "68419ff2b51ecb087e083453": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419cf8390acd071b04261a"
+    },
+    "68419ff2b51ecb087e083453": {
+        "68419ffc76749d9d8b083453;0;": {
+            "weight": 33.35040639127623,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b083455;0;": {
+        "68419ff2b51ecb087e083455": {
+            "weight": 0.0,
+            "required_compounds": [
+                "68419ff2b51ecb087e083457"
+            ]
+        },
+        "68419ff2b51ecb087e083457": {
+            "weight": 0.0,
+            "required_compounds": [
+                "68419ff2b51ecb087e083455"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419d3445a3b9764b042617"
+    },
+    "68419ffc76749d9d8b083455;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419d3445a3b9764b042617"
+    },
+    "68419ff2b51ecb087e083455": {
+        "68419ffc76749d9d8b083455;1;": {
+            "weight": 174.8526823706157,
+            "required_compounds": [
+                "68419ff2b51ecb087e083457"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ff2b51ecb087e083457": {
+        "68419ffc76749d9d8b083455;1;": {
+            "weight": 174.8526823706157,
+            "required_compounds": [
+                "68419ff2b51ecb087e083455"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b083457;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "68419ff2b51ecb087e083459"
+            ]
+        },
+        "68419ff2b51ecb087e083459": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419d38963b2637d90070e7"
+    },
+    "68419ffc76749d9d8b083457;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419d38963b2637d90070e7"
+    },
+    "68419ff2b51ecb087e083459": {
+        "68419ffc76749d9d8b083457;1;": {
+            "weight": 147.9419141713267,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b083459;0;": {
+        "68419ff2b51ecb087e08345b": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419d4291dcebde5c042614"
+    },
+    "68419ffc76749d9d8b083459;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419d4291dcebde5c042614"
+    },
+    "68419ff2b51ecb087e08345b": {
+        "68419ffc76749d9d8b083459;1;": {
+            "weight": 175.3251854541373,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b08345b;0;": {
+        "68419ff2b51ecb087e08345d": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419db302a525005c042614"
+    },
+    "68419ffc76749d9d8b08345b;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419db302a525005c042614"
+    },
+    "68419ff2b51ecb087e08345d": {
+        "68419ffc76749d9d8b08345b;1;": {
+            "weight": 138.8709083683495,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b08345d;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "68419ff2b51ecb087e08345f"
+            ]
+        },
+        "68419ff2b51ecb087e08345f": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419f91f2ad4e0be1042617"
+    },
+    "68419ffc76749d9d8b08345d;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419f91f2ad4e0be1042617"
+    },
+    "68419ff2b51ecb087e08345f": {
+        "68419ffc76749d9d8b08345d;1;": {
+            "weight": 152.973082556248,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b08345f;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc",
+                "68419ff2b51ecb087e083461"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "68419ff2b51ecb087e083461"
+            ]
+        },
+        "68419ff2b51ecb087e083461": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419da322caa5a73604261a"
+    },
+    "68419ffc76749d9d8b08345f;1;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2cfebdbbf6464c040cc2"
+            ]
+        },
+        "681a2cfebdbbf6464c040cc2": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419da322caa5a73604261a"
+    },
+    "68419ff2b51ecb087e083461": {
+        "68419ffc76749d9d8b08345f;1;": {
+            "weight": 115.15317341222695,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "6841a37c76749d9d8b083477;1;": {
+            "weight": 126.08402472413046,
+            "required_compounds": [
+                "681b096b5af3fca5200f06dd"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b083461;0;": {
+        "68419ff2b51ecb087e083463": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a19a229ad135aa042611"
+    },
+    "68419ffc76749d9d8b083461;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a19a229ad135aa042611"
+    },
+    "68419ff2b51ecb087e083463": {
+        "68419ffc76749d9d8b083461;1;": {
+            "weight": 195.73521096748186,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "68419ffc76749d9d8b083463;0;": {
+        "68419ff2b51ecb087e083465": {
+            "weight": 0.0,
+            "required_compounds": [
+                "68419ff2b51ecb087e083465"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419f62620ab8fedb042617"
+    },
+    "68419ffc76749d9d8b083463;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "68419f62620ab8fedb042617"
+    },
+    "68419ff2b51ecb087e083465": {
+        "68419ffc76749d9d8b083463;1;": {
+            "weight": 150.8790723203366,
+            "required_compounds": [
+                "68419ff2b51ecb087e083465"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "6841a03676749d9d8b083465;0;": {
+        "6841a036b51ecb087e083467": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a033b930c334df042623"
+    },
+    "6841a03676749d9d8b083465;1;": {
+        "681b096c5af3fca5200f06e1": {
+            "weight": 0.0,
+            "required_compounds": [
+                "6841a036b51ecb087e08346b"
+            ]
+        },
+        "6841a036b51ecb087e08346b": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a033b930c334df042623"
+    },
+    "6841a036b51ecb087e08346b": {
+        "6841a03676749d9d8b083465;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "6841a036b51ecb087e083467": {
+        "6841a03676749d9d8b083465;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "6841a03676749d9d8b083469;0;": {
+            "weight": 41.055139216574545,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "FLASK"
+    },
+    "6841a03676749d9d8b083467;0;": {
+        "681b096c5af3fca5200f06e1": {
+            "weight": 0.0,
+            "required_compounds": [
+                "6841a036b51ecb087e08346d",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "6841a036b51ecb087e08346d": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "6841a036b51ecb087e08346d"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a033b930c334df042624"
+    },
+    "6841a03676749d9d8b083467;1;": {
+        "6841a036b51ecb087e083469": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a033b930c334df042624"
+    },
+    "6841a036b51ecb087e083469": {
+        "6841a03676749d9d8b083467;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "6841a03676749d9d8b083469;1;": {
+            "weight": 1.2470019421993457,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "FLASK"
+    },
+    "6841a036b51ecb087e08346d": {
+        "6841a03676749d9d8b083467;1;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "6841a03676749d9d8b083469;0;": {
+        "6841a036b51ecb087e083469": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a033b930c334df042625"
+    },
+    "6841a03676749d9d8b083469;1;": {
+        "6841a036b51ecb087e083467": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a033b930c334df042625"
+    },
+    "6841a04a76749d9d8b08346b;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc",
+                "6841a04ab51ecb087e08346f"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "6841a04ab51ecb087e08346f"
+            ]
+        },
+        "6841a04ab51ecb087e08346f": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1aed515ab7b5e042614"
+    },
+    "6841a04a76749d9d8b08346b;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1aed515ab7b5e042614"
+    },
+    "6841a04ab51ecb087e08346f": {
+        "6841a04a76749d9d8b08346b;1;": {
+            "weight": 49.76838125933992,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "6841a11676749d9d8b08346d;0;": {
+        "6841a10cb51ecb087e083471": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1090993f1b5b10070e1"
+    },
+    "6841a11676749d9d8b08346d;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1090993f1b5b10070e1"
+    },
+    "6841a10cb51ecb087e083471": {
+        "6841a11676749d9d8b08346d;1;": {
+            "weight": 200.0979623611244,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "6841a12a76749d9d8b08346f;0;": {
+        "681a2d08bdbbf6464c040cc4": {
+            "weight": 0.0,
+            "required_compounds": [
+                "6841a120b51ecb087e083473",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "6841a120b51ecb087e083473": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "6841a120b51ecb087e083473"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a119b8e3a96b44042617"
+    },
+    "6841a12a76749d9d8b08346f;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a119b8e3a96b44042617"
+    },
+    "6841a120b51ecb087e083473": {
+        "6841a12a76749d9d8b08346f;1;": {
+            "weight": 38.72226765175366,
+            "required_compounds": [
+                "681a2d08bdbbf6464c040cc4",
+                "681a2a56bdbbf6464c040cbc"
+            ],
+            "required_compound_costs": null
+        },
+        "type": "COMPOUND"
+    },
+    "6841a16476749d9d8b083471;0;": {
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2cfebdbbf6464c040cc2"
+            ]
+        },
+        "681a2cfebdbbf6464c040cc2": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a153a92e5bde73042614"
+    },
+    "6841a16476749d9d8b083471;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a153a92e5bde73042614"
+    },
+    "6841a1bc76749d9d8b083473;0;": {
+        "681b096c5af3fca5200f06e1": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0",
+                "681b096c5af3fca5200f06e3"
+            ]
+        },
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681b096c5af3fca5200f06e3"
+            ]
+        },
+        "681b096c5af3fca5200f06e3": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096c5af3fca5200f06e1",
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1b0c63df4dc250070ed"
+    },
+    "6841a1bc76749d9d8b083473;1;": {
+        "6841a1b2b51ecb087e083475": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1b0c63df4dc250070ed"
+    },
+    "6841a1b2b51ecb087e083475": {
+        "6841a1bc76749d9d8b083473;0;": {
+            "weight": 30.1803564619623,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "6841a1bc76749d9d8b083475;1;": {
+            "weight": 29.623636470657395,
+            "required_compounds": [],
+            "required_compound_costs": null
+        },
+        "type": "FLASK"
+    },
+    "6841a1bc76749d9d8b083475;0;": {
+        "6841a1b2b51ecb087e083475": {
+            "weight": 0.0,
+            "required_compounds": []
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1b0c63df4dc250070ee"
+    },
+    "6841a1bc76749d9d8b083475;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a1b0c63df4dc250070ee"
+    },
+    "6841a37c76749d9d8b083477;0;": {
+        "681b096b5af3fca5200f06dd": {
+            "weight": 0.0,
+            "required_compounds": [
+                "68419ff2b51ecb087e083461"
+            ]
+        },
+        "68419ff2b51ecb087e083461": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681b096b5af3fca5200f06dd"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a36e43cf81790a0070e7"
+    },
+    "6841a37c76749d9d8b083477;1;": {
+        "681a2c18bdbbf6464c040cc0": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2a56bdbbf6464c040cbc"
+            ]
+        },
+        "681a2a56bdbbf6464c040cbc": {
+            "weight": 0.0,
+            "required_compounds": [
+                "681a2c18bdbbf6464c040cc0"
+            ]
+        },
+        "type": "rxn_node",
+        "elementary_step_id": "6841a36e43cf81790a0070e7"
     }
 }
