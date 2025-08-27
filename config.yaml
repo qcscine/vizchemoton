@@ -16,10 +16,10 @@ files:
     path: "./vizchemoton/resources/crn_pathfinder.json"
     mode: "write"
   reactions:
-    path: "./vizchemoton/resources/reactions3.csv"
+    path: "./vizchemoton/resources/reactions2.csv"
     mode: "write"
   compounds:
-    path: "./vizchemoton/resources/compounds3.json"
+    path: "./vizchemoton/resources/compounds2.json"
     mode: "write"
 
 output:

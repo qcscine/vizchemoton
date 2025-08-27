@@ -2,6 +2,7 @@
   "1": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL117822",
     "crn_id": "c1",
     "energy": -16465.192453514006,
     "logp": 0.8022,
@@ -21,6 +22,7 @@
   "2": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL117822","CHEMBL117822"],
     "crn_id": "c1+c1",
     "energy": [-16465.192453514006,-16465.192453514006],
     "logp": [0.8022,0.8022],
@@ -40,6 +42,7 @@
   "3": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c3",
     "energy": -33122.38128309461,
     "logp": 1.4163,
@@ -59,6 +62,7 @@
   "4": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts4",
     "energy": -32689.912108465232,
     "logp": null,
@@ -78,6 +82,7 @@
   "5": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL117210",
     "crn_id": "c5",
     "energy": -33097.18367383037,
     "logp": 1.5824,
@@ -97,6 +102,7 @@
   "6": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts6",
     "energy": -32776.49790476134,
     "logp": null,
@@ -116,6 +122,7 @@
   "7": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts7",
     "energy": -32656.165883949267,
     "logp": null,
@@ -135,6 +142,7 @@
   "8": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "f8",
     "energy": -32734.388649265005,
     "logp": null,
@@ -154,6 +162,7 @@
   "9": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c9",
     "energy": -13442.69933802865,
     "logp": null,
@@ -173,6 +182,7 @@
   "10": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL135626",
     "crn_id": "c10",
     "energy": -19261.63031534407,
     "logp": 1.0262,
@@ -192,6 +202,7 @@
   "11": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": [null,"CHEMBL135626"],
     "crn_id": "c9+c10",
     "energy": [-13442.69933802865,-19261.63031534407],
     "logp": [null,1.0262],
@@ -211,6 +222,7 @@
   "12": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL135626",
     "crn_id": "c12",
     "energy": -16169.362280587065,
     "logp": 1.0262,
@@ -230,6 +242,7 @@
   "13": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL117822","CHEMBL135626"],
     "crn_id": "c1+c12",
     "energy": [-16465.192453514006,-16169.362280587065],
     "logp": [0.8022,1.0262],
@@ -249,6 +262,7 @@
   "14": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts14",
     "energy": -32572.935691646846,
     "logp": null,
@@ -268,6 +282,7 @@
   "15": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts15",
     "energy": -32614.058189385916,
     "logp": null,
@@ -287,6 +302,7 @@
   "16": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL116336",
     "crn_id": "c16",
     "energy": -13670.37793833836,
     "logp": 0.24939999999999998,
@@ -306,6 +322,7 @@
   "17": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL116336","CHEMBL135626"],
     "crn_id": "c16+c10",
     "energy": [-13670.37793833836,-19261.63031534407],
     "logp": [0.24939999999999998,1.0262],
@@ -325,6 +342,7 @@
   "18": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts18",
     "energy": -32549.410805852673,
     "logp": null,
@@ -344,6 +362,7 @@
   "19": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "f19",
     "energy": -32536.349770460074,
     "logp": 1.5200900000000002,
@@ -363,6 +382,7 @@
   "20": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts20",
     "energy": -32536.103817524425,
     "logp": null,
@@ -382,6 +402,7 @@
   "21": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c21",
     "energy": -33143.46312032334,
     "logp": 1.5604,
@@ -401,6 +422,7 @@
   "22": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts22",
     "energy": -32752.623404834823,
     "logp": null,
@@ -420,6 +442,7 @@
   "23": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts23",
     "energy": -32782.42962415293,
     "logp": null,
@@ -439,6 +462,7 @@
   "24": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c24",
     "energy": -2580.042196684944,
     "logp": 0.246,
@@ -458,6 +482,7 @@
   "25": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c25",
     "energy": -46713.96688979746,
     "logp": 1.99098,
@@ -477,6 +502,7 @@
   "26": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": [null,null],
     "crn_id": "c24+c25",
     "energy": [-2580.042196684944,-46713.96688979746],
     "logp": [0.246,1.99098],
@@ -496,6 +522,7 @@
   "27": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL117822","CHEMBL117210"],
     "crn_id": "c1+c5",
     "energy": [-16465.192453514006,-33097.18367383037],
     "logp": [0.8022,1.5824],
@@ -515,6 +542,7 @@
   "28": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts28",
     "energy": -49213.12663571497,
     "logp": null,
@@ -534,6 +562,7 @@
   "29": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL117822",null],
     "crn_id": "c1+c3",
     "energy": [-16465.192453514006,-33122.38128309461],
     "logp": [0.8022,1.4163],
@@ -553,6 +582,7 @@
   "30": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL17564",
     "crn_id": "c30",
     "energy": -10962.034694967324,
     "logp": 0.6361,
@@ -572,6 +602,7 @@
   "31": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c31",
     "energy": -38652.70473327399,
     "logp": 1.5824,
@@ -591,6 +622,7 @@
   "32": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL17564",null],
     "crn_id": "c30+c31",
     "energy": [-10962.034694967324,-38652.70473327399],
     "logp": [0.6361,1.5824],
@@ -610,6 +642,7 @@
   "33": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts33",
     "energy": -49183.079034624956,
     "logp": null,
@@ -629,6 +662,7 @@
   "34": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c34",
     "energy": -46973.179496895915,
     "logp": 1.9725,
@@ -648,6 +682,7 @@
   "35": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": [null,null],
     "crn_id": "c24+c34",
     "energy": [-2580.042196684944,-46973.179496895915],
     "logp": [0.246,1.9725],
@@ -667,6 +702,7 @@
   "36": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts36",
     "energy": -49188.27191535283,
     "logp": null,
@@ -686,6 +722,7 @@
   "37": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c37",
     "energy": -49711.63258908135,
     "logp": 2.2184999999999997,
@@ -705,6 +742,7 @@
   "38": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts38",
     "energy": -49278.800881021605,
     "logp": null,
@@ -724,6 +762,7 @@
   "39": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c39",
     "energy": -49712.310282945735,
     "logp": 2.2184999999999997,
@@ -743,6 +782,7 @@
   "40": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts40",
     "energy": -49369.8539279826,
     "logp": null,
@@ -762,6 +802,7 @@
   "41": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c41",
     "energy": -46958.55975843599,
     "logp": 1.9725,
@@ -781,6 +822,7 @@
   "42": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": [null,null],
     "crn_id": "c24+c41",
     "energy": [-2580.042196684944,-46958.55975843599],
     "logp": [0.246,1.9725],
@@ -800,6 +842,7 @@
   "43": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts43",
     "energy": -49161.509357357194,
     "logp": null,
@@ -819,6 +862,7 @@
   "44": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c44",
     "energy": -49739.25381978706,
     "logp": 2.1965000000000003,
@@ -838,6 +882,7 @@
   "45": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts45",
     "energy": -49254.83339973459,
     "logp": null,
@@ -857,6 +902,7 @@
   "46": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL1796999",
     "crn_id": "c46",
     "energy": -24806.22073306102,
     "logp": 1.1703,
@@ -876,6 +922,7 @@
   "47": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL1796999","CHEMBL1796999"],
     "crn_id": "c46+c46",
     "energy": [-24806.22073306102,-24806.22073306102],
     "logp": [1.1703,1.1703],
@@ -895,6 +942,7 @@
   "48": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts48",
     "energy": -49240.210601521365,
     "logp": null,
@@ -914,6 +962,7 @@
   "49": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c49",
     "energy": -1033.0888543853628,
     "logp": null,
@@ -933,6 +982,7 @@
   "50": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c50",
     "energy": -48162.11241114612,
     "logp": null,
@@ -952,6 +1002,7 @@
   "51": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": [null,null],
     "crn_id": "c49+c50",
     "energy": [-1033.0888543853628,-48162.11241114612],
     "logp": [null,null],
@@ -971,6 +1022,7 @@
   "52": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "f52",
     "energy": -49235.80454018674,
     "logp": 2.12319,
@@ -990,6 +1042,7 @@
   "53": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "f53",
     "energy": -49137.121911903145,
     "logp": 2.1451900000000004,
@@ -1009,6 +1062,7 @@
   "54": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts54",
     "energy": -49135.82239429459,
     "logp": null,
@@ -1028,6 +1082,7 @@
   "55": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "c55",
     "energy": -49747.563434377014,
     "logp": 2.1965000000000003,
@@ -1047,6 +1102,7 @@
   "56": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts56",
     "energy": -49253.3210976758,
     "logp": null,
@@ -1066,6 +1122,7 @@
   "57": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts57",
     "energy": -49130.11907702993,
     "logp": null,
@@ -1085,6 +1142,7 @@
   "58": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "f58",
     "energy": -49192.600791089964,
     "logp": 2.1341900000000003,
@@ -1104,6 +1162,7 @@
   "59": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts59",
     "energy": -49120.956839683604,
     "logp": null,
@@ -1123,6 +1182,7 @@
   "60": {
     "basis_set": "",
     "charge": 0,
+    "chembl": "CHEMBL537970",
     "crn_id": "c60",
     "energy": -30322.71381896515,
     "logp": 1.3584,
@@ -1142,6 +1202,7 @@
   "61": {
     "basis_set": ["",""],
     "charge": [0,0],
+    "chembl": ["CHEMBL135626","CHEMBL537970"],
     "crn_id": "c10+c60",
     "energy": [-19261.63031534407,-30322.71381896515],
     "logp": [1.0262,1.3584],
@@ -1161,6 +1222,7 @@
   "62": {
     "basis_set": "",
     "charge": 0,
+    "chembl": null,
     "crn_id": "ts62",
     "energy": -49273.431144530376,
     "logp": null,
