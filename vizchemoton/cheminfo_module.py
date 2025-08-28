@@ -16,10 +16,8 @@ from xyz2mol import xyz2mol
 from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors, Crippen, rdMolDescriptors
 from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
-#from chembl_webresource_client.new_client import new_client
-#from pubchempy import get_compounds, BadRequestError
-#from chemspipy import ChemSpider
 
+# Local Imports
 from vizchemoton.html_module import (format_value_list)
 
 def get_cartesian_descriptors(xyz):
@@ -85,10 +83,15 @@ def convert_struct_to_smile(centroid):
     return dsmiles
 
 def is_valid_smiles(smiles):
-    """Check if a SMILES string is valid using RDKit."""
+    """
+    Check if a SMILES string is valid using RDKit.
+    """
     return Chem.MolFromSmiles(smiles) is not None
 
 def _get_inchikey_from_smiles(smiles):
+    """
+    Transform SMILES to InChIKey.
+    """
     mol = Chem.MolFromSmiles(smiles)
     return Chem.inchi.MolToInchiKey(mol)
 
@@ -124,9 +127,6 @@ def get_chembl_id(smiles, verbose=True):
     """
     from chembl_webresource_client.new_client import new_client
     inchikey = _get_inchikey_from_smiles(smiles)
-    # Query ChEMBL by InChIKey
-    #molecule = new_client.molecule
-    #results = molecule.filter(molecule_structures__standard_inchi_key=inchikey)
     dchembl = {"id": None}
     try:
         molecule = new_client.molecule
@@ -146,7 +146,6 @@ def get_chemspider_id(smiles, apikey, verbose=True):
     Check if InChIKey is in ChemSpider database using their Python API.
     """
     from chemspipy import ChemSpider
-    #cs = ChemSpider(apikey)
     inchikey = _get_inchikey_from_smiles(smiles)
     try:
         cs = ChemSpider(apikey)
