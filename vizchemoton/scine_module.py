@@ -28,7 +28,7 @@ from scine_database.energy_query_functions import (
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
 from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smile, 
-                              get_rdkit_properties)
+                              get_rdkit_properties, get_public_database_id)
 
 
 def get_crn_as_pathfinder(
@@ -316,29 +316,20 @@ def _init_list_fields(rdkitprop):
 def _extract_structure_data(structure_obj, model, structures, properties, apikey, calcsmiles, rdkitprop, databases):
     """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
     dprop = {k:None for k in rdkitprop}
-    dpub = {"cid": None}
-    dchembl = {"id": None}
-    dchemspi = {"id": None}
-    dchebi = {"id": None}
+    dpublidbs = {"pubchem": None, "chembl": None, "chebi": None, "chemspi": None}
     xyz = [(str(o.element), tuple(o.position))
            for o in structure_obj.get_atoms()]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
     dsmiles = convert_struct_to_smile(
         structure_obj) if calcsmiles else {'smiles': None}
+    # smiles calculation
     if calcsmiles and dsmiles['smiles'] != None:
         dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
-        if databases["pubchem"]:
-            from .cheminfo_module import get_pubchem_cid
-            dpub = get_pubchem_cid(dsmiles['smiles'])
-        if databases["chembl"]:
-            from .cheminfo_module import get_chembl_id
-            dchembl = get_chembl_id(dsmiles['smiles'])
-        if databases["chebi"]:
-            from .cheminfo_module import get_chebi_id
-            dchebi = get_chebi_id(dsmiles['smiles'])
-        if databases["chemspider"]:
-            from .cheminfo_module import get_chemspider_id
-            dchemspi = get_chemspider_id(dsmiles['smiles'], apikey)
+        # query public databases
+        for name in ["pubchem", "chembl", "chebi"]:  # hardcoded
+            if databases[name]:
+                db_id = get_public_database_id(name, dsmiles['smiles'])["id"]
+                dpublidbs[name] = db_id
     e = get_energy_for_structure(
         structure_obj,
         'electronic_energy',
@@ -350,6 +341,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, apikey
     else:
         e_kj = 0
     xyzdes = get_cartesian_descriptors(xyz)   
+    # create static dictionary
     tmpd = {
         "xyz": xyz,
         "charge": z,
@@ -362,11 +354,12 @@ def _extract_structure_data(structure_obj, model, structures, properties, apikey
         "solvation": model.solvation,
         "smiles": dsmiles['smiles'], 
         "xyzdes": xyzdes,
-        "pubchem": dpub["cid"],
-        "chembl": dchembl["id"],
-        "chebi": dchebi["id"],
-        "chemspider": dchemspi["id"],
+        "pubchem": dpublidbs["pubchem"],
+        "chembl": dpublidbs["chembl"],
+        "chebi": dpublidbs["chebi"],
+        "chemspider": dpublidbs["chemspi"],
     }
+    # add dynamic requested rdkit properties
     for k in rdkitprop:
         tmpd[k] = dprop[k]
     return tmpd

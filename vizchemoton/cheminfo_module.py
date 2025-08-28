@@ -95,6 +95,27 @@ def _get_inchikey_from_smiles(smiles):
     mol = Chem.MolFromSmiles(smiles)
     return Chem.inchi.MolToInchiKey(mol)
 
+def get_public_database_id(name, smiles):
+    """
+    Wrapper
+    """
+
+    ddb = {name: None}
+    if name == "pubchem":
+        from .cheminfo_module import get_pubchem_cid
+        ddb = get_pubchem_cid(smiles, delay=0.5, verbose=True)
+        return ddb
+    elif name == "chembl":
+        from .cheminfo_module import get_chembl_id
+        ddb = get_chembl_id(smiles)
+        return ddb
+    elif name == "chebi":
+        from .cheminfo_module import get_chebi_id
+        ddb = get_chebi_id(smiles)
+
+    return ddb
+
+
 def get_pubchem_cid(smiles, delay=0.5, verbose=True):
     """
     Check if SMILES are in PubChem.
@@ -109,15 +130,15 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
     from pubchempy import get_compounds
     inchikey = _get_inchikey_from_smiles(smiles)
     time.sleep(delay)  # Avoid PubChem rate limits
-    dpub = {"cid": None}
+    dpub = {"id": None}
     try:
         compounds = get_compounds(inchikey, 'inchikey')
         if len(compounds) > 0:  # True if found
-            dpub["cid"] = compounds[0].cid
+            dpub["id"] = compounds[0].cid
     except Exception:
-        dpub["cid"] = "Error"  # PubChem rejected the request
+        dpub["id"] = "Error"  # PubChem rejected the request
     strtmp = "#### Querying PubChem. {s} has id = {b}"
-    if verbose: print(strtmp.format(s=smiles, b=str(dpub["cid"])))
+    if verbose: print(strtmp.format(s=smiles, b=str(dpub["id"])))
 
     return dpub
 
@@ -241,7 +262,7 @@ def compute_cheminf_props(graph,prop_keys):
             elif spid in id_to_props.keys(): 
                 current = id_to_props[spid]
             else:
-                current = get_bio_properties(smi,prop_keys)
+                current = get_rdkit_properties(smi,prop_keys)
                 id_to_props[spid] = current
                 
             for k in prop_keys:

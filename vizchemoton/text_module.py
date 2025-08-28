@@ -143,3 +143,61 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
 
     return reaction_tuples, compounds
 
+
+#def review_compound_file(compounds_file):
+#    """
+#    Helper function which reviews the compound file in search for Error messages
+#    product of timeouts while querying the APIs of the Public Databases.
+#    """
+#    with open(compounds_file, "r") as fcomp:
+#        compounds = json.load(fcomp)
+#
+#    errors = [entry for entry in data if entry.get('pubchem') == 'Error']
+#    lkeys = ["pubchem", "chebi", "chembl", "chemspider"]
+#    errors = []
+#
+#    # identify which compounds have errors
+#    for k1 in compounds:
+#        cmp = compounds[k1]
+#        for k2 in lkeys:
+#            if cmp[k2] == 'Error':
+#                
+#
+#                errors.append((cmp, k, int))
+#            elif 'Error' in cmp[k]:
+#                errors.append((cmp, k, list))
+#
+#    # loop over the errors
+#    for c,k,t in errors:
+#        smiles = compounds[c]['smiles']
+#        if isinstance(t, list):
+#            for 
+#        elif isinstance(t, int):
+#           
+#            
+# 
+#
+#
+#        if databases["pubchem"]:
+#            from .cheminfo_module import get_pubchem_cid
+#            dpub = get_pubchem_cid(dsmiles['smiles'])
+#        if databases["chembl"]:
+#            from .cheminfo_module import get_chembl_id
+#            dchembl = get_chembl_id(dsmiles['smiles'])
+#        if databases["chebi"]:
+#            from .cheminfo_module import get_chebi_id
+#            dchebi = get_chebi_id(dsmiles['smiles'])
+#        if databases["chemspider"]:
+#            from .cheminfo_module import get_chemspider_id
+#            dchemspi = get_chemspider_id(dsmiles['smiles'], apikey)
+#
+#
+#
+#    print(f"Found {len(errors)} entries with errors.")
+
+
+
+
+
+
+
