@@ -165,14 +165,19 @@ def review_compound_file(compounds_file, verbose=True):
         for k2 in lkeys:  # update json file
             if isinstance(cmp[k2], str) and cmp[k2] == 'Error':
                 smiles = compounds[k1]['smiles']
-                ddb = get_public_database_id(k2, smiles)
-                compounds[k1][k2] = ddb["id"]
+                if smiles != None:
+                    ddb = get_public_database_id(k2, smiles)
+                    compounds[k1][k2] = ddb["id"]
             elif isinstance(cmp[k2], list) and 'Error' in cmp[k2]:
                 lsmiles = compounds[k1]['smiles'].split("//")
                 ltmp = list()
                 for smiles in lsmiles:
-                    ddb = get_public_database_id(k2, smiles)
-                    ltmp.append(ddb["id"])
+                    if smiles != 'None':
+                        # Here is 'None' a string because it is 
+                        # concatenated with a SMILES. It can be
+                        # improved.
+                        ddb = get_public_database_id(k2, smiles)
+                        ltmp.append(ddb["id"])
                 compounds[k1][k2] = ltmp
 
     with open(compounds_file+'.reviewed', "w") as f:
