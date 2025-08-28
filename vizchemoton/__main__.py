@@ -8,7 +8,8 @@ visualize GRRM-generated reaction networks.
 import sys
 import networkx as nx
 from .text_module import (vizchemoton_header, write_compound_reactions_files,
-                          read_compound_reactions_files, load_config)
+                          read_compound_reactions_files, load_config,
+                          review_compound_file)
 from .scine_module import (get_crn_as_pathfinder, get_reactions_and_compounds)
 from .html_module import (process_graph, build_dashboard, aggregate_property)
 from .cheminfo_module import (pubchem_node_check,compute_cheminf_props)
@@ -92,6 +93,15 @@ def main():
     reactions, compounds = read_compound_reactions_files(
         reactions_file, compounds_file, verbose=verbose)
     graph = process_graph(reactions, compounds, dist_adduct)
+
+    if compounds_mode == 'review':
+        reactions, compounds = read_compound_reactions_files(
+                 reactions_file, compounds_file, verbose=verbose)
+        compounds = review_compound_file(compounds_file)
+    elif compounds_mode == 'read': 
+        reactions, compounds = read_compound_reactions_files(
+                reactions_file, compounds_file, verbose=verbose)
+
 
     kwargs_dash =  {"custom_hovers":[]}
     if map_field == "pubchemRank":
