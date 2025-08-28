@@ -170,7 +170,6 @@ def get_chebi_id(smiles, verbose=True):
    return dchebi
 
 
-
 def _get_rdkit_descriptor(mol, name, modules):
     for module in modules:
         if hasattr(module, name):
