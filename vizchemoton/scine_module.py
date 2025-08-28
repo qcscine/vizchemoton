@@ -28,7 +28,7 @@ from scine_database.energy_query_functions import (
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
 from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smile, 
-                              get_bio_properties)
+                              get_rdkit_properties)
 
 
 def get_crn_as_pathfinder(
@@ -326,7 +326,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, apikey
     dsmiles = convert_struct_to_smile(
         structure_obj) if calcsmiles else {'smiles': None}
     if calcsmiles and dsmiles['smiles'] != None:
-        dprop = get_bio_properties(dsmiles['smiles'], rdkitprop)
+        dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
         if databases["pubchem"]:
             from .cheminfo_module import get_pubchem_cid
             dpub = get_pubchem_cid(dsmiles['smiles'])

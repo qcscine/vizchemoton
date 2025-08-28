@@ -183,25 +183,22 @@ def get_chebi_id(smiles, verbose=True):
 
 
 def _get_rdkit_descriptor(mol, name, modules):
+    """
+    General function to extract properties from RDKit.
+    """
     for module in modules:
         if hasattr(module, name):
             func = getattr(module, name)
             return func(mol)
     raise ValueError(f"Descriptor '{name}' not found in RDKit modules.")
 
-def get_bio_properties(smiles, rdkitprop):
+def get_rdkit_properties(smiles, rdkitprop):
     """
-    Compute MW, logP, and TPSA for a list of SMILES.
-    
-    Returns a Pandas DataFrame.
+    Returns the RDKit properties demanded in the config.yaml
     """
     modules = [Descriptors, Crippen, rdMolDescriptors]
     mol = Chem.MolFromSmiles(smiles)
-    #mw = Descriptors.MolWt(mol)
-    #logp = Crippen.MolLogP(mol)
-    #tpsa = rdMolDescriptors.CalcTPSA(mol)
     dprop = {k:_get_rdkit_descriptor(mol, k, modules) for k in rdkitprop}
-    #dprop = {"molwt": mw, "logp": logp, "tpsa": tpsa}
     return dprop
 
 def pubchem_node_check(graph,compounds):
