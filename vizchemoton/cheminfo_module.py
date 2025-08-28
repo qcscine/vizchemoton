@@ -16,9 +16,9 @@ from xyz2mol import xyz2mol
 from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors, Crippen, rdMolDescriptors
 from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
-from chembl_webresource_client.new_client import new_client
-from pubchempy import get_compounds, BadRequestError
-from chemspipy import ChemSpider
+#from chembl_webresource_client.new_client import new_client
+#from pubchempy import get_compounds, BadRequestError
+#from chemspipy import ChemSpider
 
 from vizchemoton.html_module import (format_value_list)
 
@@ -103,6 +103,7 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
     Returns:
         dict: {SMILES: True/False} indicating whether the compound exists in PubChem.
     """
+    from pubchempy import get_compounds
     inchikey = _get_inchikey_from_smiles(smiles)
     time.sleep(delay)  # Avoid PubChem rate limits
     dpub = {"cid": None}
@@ -110,8 +111,8 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
         compounds = get_compounds(inchikey, 'inchikey')
         if len(compounds) > 0:  # True if found
             dpub["cid"] = compounds[0].cid
-    except BadRequestError:
-        dpub["cid"] = None  # PubChem rejected the request
+    except Exception:
+        dpub["cid"] = "Error"  # PubChem rejected the request
     strtmp = "#### Querying PubChem. {s} has id = {b}"
     if verbose: print(strtmp.format(s=smiles, b=str(dpub["cid"])))
 
@@ -121,15 +122,21 @@ def get_chembl_id(smiles, verbose=True):
     """
     Check if InChIKey is in ChEMBL database using their Python API.
     """
+    from chembl_webresource_client.new_client import new_client
     inchikey = _get_inchikey_from_smiles(smiles)
     # Query ChEMBL by InChIKey
-    molecule = new_client.molecule
-    results = molecule.filter(molecule_structures__standard_inchi_key=inchikey)
+    #molecule = new_client.molecule
+    #results = molecule.filter(molecule_structures__standard_inchi_key=inchikey)
     dchembl = {"id": None}
-    if len(results) > 0:
-        idchembl = results[0]['molecule_chembl_id']
-        number = int(''.join(filter(str.isdigit, idchembl)))
-        dchembl["id"] = number
+    try:
+        molecule = new_client.molecule
+        results = molecule.filter(molecule_structures__standard_inchi_key=inchikey)
+        if len(results) > 0:
+            idchembl = results[0]['molecule_chembl_id']
+            number = int(''.join(filter(str.isdigit, idchembl)))
+            dchembl["id"] = number
+    except Exception:
+        dchembl["id"] = "Error"
     strtmp = "#### Querying ChEMBL. {s} has id = {b}"
     if verbose: print(strtmp.format(s=smiles, b=str(dchembl["id"])))
     return dchembl
@@ -138,13 +145,18 @@ def get_chemspider_id(smiles, apikey, verbose=True):
     """
     Check if InChIKey is in ChemSpider database using their Python API.
     """
-    cs = ChemSpider(apikey)
+    from chemspipy import ChemSpider
+    #cs = ChemSpider(apikey)
     inchikey = _get_inchikey_from_smiles(smiles)
-    results = cs.search(inchikey)
-    dchemspi = {"id": None}
-    if len(results) > 0:
-        idchemspi = results[0].csid
-        dchemspi["id"] = idchemspi
+    try:
+        cs = ChemSpider(apikey)
+        results = cs.search(inchikey)
+        dchemspi = {"id": None}
+        if len(results) > 0:
+            idchemspi = results[0].csid
+            dchemspi["id"] = idchemspi
+    except Exception:
+        dchemspi["id"] = "Error"
     strtmp = "#### Querying ChemSpider. {s} has id = {b}"
     if verbose: print(strtmp.format(s=smiles, b=str(dchemspi["id"])))
     return dchemspi

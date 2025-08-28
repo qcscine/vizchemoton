@@ -17,7 +17,7 @@ cheminfo:
   smiles: True
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
   pubchem: True
-  chembl: False
+  chembl: True
   chemspider: False
   chebi: True
   verbose: True
