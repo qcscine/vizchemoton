@@ -1,5 +1,5 @@
 scine:
-  active: False
+  active: True
   name: "eth_o2_s3"
   ip: "localhost"
   port: "27017"
@@ -19,15 +19,16 @@ cheminfo:
   pubchem: True
   chembl: False
   chemspider: False
+  chebi: True
   verbose: True
 
 files:
   reactions:
     path: "./vizchemoton/resources/reactions2.csv"
-    mode: "read"
+    mode: "write"
   compounds:
     path: "./vizchemoton/resources/compounds2.json"
-    mode: "read"
+    mode: "write"
 
 html:
   dist_adduct: 3.0

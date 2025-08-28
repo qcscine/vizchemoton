@@ -138,9 +138,7 @@ def get_chemspider_id(smiles, apikey, verbose=True):
     """
     Check if InChIKey is in ChemSpider database using their Python API.
     """
-    print(apikey)
     cs = ChemSpider(apikey)
-    print(cs, apikey)
     inchikey = _get_inchikey_from_smiles(smiles)
     results = cs.search(inchikey)
     dchemspi = {"id": None}
@@ -150,6 +148,28 @@ def get_chemspider_id(smiles, apikey, verbose=True):
     strtmp = "#### Querying ChemSpider. {s} has id = {b}"
     if verbose: print(strtmp.format(s=smiles, b=str(dchemspi["id"])))
     return dchemspi
+
+def get_chebi_id(smiles, verbose=True):
+   """
+   Check if InChIKey is in ChEBI database using their Python API.
+   """
+   from libchebipy import search
+   inchikey = _get_inchikey_from_smiles(smiles)
+   dchebi = {"id": None}
+   try:
+       # search() returns a list of ChebiEntity objects
+       entities = search(inchikey)
+       if entities:
+           idchebi = entities[0].get_id()  # take the first match
+           number = int(''.join(filter(str.isdigit, idchebi)))
+           dchebi["id"] = number
+   except Exception as e:
+       dchebi["id"] = "Error"
+   strtmp = "#### Querying ChEBI. {s} has id = {b}"
+   if verbose: print(strtmp.format(s=smiles, b=str(dchebi["id"])))
+   return dchebi
+
+
 
 def _get_rdkit_descriptor(mol, name, modules):
     for module in modules:

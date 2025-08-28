@@ -44,7 +44,9 @@ def main():
     pubchem = config["cheminfo"]["pubchem"]
     chembl = config["cheminfo"]["chembl"]
     chemspider = config["cheminfo"]["chemspider"]
-    databases = {"pubchem": pubchem, "chembl": chembl, "chemspider": chemspider}
+    chebi = config["cheminfo"]["chebi"]
+    databases = {"pubchem": pubchem, "chembl": chembl, 
+                 "chemspider": chemspider, "chebi": chebi}
 
     dist_adduct = config["html"]["dist_adduct"]
     size = tuple(config["html"]["size"])

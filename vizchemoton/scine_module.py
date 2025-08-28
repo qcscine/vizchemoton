@@ -29,7 +29,7 @@ from scine_database.energy_query_functions import (
     get_energy_for_structure)
 from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smile, 
                              get_bio_properties, get_pubchem_cid, get_chembl_id,
-                             get_chemspider_id)
+                             get_chemspider_id, get_chebi_id)
 
 
 def get_crn_as_pathfinder(
@@ -312,7 +312,7 @@ def _init_list_fields(rdkitprop):
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
-        "smiles", "xyzdes", "pubchem", "chembl", "chemspider"] + rdkitprop}
+        "smiles", "xyzdes", "pubchem", "chembl", "chebi", "chemspider"] + rdkitprop}
 
 def _extract_structure_data(structure_obj, model, structures, properties, apikey, calcsmiles, rdkitprop, databases):
     """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
@@ -320,6 +320,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, apikey
     dpub = {"cid": None}
     dchembl = {"id": None}
     dchemspi = {"id": None}
+    dchebi = {"id": None}
     xyz = [(str(o.element), tuple(o.position))
            for o in structure_obj.get_atoms()]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
@@ -331,6 +332,8 @@ def _extract_structure_data(structure_obj, model, structures, properties, apikey
             dpub = get_pubchem_cid(dsmiles['smiles'])
         if databases["chembl"]:
             dchembl = get_chembl_id(dsmiles['smiles'])
+        if databases["chebi"]:
+            dchebi = get_chebi_id(dsmiles['smiles'])
         if databases["chemspider"]:
             dchemspi = get_chemspider_id(dsmiles['smiles'], apikey)
     e = get_energy_for_structure(
@@ -358,6 +361,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, apikey
         "xyzdes": xyzdes,
         "pubchem": dpub["cid"],
         "chembl": dchembl["id"],
+        "chebi": dchebi["id"],
         "chemspider": dchemspi["id"],
     }
     for k in rdkitprop:
