@@ -1,5 +1,5 @@
 scine:
-  active: True
+  active: False
   name: "eth_o2_s3"
   ip: "localhost"
   port: "27017"
@@ -24,11 +24,11 @@ cheminfo:
 
 files:
   reactions:
-    path: "./vizchemoton/resources/reactions2.csv"
-    mode: "write"
+    path: "/home/petrusen22/personal_gitlab/reactions_crn_t.csv"
+    mode: "read"
   compounds:
-    path: "./vizchemoton/resources/compounds2.json"
-    mode: "write"
+    path: "/home/petrusen22/personal_gitlab/compounds_crn_t.json"
+    mode: "upgrade"
 
 html:
   dist_adduct: 3.0

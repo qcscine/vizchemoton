@@ -459,6 +459,7 @@ def preprocess_compounds(compounds):
     Helper function to process compounds properties.
     """
     tgt_vars = ["energy", "charge", "multiplicity"]
+    print(compounds)
     for comp in compounds.values():
         for vv in tgt_vars:
             if not isinstance(comp[vv], list):
@@ -476,7 +477,7 @@ def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
     """
     Helper function to retrieve the node name and geometry.
     """
-    if "+" in comp["crn_id"]:
+    if "+" in comp["crn_id"] or isinstance(comp["crn_id"], list):
         #node_name = "+".join(comp["crn_id"])
         node_name = comp["crn_id"]
         xyz_list = comp["xyz"]

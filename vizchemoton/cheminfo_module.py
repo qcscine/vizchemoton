@@ -47,7 +47,7 @@ def get_cartesian_descriptors(xyz):
     descripcart = [total_atoms, heavy_atoms, rg, bbox[0] * bbox[1] * bbox[2]]
     return descripcart
 
-def _convert_xyz_to_smiles(elements, coordinates, charge):
+def convert_xyz_to_smiles(elements, coordinates, charge):
     """
     Convert xyz file to smiles using the external xyz2mol library.
     """
@@ -56,8 +56,10 @@ def _convert_xyz_to_smiles(elements, coordinates, charge):
     try:
         molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
                             embed_chiral=False, allow_charged_fragments=True)
+        print("TRY", molformat)
         if len(molformat) != 0:
             smiles = MolToSmiles(molformat[0])
+            print(smiles)
             m = MolFromSmiles(smiles)
             smiles = MolToSmiles(m)
             data = {'smiles': smiles}
@@ -78,7 +80,7 @@ def convert_struct_to_smile(centroid):
     coordinates = [[cj * conv2angs for cj in ci]
                    for ci in centroid.get_atoms().positions.tolist()]
     charge = centroid.get_charge()
-    dsmiles = _convert_xyz_to_smiles(
+    dsmiles = convert_xyz_to_smiles(
         elements, coordinates, charge)
     return dsmiles
 

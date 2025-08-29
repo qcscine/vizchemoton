@@ -16,9 +16,11 @@ import random
 import yaml
 import numpy as np
 import networkx as nx
+from rdkit.Chem import GetPeriodicTable
 
 # Local Imports
-from .cheminfo_module import get_public_database_id
+from .cheminfo_module import (get_public_database_id, convert_xyz_to_smiles,
+                              get_rdkit_properties, get_cartesian_descriptors)
 
 def vizchemoton_header():
     """
@@ -185,8 +187,71 @@ def review_compound_file(compounds_file, verbose=True):
  
     return compounds
 
+def _add_smiles_to_compounds(xyz, charge):
+    
+    ptable = GetPeriodicTable()
+    elements = [ptable.GetAtomicNumber(a) for a,b in xyz]
+    coordinates = [[b2* 0.529177 for b2 in b1] for a,b1 in xyz]
+    print(elements, coordinates, type(charge))
+    dsmiles = convert_xyz_to_smiles(elements, coordinates, charge)
+    print("wtf", dsmiles)
+    return dsmiles
+
+def _add_rdkit_properties(dsmiles, rdkitprop):
+    
+    dprop = {k:None for k in rdkitprop}
+    if dsmiles['smiles'] != None:
+        dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
+    
+    return dprop
+
+def _add_public_db_ids(dsmiles, databases):
+
+    dpublidbs = {"pubchem": None, "chembl": None, "chebi": None, "chemspi": None}
+    for name in databases.keys():
+        if databases[name] and dsmiles['smiles'] != None:
+            db_id = get_public_database_id(name, dsmiles['smiles'])["id"]
+            dpublidbs[name] = db_id
 
 
+def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
+    """
+    Helper function which reviews the compound file in search for Error messages
+    product of timeouts while querying the APIs of the Public Databases.
+    """
+    if verbose:
+            print("## Reviewing {f} file".format(
+                    f=compounds_file))
+    with open(compounds_file, "r") as fcomp:
+        compounds = json.load(fcomp)
+
+    # identify which compounds have errors
+    for cnt, k1 in enumerate(compounds):
+        if cnt > 2:
+            continue
+        cmp = compounds[k1]
+        if isinstance(cmp["method"], str):
+            dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
+            dprop = _add_rdkit_properties(dsmiles, rdkitprop)
+            dpublidbs = _add_public_db_ids(dsmiles, databases)
+            xyzdes = get_cartesian_descriptors(cmp['xyz'])
+            print(dsmiles, dprop, dpublidbs, xyzdes)
+
+            #elif isinstance(cmp["mongodb_id"], list) and 'Error' in cmp[k2]:
+            #    lsmiles = compounds[k1]['smiles'].split("//")
+            #    lsmiles, lprop, lpublidbs = [], [], []
+            #    for xyz, charge in zip([cmp["xyz"], cmp["charge"]]):
+            #        smiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
+            #        lsmiles.append(smiles)
+            #        dprop = _add_rdkit_properties(smiles, rdkitprop)
+            #        lprop.append(dprop)
+            #        dpublidbs = _add_public_db_ids(smiles)
+
+                   
+    #with open(compounds_file+'.reviewed', "w") as f:
+    #    f.write(custom_json_dump(compounds, indent=2))
+
+    #return compounds
 
 
 
