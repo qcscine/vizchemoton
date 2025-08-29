@@ -228,6 +228,8 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
         #if cnt > 5:
         #    continue
         cmp = compounds[k1]
+        if cmp == {}: # empty dict - artifact of submethods
+            continue
         if isinstance(cmp["method"], str):
             dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
             smiles = dsmiles['smiles']

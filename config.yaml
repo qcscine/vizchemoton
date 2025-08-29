@@ -24,17 +24,17 @@ cheminfo:
 
 files:
   reactions:
-    path: "/home/petrusen22/personal_gitlab/reactions_crn_t.csv"
+    path: "/home/petrusen22/personal_gitlab/reactions_crn_e.csv"
     mode: "read"
   compounds:
-    path: "/home/petrusen22/personal_gitlab/compounds_crn_t.json"
+    path: "/home/petrusen22/personal_gitlab/compounds_crn_e.json"
     mode: "upgrade"
 
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
   layout: "kamada_kawai" #"kamada_kawai"
-  map_field: "MolWt"
+  map_field: "pubchemRank"
   node_size: 25
   title: "Chemoton graph"
   path: "network.html"
