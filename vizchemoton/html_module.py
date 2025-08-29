@@ -526,7 +526,6 @@ def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
         nd[1]["formula"] = [formula_from_xyz_block(xyz) for xyz in xyz_list]
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
         nd[1]["smiles"] = str(comp.get("smiles", "None")).split("//")
-        print(nd[1])
         nd[1]["xyzdes"] = comp["xyzdes"]
 
 def add_edge_attributes(graph, compounds):

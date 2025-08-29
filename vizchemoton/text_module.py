@@ -205,11 +205,12 @@ def _add_rdkit_properties(dsmiles, rdkitprop):
 
 def _add_public_db_ids(dsmiles, databases):
 
-    dpublidbs = {"pubchem": None, "chembl": None, "chebi": None, "chemspi": None}
+    dpublidbs = {"pubchem": None, "chembl": None, "chebi": None, "chemspider": None}
     for name in databases.keys():
         if databases[name] and dsmiles['smiles'] != None:
             db_id = get_public_database_id(name, dsmiles['smiles'])["id"]
             dpublidbs[name] = db_id
+    return dpublidbs
 
 
 def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
@@ -224,38 +225,43 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
         compounds = json.load(fcomp)
     # identify which compounds have errors
     for cnt, k1 in enumerate(compounds):
-        #if cnt > 1000:
-        #    continue
+        if cnt > 5:
+            continue
         cmp = compounds[k1]
         if isinstance(cmp["method"], str):
-            #dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
-            #dprop = _add_rdkit_properties(dsmiles, rdkitprop)
-            #dpublidbs = _add_public_db_ids(dsmiles, databases)
+            dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
+            smiles = dsmiles['smiles']
+            dprop = _add_rdkit_properties(dsmiles, rdkitprop)
+            for p in dprop:
+                compounds[k1][p] = dprop[p]
+            dpublidbs = _add_public_db_ids(dsmiles, databases)
+            for d in dpublidbs:
+                compounds[k1][d] = dpublidbs[d]
             xyzdes = get_cartesian_descriptors(cmp['xyz'])
-            #print(dsmiles, dprop, dpublidbs, xyzdes)
         elif isinstance(cmp["method"], list):
-            lsmiles, lprop, dpublidbs, lxyzdes = [], [], [], []
+            lsmiles, dpublidbs, lxyzdes = [], [], []
+            for p in dprop:
+                compounds[k1][p] = []
+            for d in databases:
+                compounds[k1][d] = []
             for xyz,charge in zip(cmp["xyz"], cmp["charge"]):
-                #dsmiles = _add_smiles_to_compounds(xyz, charge)
-                #dprop = _add_rdkit_properties(dsmiles, rdkitprop)
+                dsmiles = _add_smiles_to_compounds(xyz, charge)
+                lsmiles.append(dsmiles['smiles'])
+                dpublidbs = _add_public_db_ids(dsmiles, databases)
+                dprop = _add_rdkit_properties(dsmiles, rdkitprop)
+                for p in dprop:
+                    compounds[k1][p].append(dprop[p])
+                for d in databases:
+                    compounds[k1][d].append(dpublidbs[d])
                 #dpublidbs = _add_public_db_ids(dsmiles, databases)
                 xyzdesi = get_cartesian_descriptors(xyz)
                 lxyzdes.append(xyzdesi)
+            smiles = "//".join([str(o) for o in lsmiles])
             _sima, _simb = lxyzdes
             xyzdes = [np.mean(s) for s in zip(_sima, _simb)]
         compounds[k1]["xyzdes"] = xyzdes
+        compounds[k1]["smiles"] = smiles
             
-#elif isinstance(cmp["mongodb_id"], list) and 'Error' in cmp[k2]:
-            #    lsmiles = compounds[k1]['smiles'].split("//")
-            #    lsmiles, lprop, lpublidbs = [], [], []
-            #    for xyz, charge in zip([cmp["xyz"], cmp["charge"]]):
-            #        smiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
-            #        lsmiles.append(smiles)
-            #        dprop = _add_rdkit_properties(smiles, rdkitprop)
-            #        lprop.append(dprop)
-            #        dpublidbs = _add_public_db_ids(smiles)
-
-                   
     with open(compounds_file+'.upgraded', "w") as f:
         f.write(custom_json_dump(compounds, indent=2))
 
