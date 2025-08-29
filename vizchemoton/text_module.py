@@ -225,8 +225,8 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
         compounds = json.load(fcomp)
     # identify which compounds have errors
     for cnt, k1 in enumerate(compounds):
-        if cnt > 5:
-            continue
+        #if cnt > 5:
+        #    continue
         cmp = compounds[k1]
         if isinstance(cmp["method"], str):
             dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
