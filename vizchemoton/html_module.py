@@ -459,7 +459,6 @@ def preprocess_compounds(compounds):
     Helper function to process compounds properties.
     """
     tgt_vars = ["energy", "charge", "multiplicity"]
-    print(compounds)
     for comp in compounds.values():
         for vv in tgt_vars:
             if not isinstance(comp[vv], list):
@@ -477,7 +476,9 @@ def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
     """
     Helper function to retrieve the node name and geometry.
     """
-    if "+" in comp["crn_id"] or isinstance(comp["crn_id"], list):
+    if isinstance(comp["crn_id"], list):
+        comp["crn_id"] = "+".join(comp["crn_id"])
+    if "+" in comp["crn_id"]: # or isinstance(comp["crn_id"], list):
         #node_name = "+".join(comp["crn_id"])
         node_name = comp["crn_id"]
         xyz_list = comp["xyz"]
@@ -525,6 +526,7 @@ def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
         nd[1]["formula"] = [formula_from_xyz_block(xyz) for xyz in xyz_list]
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
         nd[1]["smiles"] = str(comp.get("smiles", "None")).split("//")
+        print(nd[1])
         nd[1]["xyzdes"] = comp["xyzdes"]
 
 def add_edge_attributes(graph, compounds):

@@ -56,10 +56,8 @@ def convert_xyz_to_smiles(elements, coordinates, charge):
     try:
         molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
                             embed_chiral=False, allow_charged_fragments=True)
-        print("TRY", molformat)
         if len(molformat) != 0:
             smiles = MolToSmiles(molformat[0])
-            print(smiles)
             m = MolFromSmiles(smiles)
             smiles = MolToSmiles(m)
             data = {'smiles': smiles}

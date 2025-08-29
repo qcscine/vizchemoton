@@ -104,7 +104,7 @@ def main():
     elif compounds_mode == 'upgrade':
         reactions, compounds = read_compound_reactions_files(
                          reactions_file, compounds_file, verbose=verbose)
-        _compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
+        compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
     
     graph = process_graph(reactions, compounds, dist_adduct)
     kwargs_dash =  {"custom_hovers":[]}

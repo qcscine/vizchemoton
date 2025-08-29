@@ -192,9 +192,7 @@ def _add_smiles_to_compounds(xyz, charge):
     ptable = GetPeriodicTable()
     elements = [ptable.GetAtomicNumber(a) for a,b in xyz]
     coordinates = [[b2* 0.529177 for b2 in b1] for a,b1 in xyz]
-    print(elements, coordinates, type(charge))
     dsmiles = convert_xyz_to_smiles(elements, coordinates, charge)
-    print("wtf", dsmiles)
     return dsmiles
 
 def _add_rdkit_properties(dsmiles, rdkitprop):
@@ -224,20 +222,30 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
                     f=compounds_file))
     with open(compounds_file, "r") as fcomp:
         compounds = json.load(fcomp)
-
     # identify which compounds have errors
     for cnt, k1 in enumerate(compounds):
-        if cnt > 2:
-            continue
+        #if cnt > 1000:
+        #    continue
         cmp = compounds[k1]
         if isinstance(cmp["method"], str):
-            dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
-            dprop = _add_rdkit_properties(dsmiles, rdkitprop)
-            dpublidbs = _add_public_db_ids(dsmiles, databases)
+            #dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
+            #dprop = _add_rdkit_properties(dsmiles, rdkitprop)
+            #dpublidbs = _add_public_db_ids(dsmiles, databases)
             xyzdes = get_cartesian_descriptors(cmp['xyz'])
-            print(dsmiles, dprop, dpublidbs, xyzdes)
-
-            #elif isinstance(cmp["mongodb_id"], list) and 'Error' in cmp[k2]:
+            #print(dsmiles, dprop, dpublidbs, xyzdes)
+        elif isinstance(cmp["method"], list):
+            lsmiles, lprop, dpublidbs, lxyzdes = [], [], [], []
+            for xyz,charge in zip(cmp["xyz"], cmp["charge"]):
+                #dsmiles = _add_smiles_to_compounds(xyz, charge)
+                #dprop = _add_rdkit_properties(dsmiles, rdkitprop)
+                #dpublidbs = _add_public_db_ids(dsmiles, databases)
+                xyzdesi = get_cartesian_descriptors(xyz)
+                lxyzdes.append(xyzdesi)
+            _sima, _simb = lxyzdes
+            xyzdes = [np.mean(s) for s in zip(_sima, _simb)]
+        compounds[k1]["xyzdes"] = xyzdes
+            
+#elif isinstance(cmp["mongodb_id"], list) and 'Error' in cmp[k2]:
             #    lsmiles = compounds[k1]['smiles'].split("//")
             #    lsmiles, lprop, lpublidbs = [], [], []
             #    for xyz, charge in zip([cmp["xyz"], cmp["charge"]]):
@@ -248,10 +256,10 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
             #        dpublidbs = _add_public_db_ids(smiles)
 
                    
-    #with open(compounds_file+'.reviewed', "w") as f:
-    #    f.write(custom_json_dump(compounds, indent=2))
+    with open(compounds_file+'.upgraded', "w") as f:
+        f.write(custom_json_dump(compounds, indent=2))
 
-    #return compounds
+    return compounds
 
 
 
