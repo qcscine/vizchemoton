@@ -250,6 +250,42 @@ def pubchem_node_check(graph,compounds):
 
     return None
 
+def db_node_check(graph,compounds,db="pubchem"):
+    """
+    Checks whether the nodes in the graph have PubChem IDs, to state colors:
+    0 - not present, 1 - some species present, 2 - all species present
+    """
+    print("Processing nodes in %s" % db)
+    db_mapping = {v["crn_id"]:v[db] for k,v in compounds.items()}
+    for nd in graph.nodes(data=True):
+        db_info = db_mapping.get(nd[0],None)
+        if not isinstance(db_info,list):
+            db_info = [db_info]
+            
+        if not db_info:
+            rnk = 0
+        elif isinstance(db_info,int):
+            rnk = 2
+        elif isinstance(db_info,list):
+            if all(db_info):
+                rnk = 2
+            elif any(db_info):
+                rnk = 1
+            else:
+                rnk = 0
+        
+        nd[1][db + "Rank"] = str(rnk) 
+        nd[1][db + "Info"] = [str(pchm) for pchm in db_info]
+        nd[1][db + "InfoStr"] = "//".join(nd[1][db + "Info"])
+
+    return None
+
+def add_multiple_dbs(graph,compounds,dblist=["pubchem","chembl","chebi","chemspider"]):
+    for db in dblist:
+        db_node_check(graph,compounds,db)
+    return None
+
+
 def compute_cheminf_props(graph,prop_keys):
     id_to_props = {}
     for nd in graph.nodes(data=True):

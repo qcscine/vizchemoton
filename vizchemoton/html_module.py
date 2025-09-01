@@ -153,7 +153,8 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 
     # Bokeh-powered visualization via RXVisualizer
     bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=posx,graph_title=title,width=w1,height=h,
-                                                map_field=map_field,hide_energy=True)
+                                                map_field=map_field,hide_energy=True,
+                                                palette=kwargs["palette"],qual_mapping=kwargs.get("qual_mapping",{}))
     bk_graph.node_renderer.glyph.size = node_size
 
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()
@@ -185,60 +186,60 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
     }
     '''
         
-    
     hide_barrlessJS = '''
-    var erend = graph.edge_renderer.data_source
-    var nrend = graph.node_renderer.data_source
-    var edgenames = erend.data["name"]
-    var nodenames = nrend.data["name"]
-    var numEdges = edgenames.length
-    var numNodes = nodenames.length
-    var statusCounter = counter[0]
-    var connectedNodes = []
-    var labsNodes = figure.center[2].source.data
+        var erend = graph.edge_renderer.data_source
+        var nrend = graph.node_renderer.data_source
+        var edgenames = erend.data["name"]
+        var nodenames = nrend.data["name"]
+        var numEdges = edgenames.length
+        var numNodes = nodenames.length
+        var statusCounter = counter[0]
+        var connectedNodes = []
+        var labsNodes = figure.center[2].source.data
+        
     
-    if (statusCounter == 0){
-        // hide edge labels and disconnected nodes
-        for (let j = 0; j < numEdges; j++){
-            var is_tsb = edgenames[j].includes("TSb")
-            if (is_tsb) {
-                // blank out edge label instead of removing edge
-                erend.data["name"][j] = " "
+        if (statusCounter == 0){
+        // remove and set 1
+            for (let j = 0; j < numEdges; j++){
+                var is_tsb = edgenames[j].includes("TSb")
+                if (is_tsb) {
+                    erend.data["start"][j] = null            
+                    erend.data["end"][j] = null            
+                }
+                else {
+                    connectedNodes.push(erend.data["start"][j])
+                    connectedNodes.push(erend.data["end"][j])
+                }
             }
-            else {
-                connectedNodes.push(erend.data["start"][j])
-                connectedNodes.push(erend.data["end"][j])
+            for (let i = 0; i < numNodes; i++){
+                var nname = nodenames[i]
+                if (!connectedNodes.includes(nname)) {
+                    nrend.data["index"][i] = null
+                    labsNodes["nnames"][i] = " "
+                }
             }
+            statusCounter = 1
+        } else {
+        // restore and set counter back to zero
+             for (let j = 0; j < numEdges; j++){
+                var is_tsb = edgenames[j].includes("TSb")
+                if (is_tsb){
+                    erend.data["start"][j] = backupEdgeRoutes["start"][j]            
+                    erend.data["end"][j] = backupEdgeRoutes["end"][j]
+                }
+            }
+            for (let i = 0; i < numNodes; i++) {
+                if (nrend.data["index"][i] == null){
+                    nrend.data["index"][i] = backupNodes["index"][i]
+                    labsNodes["nnames"][i] = backupNodes["name"][i]
+                }
+            }
+            statusCounter = 0
         }
-        for (let i = 0; i < numNodes; i++){
-            var nname = nodenames[i]
-            if (!connectedNodes.includes(nname)) {
-                nrend.data["index"][i] = null
-                labsNodes["nnames"][i] = " "
-            }
-        }
-        statusCounter = 1
-    } else {
-        // restore edge labels and nodes
-        for (let j = 0; j < numEdges; j++){
-            var is_tsb = backupEdgeRoutes["name"][j].includes("TSb")
-            if (is_tsb){
-                erend.data["name"][j] = backupEdgeRoutes["name"][j]
-            }
-        }
-        for (let i = 0; i < numNodes; i++) {
-            if (nrend.data["index"][i] == null){
-                nrend.data["index"][i] = backupNodes["index"][i]
-                labsNodes["nnames"][i] = backupNodes["name"][i]
-            }
-        }
-        statusCounter = 0
-    }
-    
-    counter[0] = statusCounter
-    nrend.change.emit()
-    erend.change.emit()
-    '''
+        counter[0] = statusCounter
+        nrend.change.emit()
+        erend.change.emit()
+        '''
 
     # Custom locateMolecule function to support search by SMILES
     locateMolecule = """
@@ -347,7 +348,6 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 					"end":copy.deepcopy(edgesource.data["end"])}
     backup_nodes = {"index":bk_graph.node_renderer.data_source.data["index"],
                     "name":bk_graph.node_renderer.data_source.data["name"]}
-
     hide_barrless_callback = bkm.CustomJS(args={"graph":bk_graph,"figure":bk_fig,"counter":[0],
                                                 "backupNodes":backup_nodes,
                                                 "backupEdgeRoutes":backup_edges}, code=hide_barrlessJS)

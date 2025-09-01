@@ -12,7 +12,7 @@ from .text_module import (vizchemoton_header, write_compound_reactions_files,
                           review_compound_file, upgrade_compound_file)
 from .scine_module import (get_crn_as_pathfinder, get_reactions_and_compounds)
 from .html_module import (process_graph, build_dashboard, aggregate_property)
-from .cheminfo_module import (pubchem_node_check,compute_cheminf_props)
+from .cheminfo_module import (db_node_check,compute_cheminf_props)
 
 
 def main():
@@ -56,6 +56,14 @@ def main():
     node_size = float(config["html"]["node_size"])
     title_html = config["html"]["title"]
     output_file = config["html"]["path"]
+
+    # qualitative or quantitative palette selection -> should adapt later for flexibility
+    if "Rank" in map_field:
+        palette = ["#d01414","#d0cd14","#12ba14"]
+        qual_map = dict(zip([0,1,2],palette))
+    else:
+        palette = "Viridis256"
+        qual_map = {}
 
     verbose = True; print("TODO - now verbose hardcoded")
     # Start of Vizchemoton
@@ -107,19 +115,20 @@ def main():
         compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
     
     graph = process_graph(reactions, compounds, dist_adduct)
-    kwargs_dash =  {"custom_hovers":[]}
-    if map_field == "pubchemRank":
-        pubchem_node_check(graph,compounds)
-        kwargs_dash["custom_hovers"] += [("pubchemIds","@pubchemInfoStr")]
-    
+    kwargs_dash =  {"custom_hovers":[],"palette":palette,"qual_mapping":qual_map}
+    if "Rank" in map_field:
+        db_name = map_field.replace("Rank","")
+        db_node_check(graph,compounds,db_name)
+        kwargs_dash["custom_hovers"] += [(f"{db_name}Ids",f"@{db_name}InfoStr")]
     
     #### adapting collision of modifications
     if rdkitprop:
         compute_cheminf_props(graph,rdkitprop)
         property_hovers = [(prop,f"@{prop}Str") for prop in rdkitprop]
         kwargs_dash["custom_hovers"] += property_hovers
+
     # For color-mapping cheminf properties, we need some preprocessing
-    if map_field not in ["energy","degree","pubchemRank"]:
+    if (map_field not in ["energy","degree"]) and ("Rank" not in map_field):
         fun = "mean"
         mapping_values,mapping_flags = aggregate_property(graph,map_field)
         map_field_name = map_field + "_" + fun
