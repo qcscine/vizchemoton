@@ -31,20 +31,27 @@ def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
     if n_clusters == "silhouettes":
         silhouettes = []
         k_values = range(2, int(np.sqrt(len(X)/2)))  # candidate k values
+        tolerance = 0.005
+        window = 5 
         for k in k_values:
             kmeans = KMeans(n_clusters=k, random_state=42, n_init=10).fit(X)
             score = silhouette_score(X, kmeans.labels_)
             silhouettes.append(score)
+            std = np.std(np.array(silhouettes))
             if verbose:
                 print(f"Silhouette iteration {k} = {score:.3f}")
-
+            if len(silhouettes) >= window:
+                std = np.std(silhouettes[-window:])
+                if std < tolerance:
+                    print(f"Converged at k={k} (std={std:.4f})")
+                    break
         # pick the k that gave the max silhouette
         best_index = np.argmax(silhouettes)
         n_clusters = k_values[best_index]   # <-- use k_values, not X
         if verbose:
             print("## Optimal number of clusters:", n_clusters)
 
-    n_clusters = 10
+    #n_clusters = 10
 
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(X)
@@ -587,12 +594,23 @@ def format_string_attributes(graph):
 
     return None 
 
+def _clean_empty_entries(compounds):
+    """
+    Preprocessing function to remove empty dictionaries in compounds object.
+    """
+    filtered_compounds = {}
+    for c in compounds:
+        if compounds[c] != {}:
+            filtered_compounds[c] = compounds[c]
+    return filtered_compounds
+
 def process_graph(reaction_list, compounds, dist_adduct=3.0):
     """
     Wrapper function to generate a nx.Graph from a list of reactions and a
     dictionary of compounds, including XYZ-formatted geometries where
     individual geometries of the species forming adducts are joined.
     """
+    compounds = _clean_empty_entries(compounds)
     bohr_to_ang = 0.529177
     graph = nx.Graph()
     edge_list = build_graph_edges(reaction_list)
