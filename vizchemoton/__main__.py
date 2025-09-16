@@ -59,7 +59,7 @@ def main():
 
     # qualitative or quantitative palette selection -> should adapt later for flexibility
     if "Rank" in map_field:
-        palette = ["#d01414","#d0cd14","#12ba14"]
+        palette = ["#d01414","#f0ce0e","#12ba14"]
         qual_map = dict(zip([0,1,2],palette))
     else:
         palette = "Viridis256"

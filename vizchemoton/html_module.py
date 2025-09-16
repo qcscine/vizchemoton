@@ -259,7 +259,7 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 			var other_renderer = erend
 		}
 		var pool_names = renderer.data["name"]
-		var pool_smiles = renderer.data["smiles"]
+		var pool_smiles = renderer.data["smilesStr"]
 
 		// split species joined by + sign
 		var pool_species = pool_names.reduce((acc,name) =>
@@ -328,7 +328,7 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 		"""
     
     tooltips = [("tag","@name"),("charge","@chargeStr"),("multiplicity","@multiplicityStr"),
-                                         ("formula","@formulaStr"),("smiles","@smiles")]
+                                         ("formula","@formulaStr"),("smiles","@smilesStr")]
     tooltips += kwargs.get("custom_hovers",[])
 
     hover_node = bkm.HoverTool(description="Node hover",renderers=[bk_graph.node_renderer],
