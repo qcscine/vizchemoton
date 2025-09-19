@@ -548,7 +548,7 @@ def add_edge_attributes(graph, compounds):
             compounds_renamed[comp["crn_id"]] = comp
     for ii, ed in enumerate(graph.edges(data=True)):
         e1, e2 = [sum(compounds_renamed[nd]["energy"]) for nd in ed[0:2]]
-        if ed[2]["tsidx"] == "None":
+        if ed[2]["tsidx"] == None:
             e_ts = max(e1, e2)
             ed[2]["name"] = "TSb_%04d" % ii
             ed[2]["geometry"] = None

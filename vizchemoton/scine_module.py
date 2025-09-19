@@ -387,14 +387,15 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
         print("## Creating compounds and reaction objects")
     html_compounds = {}
     for compound_id in cmp_dict:
-        compound_key = str(cmp_dict[compound_id])
+        compound_key = cmp_dict[compound_id]
+        print(compound_key)
         if "//" in compound_id:  # adducts of two aggregates 
             # if the user is interested in uploading the data in ioChem-BD,
             # this conditional block should be disregarded by deactivating
             # the following line:
             # continue
             ids = compound_id.split("//")
-            html_compounds[compound_key] = _init_list_fields(rdkitprop)
+            html_compounds[int(compound_key)] = _init_list_fields(rdkitprop)
             for _ids in ids:
                 compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, _ids, compounds, flasks)
                 structure = compound.get_centroid()
@@ -417,7 +418,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             structure = compound_id[0:-1]
             structure_obj = db.Structure(db.ID(structure), structures)
             struct_data = _extract_structure_data(structure_obj, model1, structures, properties, apikey, calcsmiles, rdkitprop, databases)
-            crn_id = "ts" + compound_key
+            crn_id = "ts" + str(compound_key)
             html_compounds[compound_key] = {
             **struct_data,
             "crn_id": crn_id,
