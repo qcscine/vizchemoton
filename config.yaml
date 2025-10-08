@@ -1,6 +1,6 @@
 scine:
   active: True
-  name: "ozone_eth_xtb"
+  name: "ozone_buo_xtb"
   ip: "localhost"
   port: "8888"
   method:
@@ -10,8 +10,8 @@ scine:
     program: "xtb"
     vfilter: False
   pathfinder:
-    path: "/home/petrusen22/csv_files/crn_eth_xtb_250917.json"
-    mode: "write"
+    path: "/home/petrusen22/csv_files/crn_buo_xtb_250915.json"
+    mode: "read"
 
 cheminfo:
   smiles: True
@@ -24,17 +24,17 @@ cheminfo:
 
 files:
   reactions:
-    path: "/home/petrusen22/personal_gitlab/reactions_crn_e_250917.csv"
+    path: "/home/petrusen22/personal_gitlab/reactions_buo_250915.csv"
     mode: "write"
   compounds:
-    path: "/home/petrusen22/personal_gitlab/compounds_crn_e_250917.json"
+    path: "/home/petrusen22/personal_gitlab/compounds_buo_250915.json"
     mode: "write"
 
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "kamada_kawai"
+  layout: "random" #"kamada_kawai"
   map_field: "energy" #"pubchemRank"
   node_size: 10
   title: "Chemoton graph"
-  path: "network_crne.html"
+  path: "network_buo_250915.html"
