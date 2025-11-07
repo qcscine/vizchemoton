@@ -234,8 +234,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
         # ONLY FOR TESTING
-        if rxn_idx > 1000:
-            continue
+        #if rxn_idx > 1000:
+        #    continue
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
@@ -247,7 +247,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
         else:
             vfilter = True 
 
-        if False: #s_lhs < 3 and s_rhs < 3 and vfilter:
+        if s_lhs < 3 and s_rhs < 3 and vfilter:
             # Get reactant indexes
             cmp_dict_keys = cmp_dict.keys()
             if len(reactants[0]) == 1:

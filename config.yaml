@@ -1,6 +1,6 @@
 scine:
-  active: True
-  name: "ozone_buo_xtb"
+  active: False
+  name: "ozone_eth_xtb"
   ip: "localhost"
   port: "8888"
   method:
@@ -10,25 +10,25 @@ scine:
     program: "xtb"
     vfilter: False
   pathfinder:
-    path: "/home/petrusen22/csv_files/crn_buo_xtb_250915.json"
+    path: "/home/petrusen22/csv_files/crn_eth_xtb_251106.json"
     mode: "read"
 
 cheminfo:
   smiles: True
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
-  pubchem: False
-  chembl: False
+  pubchem: True
+  chembl: True
   chemspider: False
-  chebi: False
+  chebi: True
   verbose: True
 
 files:
   reactions:
-    path: "/home/petrusen22/personal_gitlab/reactions_buo_250915.csv"
-    mode: "write"
+    path: "/home/petrusen22/personal_gitlab/reactions_eth_xtb_251106.csv"
+    mode: "review"
   compounds:
-    path: "/home/petrusen22/personal_gitlab/compounds_buo_250915.json"
-    mode: "write"
+    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_251106.json"
+    mode: "review"
 
 html:
   dist_adduct: 3.0
@@ -37,4 +37,4 @@ html:
   map_field: "energy" #"pubchemRank"
   node_size: 10
   title: "Chemoton graph"
-  path: "network_buo_250915.html"
+  path: "network_eth_xtb.html"

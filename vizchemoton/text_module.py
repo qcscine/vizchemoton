@@ -149,42 +149,60 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
     return reaction_tuples, compounds
 
 
-def review_compound_file(compounds_file, verbose=True):
+import json
+import time
+
+def review_compound_file(compounds_file, verbose=True, checkpoint_every=50):
     """
     Helper function which reviews the compound file in search for Error messages
     product of timeouts while querying the APIs of the Public Databases.
+    Periodically writes checkpoints to avoid losing progress.
     """
     if verbose:
-            print("## Reviewing {f} file".format(
-                    f=compounds_file))
+        print(f"## Reviewing {compounds_file} file")
+
     with open(compounds_file, "r") as fcomp:
         compounds = json.load(fcomp)
 
-    lkeys = ["pubchem", "chebi", "chembl"] #, "chemspider"]
-    # identify which compounds have errors
-    for k1 in compounds:
+    lkeys = ["pubchem", "chebi", "chembl"]
+    total = len(compounds)
+    last_checkpoint = time.time()
+
+    for i, k1 in enumerate(compounds):
         cmp = compounds[k1]
-        for k2 in lkeys:  # update json file
-            if isinstance(cmp[k2], str) and cmp[k2] == 'Error':
+        for k2 in lkeys:
+            if cmp[k2] == 'Error' or cmp[k2] == None:
                 smiles = compounds[k1]['smiles']
-                if smiles != None:
+                if smiles is not None:
                     ddb = get_public_database_id(k2, smiles)
                     compounds[k1][k2] = ddb["id"]
-            elif isinstance(cmp[k2], list) and 'Error' in cmp[k2]:
+            elif isinstance(cmp[k2], list) and ('Error' in cmp[k2] or None in cmp[k2]):
                 lsmiles = compounds[k1]['smiles'].split("//")
-                ltmp = list()
+                ltmp = []
                 for smiles in lsmiles:
                     if smiles != 'None':
-                        # Here is 'None' a string because it is 
-                        # concatenated with a SMILES. It can be
-                        # improved.
                         ddb = get_public_database_id(k2, smiles)
                         ltmp.append(ddb["id"])
                 compounds[k1][k2] = ltmp
 
-    with open(compounds_file+'.reviewed', "w") as f:
+        # Save checkpoint periodically
+        if (i + 1) % checkpoint_every == 0:
+            checkpoint_file = compounds_file + ".checkpoint"
+            with open(checkpoint_file, "w") as fcheckpoint:
+                print(compounds[k1][k2])
+                fcheckpoint.write(custom_json_dump(compounds, indent=2))
+            if verbose:
+                elapsed = time.time() - last_checkpoint
+                print(f"Checkpoint saved after {i+1}/{total} compounds (elapsed: {elapsed:.1f}s)")
+                last_checkpoint = time.time()
+
+    # Final save
+    reviewed_file = compounds_file + ".reviewed"
+    with open(reviewed_file, "w") as f:
         f.write(custom_json_dump(compounds, indent=2))
- 
+    if verbose:
+        print(f"Review completed. Output saved to {reviewed_file}")
+
     return compounds
 
 def _add_smiles_to_compounds(xyz, charge):
