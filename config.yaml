@@ -24,10 +24,10 @@ cheminfo:
 
 files:
   reactions:
-    path: "/home/petrusen22/personal_gitlab/reactions_eth_xtb_251106.csv"
+    path: "/home/petrusen22/personal_gitlab/reactions_eth_xtb_251107.csv"
     mode: "review"
   compounds:
-    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_251106.json"
+    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_251107.json"
     mode: "review"
 
 html:

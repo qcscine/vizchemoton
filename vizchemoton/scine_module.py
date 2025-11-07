@@ -234,8 +234,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
         # ONLY FOR TESTING
-        #if rxn_idx > 1000:
-        #    continue
+        if rxn_idx > 100:
+            continue
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
@@ -383,7 +383,7 @@ def _init_list_fields(rdkitprop):
 def _extract_structure_data(structure_obj, model, structures, properties, apikey, calcsmiles, rdkitprop, databases):
     """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
     dprop = {k:None for k in rdkitprop}
-    dpublidbs = {"pubchem": None, "chembl": None, "chebi": None, "chemspi": None}
+    dpublidbs = {"pubchem": False, "chembl": False, "chebi": False, "chemspi": False}
     xyz = [(str(o.element), tuple(o.position))
            for o in structure_obj.get_atoms()]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity

@@ -171,18 +171,22 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=50):
     for i, k1 in enumerate(compounds):
         cmp = compounds[k1]
         for k2 in lkeys:
-            if cmp[k2] == 'Error' or cmp[k2] == None:
+            if cmp[k2] == 'Error' or cmp[k2] == False:
                 smiles = compounds[k1]['smiles']
                 if smiles is not None:
                     ddb = get_public_database_id(k2, smiles)
                     compounds[k1][k2] = ddb["id"]
-            elif isinstance(cmp[k2], list) and ('Error' in cmp[k2] or None in cmp[k2]):
+                else:
+                    compounds[k1][k2] = None
+            elif isinstance(cmp[k2], list) and ('Error' in cmp[k2] or False in cmp[k2]):
                 lsmiles = compounds[k1]['smiles'].split("//")
                 ltmp = []
                 for smiles in lsmiles:
                     if smiles != 'None':
                         ddb = get_public_database_id(k2, smiles)
                         ltmp.append(ddb["id"])
+                    else:
+                        ltmp.append(None)
                 compounds[k1][k2] = ltmp
 
         # Save checkpoint periodically
