@@ -234,8 +234,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
         # ONLY FOR TESTING
-        if rxn_idx > 100:
-            continue
+        #if rxn_idx > 100:
+        #    continue
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)

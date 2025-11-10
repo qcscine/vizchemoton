@@ -167,7 +167,7 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=50):
     lkeys = ["pubchem", "chebi", "chembl"]
     total = len(compounds)
     last_checkpoint = time.time()
-
+    flagcheckpoint = "A"
     for i, k1 in enumerate(compounds):
         cmp = compounds[k1]
         for k2 in lkeys:
@@ -191,10 +191,19 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=50):
 
         # Save checkpoint periodically
         if (i + 1) % checkpoint_every == 0:
-            checkpoint_file = compounds_file + ".checkpoint"
+            # Alternate checkpoints to have backup in case it crashes when editing
+            # the checkpoint file.
+            if flagcheckpoint == "A":
+                checkpoint_file = compounds_file + ".checkpoint" + flagcheckpoint
+                flagcheckpoint = "B"
+            elif flagcheckpoint == "B":
+                checkpoint_file = compounds_file + ".checkpoint" + flagcheckpoint
+                flagcheckpoint = "A"
+            
             with open(checkpoint_file, "w") as fcheckpoint:
                 print(compounds[k1][k2])
                 fcheckpoint.write(custom_json_dump(compounds, indent=2))
+            
             if verbose:
                 elapsed = time.time() - last_checkpoint
                 print(f"Checkpoint saved after {i+1}/{total} compounds (elapsed: {elapsed:.1f}s)")

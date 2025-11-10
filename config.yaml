@@ -19,15 +19,15 @@ cheminfo:
   pubchem: True
   chembl: True
   chemspider: False
-  chebi: True
+  chebi: False
   verbose: True
 
 files:
   reactions:
-    path: "/home/petrusen22/personal_gitlab/reactions_eth_xtb_251107.csv"
+    path: "/home/petrusen22/personal_gitlab/reactions_eth_xtb_251108.csv"
     mode: "review"
   compounds:
-    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_251107.json"
+    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_251108.json"
     mode: "review"
 
 html:
