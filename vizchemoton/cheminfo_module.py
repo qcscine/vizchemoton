@@ -8,6 +8,7 @@ import json
 import copy
 import random
 import time
+import requests
 
 # Third-Party Library Imports
 import yaml
@@ -110,7 +111,7 @@ def get_public_database_id(name, smiles):
         ddb = get_chembl_id(smiles)
         return ddb
     elif name == "chebi":
-        from .cheminfo_module import get_chebi_id
+        # deprecated from .cheminfo_module import get_chebi_id
         ddb = get_chebi_id(smiles)
 
     return ddb
@@ -185,18 +186,36 @@ def get_chebi_id(smiles, verbose=True):
    """
    Check if InChIKey is in ChEBI database using their Python API.
    """
-   from libchebipy import search
+   # deprecated from libchebipy import search
    inchikey = _get_inchikey_from_smiles(smiles)
    dchebi = {"id": None}
+   
+   url = 'https://www.ebi.ac.uk/chebi/backend/api/public/es_search/'
+
+   params = {
+       'term': inchikey,
+       'page': 1,
+       'size': int(1e6)
+   }
+
+   headers = {
+       'accept': '*/*'
+   }
+
    try:
-       # search() returns a list of ChebiEntity objects
-       entities = search(inchikey)
-       if entities:
-           idchebi = entities[0].get_id()  # take the first match
-           number = int(''.join(filter(str.isdigit, idchebi)))
-           dchebi["id"] = number
-   except Exception as e:
+       response = requests.get(url, params=params, headers=headers)
+       response.raise_for_status()
+       data = response.json()
+       for ent in data['results']:
+           inchikey_i = ent['_source']['inchikey']
+           if inchikey_i == inchikey:
+               chebi_id = int(ent['_id'])
+               dchebi['id'] = chebi_id
+               break
+   except requests.exceptions.RequestException as e:
+       print(f"Error connecting to ChEBI ES API: {e}")
        dchebi["id"] = "Error"
+
    strtmp = "#### Querying ChEBI. {s} has id = {b}"
    if verbose: print(strtmp.format(s=smiles, b=str(dchebi["id"])))
    return dchebi

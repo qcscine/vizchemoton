@@ -164,7 +164,7 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=50):
     with open(compounds_file, "r") as fcomp:
         compounds = json.load(fcomp)
 
-    lkeys = ["pubchem", "chebi", "chembl"]
+    lkeys = ["chebi"]
     total = len(compounds)
     last_checkpoint = time.time()
     flagcheckpoint = "A"

@@ -18,11 +18,11 @@ from .cheminfo_module import (db_node_check,compute_cheminf_props)
 def main():
     print(sys.argv)
     if len(sys.argv) == 2:
-        apikey = sys.argv[1]
+        configfile = sys.argv[1]
     else:
-        apikey = None
+        raise ValueError 
     # Load configuration
-    config = load_config()
+    config = load_config(configfile)
 
     # Parameters from config
     db_active = config["scine"]["active"]

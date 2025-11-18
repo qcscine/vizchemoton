@@ -16,10 +16,10 @@ scine:
 cheminfo:
   smiles: True
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
-  pubchem: True
-  chembl: True
+  pubchem: False
+  chembl: False
   chemspider: False
-  chebi: False
+  chebi: True
   verbose: True
 
 files:
@@ -27,7 +27,7 @@ files:
     path: "/home/petrusen22/personal_gitlab/reactions_eth_xtb_251108.csv"
     mode: "review"
   compounds:
-    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_251108.json"
+    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_251108.json.reviewed"
     mode: "review"
 
 html:
