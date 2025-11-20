@@ -181,7 +181,7 @@ def get_energy_and_barriers(
     return energy, barriers, not_none
 
 
-def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
+def get_reactions_and_compounds(manager, pathfinder, dmethod, 
                                 calcsmiles, rdkitprop, databases, verbose=False):
     """
     Extract the chemical reactions, compounds and transition states from the
@@ -234,8 +234,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
         # ONLY FOR TESTING
-        #if rxn_idx > 100:
-        #    continue
+        if rxn_idx > 20:
+            continue
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
@@ -369,7 +369,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod, apikey,
 
     # Create a dictionary for the compounds and their properties
     html_compounds = _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, 
-                                             compounds, flasks, properties, apikey, calcsmiles,
+                                             compounds, flasks, properties, calcsmiles,
                                              rdkitprop, databases, verbose)
     return html_reactions, html_compounds
 
@@ -380,7 +380,7 @@ def _init_list_fields(rdkitprop):
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
         "smiles", "xyzdes", "pubchem", "chembl", "chebi", "chemspider"] + rdkitprop}
 
-def _extract_structure_data(structure_obj, model, structures, properties, apikey, calcsmiles, rdkitprop, databases):
+def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles, rdkitprop, databases):
     """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
     dprop = {k:None for k in rdkitprop}
     dpublidbs = {"pubchem": False, "chembl": False, "chebi": False, "chemspi": False}
@@ -388,7 +388,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, apikey
            for o in structure_obj.get_atoms()]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
     dsmiles = convert_struct_to_smile(
-        structure_obj) if calcsmiles else {'smiles': None}
+        structure_obj, properties) if calcsmiles else {'smiles': False}
     # smiles calculation
     if calcsmiles and dsmiles['smiles'] != None:
         dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
@@ -446,7 +446,7 @@ def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
 
     return compound, crn_id
 
-def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, apikey, calcsmiles, rdkitprop, databases, verbose=False):    
+def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds, flasks, properties, calcsmiles, rdkitprop, databases, verbose=False):    
     """
     Create a dictionary with the compounds and their chemical properties (xyz, charge, etc) for the chemical reaction    network.
     """
@@ -466,7 +466,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
                 compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, _ids, compounds, flasks)
                 structure = compound.get_centroid()
                 structure_obj = db.Structure(structure, structures)
-                struct_data = _extract_structure_data(structure_obj, model1, structures, properties, apikey, calcsmiles, rdkitprop, databases)
+                struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles, rdkitprop, databases)
                 html_compounds[compound_key]["crn_id"].append(crn_id)
                 html_compounds[compound_key]["mongodb_id"].append(_ids)
                 for k, v in struct_data.items():
@@ -484,7 +484,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             html_compounds[compound_key] = {}
             structure = compound_id[0:-1]
             structure_obj = db.Structure(db.ID(structure), structures)
-            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, apikey, calcsmiles, rdkitprop, databases)
+            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles, rdkitprop, databases)
             crn_id = "ts" + str(compound_key)
             html_compounds[compound_key] = {
             **struct_data,
@@ -495,7 +495,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, compound_id, compounds, flasks)
             structure = compound.get_centroid()
             structure_obj = db.Structure(structure, structures)
-            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, apikey, calcsmiles, rdkitprop, databases)
+            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles, rdkitprop, databases)
             html_compounds[compound_key] = {
             **struct_data,
             "crn_id": crn_id,

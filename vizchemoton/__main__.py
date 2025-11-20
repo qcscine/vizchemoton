@@ -76,7 +76,7 @@ def main():
                 port), db_name, dict_method, write_pathfinder=False,
                 read_pathfinder=pathfinder_file, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, apikey, smiles,
+                manager, pathfinder, dict_method, smiles,
                 rdkitprop, databases=databases, verbose=verbose)
 
         elif pathfinder_mode == 'write':  # write the pathfinder object
@@ -84,7 +84,7 @@ def main():
                 port), db_name, dict_method, write_pathfinder=pathfinder_file,
                 read_pathfinder=False, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, apikey, smiles,
+                manager, pathfinder, dict_method, smiles,
                 rdkitprop, databases, verbose=verbose)
 
         # write the reactions and compounds
