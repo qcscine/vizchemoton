@@ -41,6 +41,7 @@ def main():
     compounds_mode = config["files"]["compounds"]["mode"]
     
     smiles = config["cheminfo"]["smiles"]
+    smiles_method = config["cheminfo"]["smiles_method"]
     rdkitprop = config["cheminfo"]["rdkitprop"]
     pubchem = config["cheminfo"]["pubchem"]
     chembl = config["cheminfo"]["chembl"]
@@ -76,7 +77,7 @@ def main():
                 port), db_name, dict_method, write_pathfinder=False,
                 read_pathfinder=pathfinder_file, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, smiles,
+                manager, pathfinder, dict_method, (smiles, smiles_method),
                 rdkitprop, databases=databases, verbose=verbose)
 
         elif pathfinder_mode == 'write':  # write the pathfinder object
@@ -84,7 +85,7 @@ def main():
                 port), db_name, dict_method, write_pathfinder=pathfinder_file,
                 read_pathfinder=False, verbose=verbose)
             reactions, compounds = get_reactions_and_compounds(
-                manager, pathfinder, dict_method, smiles,
+                manager, pathfinder, dict_method, (smiles, smiles_method),
                 rdkitprop, databases, verbose=verbose)
 
         # write the reactions and compounds

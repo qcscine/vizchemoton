@@ -234,8 +234,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
         # ONLY FOR TESTING
-        if rxn_idx > 20:
-            continue
+        #if rxn_idx > 20:
+        #    continue
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
@@ -387,10 +387,11 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     xyz = [(str(o.element), tuple(o.position))
            for o in structure_obj.get_atoms()]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
+    bolsmiles, typsmiles = calcsmiles
     dsmiles = convert_struct_to_smiles(
-        structure_obj, properties, timestmp) if calcsmiles else {'smiles': False}
+        structure_obj, properties, timestmp, typsmiles) if bolsmiles else {'smiles': False}
     # smiles calculation
-    if calcsmiles and dsmiles['smiles'] != None:
+    if bolsmiles and dsmiles['smiles'] != None:
         dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
         # query public databases
         for name in ["pubchem", "chembl", "chebi"]:  # hardcoded

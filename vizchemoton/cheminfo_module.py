@@ -154,7 +154,6 @@ def convert_struct_to_smiles(centroid, properties, timestmp, smilesmode='xyz2mol
         #           for ci in centroid.get_atoms().positions.tolist()]
         #charge = centroid.get_charge()
         dsmiles = _convert_xyz_to_smiles(centroid)
-    print("SMILES", dsmiles)
     return dsmiles
 
 def is_valid_smiles(smiles):
