@@ -10,6 +10,7 @@ import random
 import time
 import requests
 import ast
+from datetime import datetime
 
 # Third-Party Library Imports
 import yaml
@@ -51,12 +52,17 @@ def get_cartesian_descriptors(xyz):
     descripcart = [total_atoms, heavy_atoms, rg, bbox[0] * bbox[1] * bbox[2]]
     return descripcart
 
-def convert_xyz_to_smiles(elements, coordinates, charge):
+def _convert_xyz_to_smiles(centroid):
     """
     Convert xyz file to smiles using the external xyz2mol library.
     """
     # deprecated - now implemented in rdkit
-    data = {'smiles': False}
+    conv2angs = 0.529177  # conversion of bohrs to anstrongs
+    elements = [atom.value for atom in centroid.get_atoms().elements]
+    coordinates = [[cj * conv2angs for cj in ci]
+                   for ci in centroid.get_atoms().positions.tolist()]
+    charge = centroid.get_charge()
+    data = {'smiles': None}
     try:
         molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
                             embed_chiral=False, allow_charged_fragments=True)
@@ -72,45 +78,83 @@ def convert_xyz_to_smiles(elements, coordinates, charge):
         print("WARNING! Aggregate could not be converted to SMILES format")
         return data
 
+def _convert_scine_bo_to_smiles(centroid, properties, timestmp):
+    """
+    TODO
+    """
+    atomcollection = centroid.get_atoms()
+    #print(dir(centroid))
+    #print(centroid.get_graph("masm_idx_map"))
+    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
+    if not centroid.has_property("bond_orders"):
+        return dsmiles
+    try:
+        sparsitymatrix = centroid.get_property("bond_orders")
+    except RuntimeError:
+        return dsmiles
+    prop_obj = db.Property(sparsitymatrix, properties)
+    prop_json = prop_obj.json()
+    data = json.loads(prop_json)
+    rowidxs = data["data"]["row_idxs"]
+    colidxs = data["data"]["col_idxs"]
+    values = data["data"]["values"]
+    bondcollection = su.BondOrderCollection(len(centroid.get_atoms()))
+    for a, b, c in zip(rowidxs, colidxs, values):
+        bondcollection.set_order(a, b, c)
+    su.io.write_topology(tmpfile, atomcollection, bondcollection)
+    rdkitmol = Chem.MolFromMolFile(tmpfile)
+    try:
+        smiles = Chem.MolToSmiles(rdkitmol)
+    except:
+        print("WARNING! Aggregate could not be converted to SMILES format")
+        smiles = None
+    dsmiles = {"smiles": smiles}
 
-def convert_struct_to_smile(centroid, properties, smilesmode='scine'):
+
+def convert_struct_to_smiles(centroid, properties, timestmp, smilesmode='xyz2mol'):
     """
     Convert structure instance to a smile, either using SCINE bond orders
     or the xyz2mol approach.
     """
     dsmiles = {"smiles": None}
+    tmpfile = "tmp"+timestmp+".mol"
     if smilesmode == 'scine':
-        atomcollection = centroid.get_atoms()
-        #print(dir(centroid))
-        #print(centroid.get_graph("masm_idx_map"))
-        bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
-        if not centroid.has_property("bond_orders"):
-            return dsmiles
-        sparsitymatrix = centroid.get_property("bond_orders")
-        prop_obj = db.Property(sparsitymatrix, properties)
-        prop_json = prop_obj.json()
-        data = json.loads(prop_json)
-        rowidxs = data["data"]["row_idxs"]
-        colidxs = data["data"]["col_idxs"]
-        values = data["data"]["values"]
-        bondcollection = su.BondOrderCollection(len(centroid.get_atoms()))
-        for a, b, c in zip(rowidxs, colidxs, values):
-            bondcollection.set_order(a, b, c)
-        su.io.write_topology("tmp.mol", atomcollection, bondcollection)
-        rdkitmol = Chem.MolFromMolFile("tmp.mol")
-        try:
-            smiles = Chem.MolToSmiles(rdkitmol)
-        except: 
-            print("WARNING! Aggregate could not be converted to SMILES format")
-            smiles = None
-        dsmiles = {"smiles": smiles}
+        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, timestmp)
+        #atomcollection = centroid.get_atoms()
+        ##print(dir(centroid))
+        ##print(centroid.get_graph("masm_idx_map"))
+        #bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
+        #if not centroid.has_property("bond_orders"):
+        #    return dsmiles
+        #try:
+        #    sparsitymatrix = centroid.get_property("bond_orders")
+        #except RuntimeError:
+        #    return dsmiles
+        #prop_obj = db.Property(sparsitymatrix, properties)
+        #prop_json = prop_obj.json()
+        #data = json.loads(prop_json)
+        #rowidxs = data["data"]["row_idxs"]
+        #colidxs = data["data"]["col_idxs"]
+        #values = data["data"]["values"]
+        #bondcollection = su.BondOrderCollection(len(centroid.get_atoms()))
+        #for a, b, c in zip(rowidxs, colidxs, values):
+        #    bondcollection.set_order(a, b, c)
+        #su.io.write_topology(tmpfile, atomcollection, bondcollection)
+        #rdkitmol = Chem.MolFromMolFile(tmpfile)
+        #try:
+        #    smiles = Chem.MolToSmiles(rdkitmol)
+        #except: 
+        #    print("WARNING! Aggregate could not be converted to SMILES format")
+        #    smiles = None
+        #dsmiles = {"smiles": smiles}
     elif smilesmode == 'xyz2mol':
-        conv2angs = 0.529177  # conversion of bohrs to anstrongs
-        elements = [atom.value for atom in centroid.get_atoms().elements]
-        coordinates = [[cj * conv2angs for cj in ci]
-                   for ci in centroid.get_atoms().positions.tolist()]
-        charge = centroid.get_charge()
-        dsmiles = convert_xyz_to_smiles(elements, coordinates, charge)
+        #conv2angs = 0.529177  # conversion of bohrs to anstrongs
+        #elements = [atom.value for atom in centroid.get_atoms().elements]
+        #coordinates = [[cj * conv2angs for cj in ci]
+        #           for ci in centroid.get_atoms().positions.tolist()]
+        #charge = centroid.get_charge()
+        dsmiles = _convert_xyz_to_smiles(centroid)
+    print("SMILES", dsmiles)
     return dsmiles
 
 def is_valid_smiles(smiles):

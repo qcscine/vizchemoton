@@ -19,7 +19,7 @@ import networkx as nx
 from rdkit.Chem import GetPeriodicTable
 
 # Local Imports
-from .cheminfo_module import (get_public_database_id, convert_xyz_to_smiles,
+from .cheminfo_module import (get_public_database_id, _convert_xyz_to_smiles,
                               get_rdkit_properties, get_cartesian_descriptors)
 
 def vizchemoton_header():
@@ -164,7 +164,7 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=50):
     with open(compounds_file, "r") as fcomp:
         compounds = json.load(fcomp)
 
-    lkeys = ["chebi"]
+    lkeys = ["pubchem", "chembl", "chebi"]
     total = len(compounds)
     last_checkpoint = time.time()
     flagcheckpoint = "A"
