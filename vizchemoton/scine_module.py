@@ -29,7 +29,8 @@ from scine_database.energy_query_functions import (
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
 from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smiles, 
-                              get_rdkit_properties, get_public_database_id)
+                              get_rdkit_properties, get_public_database_id,
+                              get_canolized_compid)
 
 
 def get_crn_as_pathfinder(
@@ -376,7 +377,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
 def _init_list_fields(rdkitprop):
     """Initialize all list-based fields for flask compounds."""
     return {k: [] for k in [
-        "crn_id", "mongodb_id", "xyz", "charge", "multiplicity",
+        "crn_id", "mongodb_id", "xyz", "charge", "multiplicity", "can_id",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
         "smiles", "xyzdes", "pubchem", "chembl", "chebi", "chemspider"] + rdkitprop}
 
@@ -390,6 +391,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     bolsmiles, typsmiles = calcsmiles
     dsmiles = convert_struct_to_smiles(
         structure_obj, properties, timestmp, typsmiles) if bolsmiles else {'smiles': False}
+    cancompid = get_canolized_compid(structure_obj, properties, timestmp)
     # smiles calculation
     if bolsmiles and dsmiles['smiles'] != None:
         dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
@@ -420,7 +422,8 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "program": f"{model.program} {model.version}",
         "solvent": model.solvent,
         "solvation": model.solvation,
-        "smiles": dsmiles['smiles'], 
+        "smiles": dsmiles['smiles'],
+        "can_id": cancompid,
         "xyzdes": xyzdes,
         "pubchem": dpublidbs["pubchem"],
         "chembl": dpublidbs["chembl"],

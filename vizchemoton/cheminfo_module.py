@@ -19,8 +19,9 @@ from xyz2mol import xyz2mol
 from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors, Crippen, rdMolDescriptors
 from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
+import networkx as nx
 
-# Local Imports
+#Local Imports
 from vizchemoton.html_module import (format_value_list)
 import scine_utilities as su
 import scine_database as db
@@ -78,7 +79,7 @@ def _convert_xyz_to_smiles(centroid):
         print("WARNING! Aggregate could not be converted to SMILES format")
         return data
 
-def _convert_scine_bo_to_smiles(centroid, properties, timestmp):
+def _convert_scine_bo_to_smiles(centroid, properties, timestmp, dsmiles):
     """
     TODO
     """
@@ -109,7 +110,33 @@ def _convert_scine_bo_to_smiles(centroid, properties, timestmp):
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
     dsmiles = {"smiles": smiles}
+    return dsmiles
 
+def get_canolized_compid(centroid, properties, timestmp):
+    """
+    TO-DO
+    """
+    atomcollection = centroid.get_atoms()
+    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
+    if not centroid.has_property("bond_orders"):
+        return None
+    try:
+        sparsitymatrix = centroid.get_property("bond_orders")
+    except RuntimeError:
+        return None
+    prop_obj = db.Property(sparsitymatrix, properties)
+    prop_json = prop_obj.json()
+    data = json.loads(prop_json)
+    rowidxs = data["data"]["row_idxs"]
+    colidxs = data["data"]["col_idxs"]
+    values = data["data"]["values"]
+    x = []
+    for a, b, c in zip(rowidxs, colidxs, values):
+        x.append((a, b, {"bond": str(c)}))
+    G = nx.Graph()
+    G.add_edges_from(x)
+    cancompid = nx.weisfeiler_lehman_graph_hash(G, edge_attr="bond")
+    return cancompid
 
 def convert_struct_to_smiles(centroid, properties, timestmp, smilesmode='xyz2mol'):
     """
@@ -119,7 +146,7 @@ def convert_struct_to_smiles(centroid, properties, timestmp, smilesmode='xyz2mol
     dsmiles = {"smiles": None}
     tmpfile = "tmp"+timestmp+".mol"
     if smilesmode == 'scine':
-        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, timestmp)
+        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, timestmp, dsmiles)
         #atomcollection = centroid.get_atoms()
         ##print(dir(centroid))
         ##print(centroid.get_graph("masm_idx_map"))
