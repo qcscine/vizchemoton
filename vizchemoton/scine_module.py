@@ -491,6 +491,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             html_compounds[compound_key] = {}
             structure = compound_id[0:-1]
             structure_obj = db.Structure(db.ID(structure), structures)
+            calcsmiles = (False, 'placeholder') # TSs do not need SMILES
             struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles, rdkitprop, databases, timestmp)
             crn_id = "ts" + str(compound_key)
             html_compounds[compound_key] = {
