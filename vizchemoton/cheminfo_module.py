@@ -152,10 +152,8 @@ def convert_struct_to_smiles(centroid, properties, timestmp, multiplicity, smile
     elif smilesmode == 'hybrid': 
         dsmiles = _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles)
         if (dsmiles["smiles"] is None) and (multiplicity == 1): 
-            print("CHECK", dsmiles["smiles"])
             # xyz2mol handles better singlet zwitterions
             dsmiles = _convert_xyz_to_smiles(centroid)
-            print("DID IT WORK?", dsmiles["smiles"])
     return dsmiles
 
 def is_valid_smiles(smiles):
