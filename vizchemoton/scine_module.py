@@ -235,8 +235,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
         # ONLY FOR TESTING
-        #if rxn_idx > 50:"
-        #    print("WARNING! Debug -continue- activated in scine_module")
+        #if rxn_idx > 50:
+        #    print("WARNING! Debug continue activated in scine_module")
         #    continue
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
@@ -492,8 +492,8 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             html_compounds[compound_key] = {}
             structure = compound_id[0:-1]
             structure_obj = db.Structure(db.ID(structure), structures)
-            calcsmiles = (False, 'placeholder') # TSs do not need SMILES
-            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, calcsmiles, rdkitprop, databases, timestmp)
+            _calcsmiles = (False, 'placeholder') # TSs do not need SMILES
+            struct_data = _extract_structure_data(structure_obj, model1, structures, properties, _calcsmiles, rdkitprop, databases, timestmp)
             crn_id = "ts" + str(compound_key)
             html_compounds[compound_key] = {
             **struct_data,
