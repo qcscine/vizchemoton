@@ -482,7 +482,9 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
                 html_compounds[compound_key][k] = tmpstr
             #_sima, _simb = html_compounds[compound_key]['xyzdes']
             #tmpchemsim = [np.mean(s) for s in zip(_sima, _simb)]
-            tmpchemsim = [np.mean(s) for s in zip( html_compounds[compound_key]['xyzdes'])]
+            transposed = list(map(list, zip(*html_compounds[compound_key]['xyzdes'])))
+            tmpchemsim = [np.mean(s) for s in transposed]
+            assert len(tmpchemsim) == 4
             html_compounds[compound_key]['xyzdes'] = tmpchemsim
 
         elif ";" in compound_id:  # transition state structure

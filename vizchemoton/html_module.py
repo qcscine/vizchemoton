@@ -34,6 +34,10 @@ def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
         tolerance = 0.005
         window = 5 
         for k in k_values:
+            print(type(X))
+            print(len(X))
+            print(type(X[0]))
+            print(len(X[0]))
             kmeans = KMeans(n_clusters=k, random_state=42, n_init=10).fit(X)
             score = silhouette_score(X, kmeans.labels_)
             silhouettes.append(score)
@@ -51,9 +55,14 @@ def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
         if verbose:
             print("## Optimal number of clusters:", n_clusters)
 
-    #n_clusters = 10
+    n_clusters = 10
 
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+    print(type(X))
+    print(len(X))
+    print(type(X[0]))
+    print(len(X[0]))
+
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=n_clusters)
     cluster_labels = kmeans.fit_predict(X)
 
     clusters = {node_id: int(label) for node_id, label in zip(node_ids, cluster_labels)}
@@ -143,8 +152,13 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
     if layout_function == 'KMeans':  # custom clustering of nodes
         # this should be modifiable later
         cluster_property = "xyzdes"
-        descriptors = {}
-        prop_values,flag = aggregate_property(G,cluster_property,"none")
+        descriptors, prop_values = {}, []
+        for nd in G.nodes(data=True):
+             prop = nd[1][cluster_property]
+             print("prop", prop)
+             prop_values.append(prop)
+        #prop_values,flag = aggregate_property(G,cluster_property)#,"none")
+        #print("propvalues", prop_values)
         descriptors = dict(zip(G.nodes(),prop_values))
         clusters = cluster_nodes(descriptors) #, n_clusters=5)
         posx = assign_coordinates(G, clusters)
@@ -465,7 +479,7 @@ def preprocess_compounds(compounds):
     """
     Helper function to process compounds properties.
     """
-    tgt_vars = ["energy", "charge", "multiplicity"]
+    tgt_vars = ["energy", "charge", "multiplicity", "MolLogP"]
     for comp in compounds.values():
         for vv in tgt_vars:
             if not isinstance(comp[vv], list):
@@ -641,6 +655,7 @@ def aggregate_property(Gx,prop_name,agg_func="mean",na_value=0):
     flags = []
     for nd in Gx.nodes(data=True):
         prop = nd[1][prop_name]
+        print("PROP", prop_name, prop)
         flag = 0
         if isinstance(prop,float) or isinstance(prop,int):
             val = prop 
