@@ -235,8 +235,8 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
         # ONLY FOR TESTING
-        #if rxn_idx > 20:
-        #    continue
+        if rxn_idx > 50:
+            continue
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
@@ -390,7 +390,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
     bolsmiles, typsmiles = calcsmiles
     dsmiles = convert_struct_to_smiles(
-        structure_obj, properties, timestmp, typsmiles) if bolsmiles else {'smiles': False}
+        structure_obj, properties, timestmp, s, typsmiles) if bolsmiles else {'smiles': False}
     cancompid = get_canolized_compid(structure_obj, properties, timestmp)
     # smiles calculation
     if bolsmiles and dsmiles['smiles'] != None:
