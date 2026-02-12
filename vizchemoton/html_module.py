@@ -645,9 +645,15 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
     return graph
 
 def format_value_list(val_list,fmt="%.4f",sep="//"):
+    """
+    TO-DO
+    """
     return sep.join([fmt % vv if vv is not None else "None" for vv in val_list])
 
 def aggregate_property(Gx,prop_name,agg_func="mean",na_value=0):
+    """
+    TO-DO
+    """
     fmap = {"max":np.max,"min":np.min,"mean":np.mean,"sum":np.sum,
             "none":lambda x: x}
     func = fmap.get(agg_func,np.mean)

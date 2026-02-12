@@ -11,6 +11,7 @@ from collections import Counter
 import json
 import copy
 import random
+import time
 
 # Third-Party Library Imports
 import yaml
@@ -149,9 +150,6 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
     return reaction_tuples, compounds
 
 
-import json
-import time
-
 def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
     """
     Helper function which reviews the compound file in search for Error messages
@@ -169,7 +167,7 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
     last_checkpoint = time.time()
     flagcheckpoint = "A"
     for i, k1 in enumerate(compounds):
-        if i < 25000:
+        if i < 160000:
             continue
         cmp = compounds[k1]
         for k2 in lkeys:
@@ -238,7 +236,7 @@ def _add_rdkit_properties(dsmiles, rdkitprop):
 
 def _add_public_db_ids(dsmiles, databases):
 
-    dpublidbs = {"pubchem": None, "chembl": None, "chebi": None, "chemspider": None}
+    dpublidbs = {"pubchem": None, "chembl": None, "chebi": None}
     for name in databases.keys():
         if databases[name] and dsmiles['smiles'] != None:
             db_id = get_public_database_id(name, dsmiles['smiles'])["id"]

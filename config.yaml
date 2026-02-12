@@ -10,11 +10,12 @@ scine:
     program: "xtb"
     vfilter: False
   pathfinder:
-    path: "/home/petrusen22/csv_files/crn_eth_xtb_251106.json"
+    path: "crn_eth_xtb_251120.json"
     mode: "read"
 
 cheminfo:
   smiles: True
+  smiles_method: "hybrid"
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
   pubchem: True
   chembl: True
@@ -24,11 +25,11 @@ cheminfo:
 
 files:
   reactions:
-    path: "/home/petrusen22/personal_gitlab/reactions_eth_xtb_scinesmiles_251120.csv"
-    mode: "review"
+    path: "reactions_eth_xtb_scinesmiles_251120.csv"
+    mode: "write"
   compounds:
-    path: "/home/petrusen22/personal_gitlab/compounds_eth_xtb_scinesmiles_251120.json.checkpointA"
-    mode: "review"
+    path: "compounds_eth_xtb_scinesmiles_251120.json"
+    mode: "write"
 
 html:
   dist_adduct: 3.0

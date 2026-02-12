@@ -184,7 +184,8 @@ def get_energy_and_barriers(
 
 
 def get_reactions_and_compounds(manager, pathfinder, dmethod, 
-                                calcsmiles, rdkitprop, databases, verbose=False):
+                                calcsmiles, rdkitprop, databases, 
+                                debugiter=False, verbose=False):
     """
     Extract the chemical reactions, compounds and transition states from the
     Mongo-DB where the exploration with Chemoton was run.
@@ -234,10 +235,12 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         rxn_idx += 1
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
         
-        # ONLY FOR TESTING
-        #if rxn_idx > 50:
-        #    print("WARNING! Debug continue activated in scine_module")
-        #    continue
+        if debugiter is not False:
+            # Useful for testing the whole VizChemoton workflow for large CRNs
+            rxn_idx > debugiter:
+            print("### WARNING! Debug continue activated in scine_module")
+            continue
+
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
@@ -380,10 +383,12 @@ def _init_list_fields(rdkitprop):
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity", "can_id",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
-        "smiles", "xyzdes", "pubchem", "chembl", "chebi", "chemspider"] + rdkitprop}
+        "smiles", "xyzdes", "pubchem", "chembl", "chebi"] + rdkitprop}
 
 def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles, rdkitprop, databases, timestmp):
-    """Extracts xyz, charge, multiplicity, energy, and model details from a structure object."""
+    """
+    Extracts xyz, charge, multiplicity, energy, and model details from a SCINE structure object.
+    """
     dprop = {k:None for k in rdkitprop}
     dpublidbs = {"pubchem": False, "chembl": False, "chebi": False, "chemspi": False}
     xyz = [(str(o.element), tuple(o.position))
@@ -429,7 +434,6 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "pubchem": dpublidbs["pubchem"],
         "chembl": dpublidbs["chembl"],
         "chebi": dpublidbs["chebi"],
-        "chemspider": dpublidbs["chemspi"],
     }
     # add dynamic requested rdkit properties
     for k in rdkitprop:

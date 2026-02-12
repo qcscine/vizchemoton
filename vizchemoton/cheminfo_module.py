@@ -81,11 +81,9 @@ def _convert_xyz_to_smiles(centroid):
 
 def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     """
-    TODO
+    Convert SCINE bond orders (used by SCINE Molassembler) to SMILES
     """
     atomcollection = centroid.get_atoms()
-    #print(dir(centroid))
-    #print(centroid.get_graph("masm_idx_map"))
     bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
     if not centroid.has_property("bond_orders"):
         return dsmiles
@@ -112,36 +110,43 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     dsmiles = {"smiles": smiles}
     return dsmiles
 
-def get_canolized_compid(centroid, properties, timestmp):
-    """
-    TO-DO
-    """
-    atomcollection = centroid.get_atoms()
-    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
-    if not centroid.has_property("bond_orders"):
-        return None
-    try:
-        sparsitymatrix = centroid.get_property("bond_orders")
-    except RuntimeError:
-        return None
-    prop_obj = db.Property(sparsitymatrix, properties)
-    prop_json = prop_obj.json()
-    data = json.loads(prop_json)
-    rowidxs = data["data"]["row_idxs"]
-    colidxs = data["data"]["col_idxs"]
-    values = data["data"]["values"]
-    x = []
-    for a, b, c in zip(rowidxs, colidxs, values):
-        x.append((a, b, {"bond": str(c)}))
-    G = nx.Graph()
-    G.add_edges_from(x)
-    cancompid = nx.weisfeiler_lehman_graph_hash(G, edge_attr="bond")
-    return cancompid
+## DEPRECATED
+#def get_canolized_compid(centroid, properties, timestmp):
+#    """
+#    TO-DO
+#    """
+#    atomcollection = centroid.get_atoms()
+#    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
+#    if not centroid.has_property("bond_orders"):
+#        return None
+#    try:
+#        sparsitymatrix = centroid.get_property("bond_orders")
+#    except RuntimeError:
+#        return None
+#    prop_obj = db.Property(sparsitymatrix, properties)
+#    prop_json = prop_obj.json()
+#    data = json.loads(prop_json)
+#    rowidxs = data["data"]["row_idxs"]
+#    colidxs = data["data"]["col_idxs"]
+#    values = data["data"]["values"]
+#    x = []
+#    for a, b, c in zip(rowidxs, colidxs, values):
+#        x.append((a, b, {"bond": str(c)}))
+#    G = nx.Graph()
+#    G.add_edges_from(x)
+#    cancompid = nx.weisfeiler_lehman_graph_hash(G, edge_attr="bond")
+#    return cancompid
 
 def convert_struct_to_smiles(centroid, properties, timestmp, multiplicity, smilesmode='hybrid'):
     """
-    Convert structure instance to a smile, either using SCINE bond orders
-    or the xyz2mol approach.
+    Convert structure to a SMILES using three methods:
+    a) scine: using the SCINE bond orders present in the MongoDB and used by Molassembler.[1]
+    b) xyz2mol: using the algorithm by Kim et al. and implemented in RDKit.[2]
+    c) hybrid: using a both a) as default and switching to b) for failed singlet compounds.[3]
+
+    [1] J. Chem. Inf. Model. 2020, 60, 8, 3884–3900
+    [2] Bull. Korean Chem. Soc. 2015, Vol. 36, 1769-1777
+    [3] TO-DO: add ChemRxiv 2026
     """
     dsmiles = {"smiles": None}
     tmpfile = "tmp"+timestmp+".mol"
@@ -171,7 +176,7 @@ def _get_inchikey_from_smiles(smiles):
 
 def get_public_database_id(name, smiles):
     """
-    Wrapper
+    Wrapper for managing public database queries.
     """
 
     ddb = {name: None}
@@ -236,6 +241,7 @@ def get_chembl_id(smiles, verbose=True):
     if verbose: print(strtmp.format(s=smiles, b=str(dchembl["id"])))
     return dchembl
 
+## DEPRECATED
 #def get_chemspider_id(smiles, apikey, verbose=True):
 #    """
 #    Check if InChIKey is in ChemSpider database using their Python API.
