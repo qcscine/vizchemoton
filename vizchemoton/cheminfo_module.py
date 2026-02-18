@@ -110,32 +110,31 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     dsmiles = {"smiles": smiles}
     return dsmiles
 
-## DEPRECATED
-#def get_canolized_compid(centroid, properties, timestmp):
-#    """
-#    TO-DO
-#    """
-#    atomcollection = centroid.get_atoms()
-#    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
-#    if not centroid.has_property("bond_orders"):
-#        return None
-#    try:
-#        sparsitymatrix = centroid.get_property("bond_orders")
-#    except RuntimeError:
-#        return None
-#    prop_obj = db.Property(sparsitymatrix, properties)
-#    prop_json = prop_obj.json()
-#    data = json.loads(prop_json)
-#    rowidxs = data["data"]["row_idxs"]
-#    colidxs = data["data"]["col_idxs"]
-#    values = data["data"]["values"]
-#    x = []
-#    for a, b, c in zip(rowidxs, colidxs, values):
-#        x.append((a, b, {"bond": str(c)}))
-#    G = nx.Graph()
-#    G.add_edges_from(x)
-#    cancompid = nx.weisfeiler_lehman_graph_hash(G, edge_attr="bond")
-#    return cancompid
+def get_canolized_compid(centroid, properties, timestmp):
+    """
+    TO-DO
+    """
+    atomcollection = centroid.get_atoms()
+    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
+    if not centroid.has_property("bond_orders"):
+        return None
+    try:
+        sparsitymatrix = centroid.get_property("bond_orders")
+    except RuntimeError:
+        return None
+    prop_obj = db.Property(sparsitymatrix, properties)
+    prop_json = prop_obj.json()
+    data = json.loads(prop_json)
+    rowidxs = data["data"]["row_idxs"]
+    colidxs = data["data"]["col_idxs"]
+    values = data["data"]["values"]
+    x = []
+    for a, b, c in zip(rowidxs, colidxs, values):
+        x.append((a, b, {"bond": str(c)}))
+    G = nx.Graph()
+    G.add_edges_from(x)
+    cancompid = nx.weisfeiler_lehman_graph_hash(G, edge_attr="bond")
+    return cancompid
 
 def convert_struct_to_smiles(centroid, properties, timestmp, multiplicity, smilesmode='hybrid'):
     """

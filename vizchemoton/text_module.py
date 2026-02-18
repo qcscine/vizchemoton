@@ -167,8 +167,6 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
     last_checkpoint = time.time()
     flagcheckpoint = "A"
     for i, k1 in enumerate(compounds):
-        if i < 160000:
-            continue
         cmp = compounds[k1]
         for k2 in lkeys:
             if cmp[k2] is False:

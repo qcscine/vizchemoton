@@ -185,7 +185,7 @@ def get_energy_and_barriers(
 
 def get_reactions_and_compounds(manager, pathfinder, dmethod, 
                                 calcsmiles, rdkitprop, databases, 
-                                debugiter=False, verbose=False):
+                                debugiter=False, verbose=True):
     """
     Extract the chemical reactions, compounds and transition states from the
     Mongo-DB where the exploration with Chemoton was run.
@@ -237,9 +237,9 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         
         if debugiter is not False:
             # Useful for testing the whole VizChemoton workflow for large CRNs
-            rxn_idx > debugiter:
-            print("### WARNING! Debug continue activated in scine_module")
-            continue
+            if rxn_idx > debugiter:
+                print("### WARNING! Debug continue activated in scine_module")
+                continue
 
         rxn = db.Reaction(db.ID(rxn_id[:-3]), reactions)
         reactants = rxn.get_reactants(db.Side.BOTH)
