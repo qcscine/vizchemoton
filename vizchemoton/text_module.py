@@ -303,4 +303,76 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
     return compounds
 
 
+def simplify_compounds(compounds):
+    """
+    Helper function that removes TS entries from the dictionary of compounds to manage
+    cheminformatic properties that are ill-defined for transition states
+    Input:
+    - compounds (dict): dictionary mapping node/ts indices to the different
+    computed fields that are available.
+    Output:
+    - compounds_clean (dict): dictionary mapping ONLY node indices to the different
+    computed fields that are available.
+    """
+    compounds_clean = {k:v for k,v in compounds.items() if "ts" not in v["crn_id"]}
+    return compounds_clean 
 
+def process_compound_dbs(compounds,dblist=["pubchem","chebi","chembl"]):
+    """
+    Processes a dictionary of compounds to build a unique mapping of MongoDB IDs to SMILES
+    and matches to the requested databases 
+    Input:
+    - compounds (dict): dictionary mapping node/ts indices to the different
+    computed fields that are available.
+    - dblist (list): list of strings with names of the database fields to check
+    for the compounds.
+    Output:
+    - mongoid_mapping (dict): dictionary mapping unique MongoDB IDs to a dictionary 
+    with smiles, crn_id and db matches 
+    """
+    mongoid_mapping = {}
+    compounds_clean = simplify_compounds(compounds)
+    for cmp in compounds_clean.values():
+        mongoid_list = cmp["mongodb_id"].split("//")
+        smilist = str(cmp["smiles"]).split("//")
+        cid_list = cmp["crn_id"].split("+")
+        
+        db_presence = {}
+        for dbii in dblist:
+            if isinstance(cmp[dbii],list):
+                db_presence[dbii] = cmp[dbii]
+            else:
+                db_presence[dbii] = [cmp[dbii]]
+                
+        for ii,mid in enumerate(mongoid_list):
+            if mid in mongoid_mapping:
+                continue
+                
+            entry = {dbii:db_presence[dbii][ii] for dbii in dblist}
+            entry.update({"smiles":smilist[ii],"crn_id":cid_list[ii]})
+            mongoid_mapping[mid] = entry
+
+    return mongoid_mapping
+
+def count_matches(mongoid_mapping,error_flags=["None","Error","False",None,False]):
+    """
+    Counts valid entries for all fields in the inner dictionaries in the mapping 
+    produced by process_compound_dbs
+    Input:
+    - mongoid_mapping (dict): dictionary mapping unique MongoDB IDs to a dictionary 
+    with smiles, crn_id and db matches 
+    - error_codes (list): list containing entries that are considered as invalid
+    mathces and will be excluded from the count
+    Output:
+    - counts (dict): dictionary mapping all fields to the count of valid values
+    """
+    counts = {}
+    # select a given entry in the dict to determine the keys to count automatically
+    kr = next(iter(mongoid_mapping.keys()))
+    field_list = mongoid_mapping[kr].keys()
+
+    counts["mongodb_id"] = len(mongoid_mapping) 
+    for field in field_list:
+        values = [v[field] for v in mongoid_mapping.values() if v[field] not in error_flags]
+        counts[field] = len(values)
+    return counts
