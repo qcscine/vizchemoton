@@ -55,13 +55,6 @@ def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
         if verbose:
             print("## Optimal number of clusters:", n_clusters)
 
-    n_clusters = 10
-
-    print(type(X))
-    print(len(X))
-    print(type(X[0]))
-    print(len(X[0]))
-
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=n_clusters)
     cluster_labels = kmeans.fit_predict(X)
 
