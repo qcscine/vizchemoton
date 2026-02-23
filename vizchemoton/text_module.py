@@ -25,9 +25,11 @@ from .cheminfo_module import (get_public_database_id, _convert_xyz_to_smiles,
 
 def vizchemoton_header():
     """
-    Plain text function to signal the start of VizChemoton
+    Prints the VizChemoton ASCII art banner to the console.
+    
+    This function serves as the visual entry point for the CLI tool, 
+    signaling the successful initialization of the package.
     """
-
     ascii_text = r"""
     __      ___      _____ _                          _
     \ \    / (_)    / ____| |                        | |
@@ -41,13 +43,17 @@ def vizchemoton_header():
 
 def load_config(config_file="config.yaml"):
     """
-    Reads the configuration yaml file where the input parameters are defined.
+    Loads runtime parameters from a YAML configuration file.
 
-    Input:
-    - config_file (str): string with the name of the config file
+    Args:
+        config_file (str): Path to the configuration file. Defaults to "config.yaml".
 
-    Output:
-    - yaml (dict): dictionary with the input parameters
+    Returns:
+        dict: Parsed configuration parameters.
+
+    Raises:
+        FileNotFoundError: If the specified config file does not exist.
+        yaml.YAMLError: If the file contains invalid YAML syntax.
     """
     with open(config_file, "r") as file:
         return yaml.safe_load(file)
@@ -55,8 +61,29 @@ def load_config(config_file="config.yaml"):
 
 def custom_json_dump(obj, indent=2, level=0):
     """
-    Recursively dump JSON with indent, compacting lists (like 'xyz') to a single line
-    unless they contain dicts.
+    Recursively serializes a Python object to a JSON-formatted string with 
+    selective compaction.
+
+    Unlike standard `json.dumps`, this function preserves readability by:
+    1. Pretty-printing dictionaries and lists of dictionaries.
+    2. Collapsing simple primitive lists (like atomic coordinates or lists of 
+       strings) into a single line to keep files compact.
+
+    Args:
+        obj (any): The Python object to serialize.
+        indent (int): Number of spaces for indentation. Defaults to 2.
+        level (int): Current recursion depth (used internally).
+
+    Returns:
+        str: A formatted JSON string.
+        
+    Example:
+        Coordinates are kept on one line: `"xyz": [1.0, 2.0, 3.0]`
+        Complex structures are expanded: 
+        `"atoms": [
+            {"symbol": "C", "id": 1},
+            {"symbol": "O", "id": 2}
+        ]`
     """
     space = ' ' * (indent * level)
     space_next = ' ' * (indent * (level + 1))
@@ -90,20 +117,23 @@ def write_compound_reactions_files(
         compound_file,
         verbose=True):
     """
-    Helper function to write reaction and compound files parsed from Chemoton.
+    Serializes reaction connectivity and compound metadata to disk.
 
-    Input:
-    - html_reactions (list): list of tuples of integers of the form [n1,n2,ts]
-    specifying the indices of nodes and transition states from the set of
-    compounds to define all elementary reactions in the network.
-    - html_compounds (dict): dictionary mapping node/ts indices to the
-    different computed fields that are available.
+    This helper saves the elementary reactions as a line-delimited CSV and 
+    the compound/transition state metadata as a formatted JSON file.
 
-    Output:
-    - reaction_file (str): path to the reactions file
-    - compounds_file (str): path to the compounds file
-    """
-    
+    Args:
+        html_reactions (list of tuples): Elementary reactions defined as 
+            (reactant_idx, product_idx, transition_state_idx).
+        html_compounds (dict): Metadata mapping for all indices, including 
+            coordinates, energy, and identifiers.
+        reaction_file (str): Output path for the reaction connectivity file.
+        compound_file (str): Output path for the JSON compound metadata.
+        verbose (bool): If True, logs file creation status to the console.
+
+    Returns:
+        None: Writes data directly to the specified file paths.
+    """ 
     if verbose:
         print(
             "## Writing {f1} and {f2} files".format(
@@ -122,20 +152,23 @@ def write_compound_reactions_files(
 
 def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
     """
-    Helper function to read reaction and compound files parsed from Chemoton.
+    Loads reaction connectivity and compound metadata from external files.
 
-    Input:
-    - reaction_file (str): path to the reactions file
-    - compounds_file (str): path to the compounds file
+    Args:
+        reaction_file (str): Path to the reaction CSV file (r,p,ts).
+        compounds_file (str): Path to the JSON metadata file.
+        verbose (bool): If True, logs the reading status to the console.
 
-    Output:
-    - reaction_tuples (list): list of tuples of integers of the form
-    [n1,n2,ts] specifying the indices of nodes and transition states from the
-    set of compounds to define all elementary reactions in the network.
-    - compounds (dict): dictionary mapping node/ts indices to the different
-    computed fields that are available.
+    Returns:
+        tuple: A pair containing:
+            - reaction_tuples (list of lists): The raw reaction connectivity.
+            - compounds (dict): The parsed JSON metadata dictionary.
+
+    Note:
+        The `reaction_tuples` are returned as lists of strings from the 
+        file read; further casting to integers may be required depending 
+        on downstream graph construction logic.
     """
-
     if verbose:
         print(
             "## Reading {f1} and {f2} files".format(
@@ -152,9 +185,28 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
 
 def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
     """
-    Helper function which reviews the compound file in search for Error messages
-    product of timeouts while querying the APIs of the Public Databases.
-    Periodically writes checkpoints to avoid losing progress.
+    Scans and repairs missing database identifiers in a compound metadata file.
+
+    This function identifies entries where previous API queries failed (marked 
+    as `False` or containing `False` in a list). It re-queries PubChem, ChEMBL, 
+    and ChEBI to fill these gaps. To prevent data loss during long-running 
+    network tasks, it implements an alternating "A/B" checkpointing strategy.
+    
+    Args:
+        compounds_file (str): Path to the JSON file containing compound metadata.
+        verbose (bool): If True, logs progress and API re-attempts to the console.
+        checkpoint_every (int): Frequency of metadata serialization to 
+            prevent data loss (number of compounds processed).
+
+    Returns:
+        dict: The updated compounds dictionary with repaired identifiers.
+
+    Note:
+        - Creates `.checkpointA`, `.checkpointB`, and final `.reviewed` files.
+        - The "A/B" alternating logic ensures that if the system crashes 
+          while writing a checkpoint, a valid backup from the previous 
+          cycle remains available.
+        - Handles both single SMILES and aggregate SMILES (delimited by '//').
     """
     if verbose:
         print(f"## Reviewing {compounds_file} file")
@@ -217,7 +269,21 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
     return compounds
 
 def _add_smiles_to_compounds(xyz, charge):
-    
+    """
+    Top-level wrapper for converting Cartesian coordinates to a SMILES dictionary.
+
+    This function handles the conversion of atomic symbols to atomic numbers and 
+    scales coordinates from Bohr to Angstroms ($0.529177$ factor) before passing 
+    them to the inference engine.
+
+    Args:
+        xyz (list of tuple): List containing (symbol, [x, y, z]) coordinates in Bohr.
+        charge (int): The total formal charge of the species.
+
+    Returns:
+        dict: A dictionary containing the inferred SMILES string.
+            Example: {'smiles': 'CCO'}
+    """
     ptable = GetPeriodicTable()
     elements = [ptable.GetAtomicNumber(a) for a,b in xyz]
     coordinates = [[b2* 0.529177 for b2 in b1] for a,b1 in xyz]
@@ -225,7 +291,18 @@ def _add_smiles_to_compounds(xyz, charge):
     return dsmiles
 
 def _add_rdkit_properties(dsmiles, rdkitprop):
-    
+    """
+    Appends calculated RDKit descriptors to an existing SMILES entry.
+
+    Args:
+        dsmiles (dict): Dictionary containing the 'smiles' key.
+        rdkitprop (list of str): List of descriptor names to compute 
+            (e.g., ['MolWt', 'LogP']).
+
+    Returns:
+        dict: A dictionary of descriptors. Returns a dictionary populated with 
+              `None` values if the input SMILES is missing or invalid.
+    """
     dprop = {k:None for k in rdkitprop}
     if dsmiles['smiles'] != None:
         dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
@@ -233,7 +310,19 @@ def _add_rdkit_properties(dsmiles, rdkitprop):
     return dprop
 
 def _add_public_db_ids(dsmiles, databases):
+    """
+    Cross-references a SMILES string against selected public chemical databases.
 
+    Args:
+        dsmiles (dict): Dictionary containing the 'smiles' key.
+        databases (dict): Configuration mapping database names to booleans, 
+            e.g., {'pubchem': True, 'chembl': False}.
+
+    Returns:
+        dict: A dictionary of retrieved IDs (e.g., {'pubchem': 2244, ...}). 
+              If a database is disabled in config or SMILES is missing, 
+              the corresponding value remains `None`.
+    """
     dpublidbs = {"pubchem": None, "chembl": None, "chebi": None}
     for name in databases.keys():
         if databases[name] and dsmiles['smiles'] != None:
@@ -244,8 +333,30 @@ def _add_public_db_ids(dsmiles, databases):
 
 def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
     """
-    Helper function which reviews the compound file in search for Error messages
-    product of timeouts while querying the APIs of the Public Databases.
+    Upgrades a compound metadata file by calculating structural descriptors and 
+    fetching missing database identifiers.
+
+    This function iterates through a JSON compound file and fills in missing 
+    information for each entry, including SMILES inference from XYZ coordinates, 
+    RDKit physical properties, and cross-references to public databases. It 
+    specifically handles "aggregate" species (mixtures/complexes) by processing 
+    lists of coordinates and averaging Cartesian descriptors.
+
+    Args:
+        compounds_file (str): Path to the JSON file containing compound data.
+        rdkitprop (list of str): RDKit descriptors to calculate (e.g., 'MolLogP').
+        databases (dict): Configuration mapping database names to booleans for 
+            API lookups (e.g., {'pubchem': True}).
+        verbose (bool): If True, prints the progress of the file review.
+
+    Returns:
+        dict: The fully enriched compounds dictionary.
+
+    Note:
+        - The function saves a new file with the '.upgraded' extension.
+        - For aggregate species (lists), SMILES are joined using the "//" delimiter.
+        - Cartesian descriptors for aggregates are calculated as the mean 
+          of the individual components.
     """
     if verbose:
             print("## Reviewing {f} file".format(
@@ -301,30 +412,48 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
 
 def simplify_compounds(compounds):
     """
-    Helper function that removes TS entries from the dictionary of compounds to manage
-    cheminformatic properties that are ill-defined for transition states
-    Input:
-    - compounds (dict): dictionary mapping node/ts indices to the different
-    computed fields that are available.
-    Output:
-    - compounds_clean (dict): dictionary mapping ONLY node indices to the different
-    computed fields that are available.
+    Filters a compound dictionary to remove Transition State (TS) entries.
+
+    Transition states often lack well-defined cheminformatic properties (like 
+    standard SMILES or LogP). This function ensures downstream analysis 
+    only processes stable intermediates.
+
+    Args:
+        compounds (dict): Dictionary mapping indices to compound metadata. 
+            Expects a 'crn_id' key in the values to identify TS entries.
+
+    Returns:
+        dict: A "clean" dictionary containing only stable nodes (where 'ts' 
+              is not in the 'crn_id').
     """
     compounds_clean = {k:v for k,v in compounds.items() if "ts" not in v["crn_id"]}
     return compounds_clean 
 
 def process_compound_dbs(compounds,dblist=["pubchem","chebi","chembl"]):
     """
-    Processes a dictionary of compounds to build a unique mapping of MongoDB IDs to SMILES
-    and matches to the requested databases 
-    Input:
-    - compounds (dict): dictionary mapping node/ts indices to the different
-    computed fields that are available.
-    - dblist (list): list of strings with names of the database fields to check
-    for the compounds.
-    Output:
-    - mongoid_mapping (dict): dictionary mapping unique MongoDB IDs to a dictionary 
-    with smiles, crn_id and db matches 
+    Deconstructs aggregate nodes into a unique mapping of individual species.
+
+    Reaction network nodes often represent aggregates (mixtures) of several 
+    molecules. This function splits these aggregates using the '//' and '+' 
+    delimiters, maps individual MongoDB IDs to their respective SMILES, 
+    and aligns them with their public database identifiers.
+
+    
+
+    Args:
+        compounds (dict): The master dictionary of reaction network compounds.
+        dblist (list of str): The database fields to extract for each unique 
+            species (e.g., ["pubchem", "chembl"]).
+
+    Returns:
+        dict: A mapping of unique MongoDB IDs to a flattened species dictionary:
+            { 
+              'mongodb_id': {
+                  'smiles': str, 
+                  'crn_id': str, 
+                  'pubchem': int|None, ...
+              }
+            }
     """
     mongoid_mapping = {}
     compounds_clean = simplify_compounds(compounds)
@@ -352,15 +481,27 @@ def process_compound_dbs(compounds,dblist=["pubchem","chebi","chembl"]):
 
 def count_matches(mongoid_mapping,error_flags=["None","Error","False",None,False]):
     """
-    Counts valid entries for all fields in the inner dictionaries in the mapping 
-    produced by process_compound_dbs
-    Input:
-    - mongoid_mapping (dict): dictionary mapping unique MongoDB IDs to a dictionary 
-    with smiles, crn_id and db matches 
-    - error_codes (list): list containing entries that are considered as invalid
-    mathces and will be excluded from the count
-    Output:
-    - counts (dict): dictionary mapping all fields to the count of valid values
+    Calculates the frequency of valid metadata entries across the species mapping.
+
+    This function audits the results of database cross-referencing and property 
+    calculations. It identifies "valid" entries by excluding a customizable 
+    list of error flags, providing a clear picture of data coverage for 
+    each field (e.g., how many species successfully found a PubChem ID).
+
+    Args:
+        mongoid_mapping (dict): The species-level dictionary produced by 
+            `process_compound_dbs`, where keys are MongoDB IDs.
+        error_flags (list, optional): Values to be treated as missing or failed 
+            data. Defaults to ["None", "Error", "False", None, False].
+
+    Returns:
+        dict: A summary dictionary where keys are field names (e.g., 'pubchem', 
+            'smiles') and values are the integer counts of valid entries.
+
+    Note:
+        The function automatically determines fields to count by inspecting the 
+        first entry in the mapping. It also includes a total count of unique 
+        'mongodb_id' entries.
     """
     counts = {}
     # select a given entry in the dict to determine the keys to count automatically
