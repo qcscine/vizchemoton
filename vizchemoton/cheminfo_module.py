@@ -25,6 +25,7 @@ import networkx as nx
 from vizchemoton.html_module import (format_value_list)
 import scine_utilities as su
 import scine_database as db
+import scine_molassembler as masm
 
 def get_cartesian_descriptors(xyz):
     """
@@ -180,6 +181,37 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     dsmiles = {"smiles": smiles}
     return dsmiles
 
+def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
+    """
+    TO-DO
+    """
+    atomcollection = centroid.get_atoms()
+    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
+    if not centroid.has_property("bond_orders"):
+        return dsmiles
+    try:
+        sparsitymatrix = centroid.get_property("bond_orders")
+    except RuntimeError:
+        return dsmiles
+    prop_obj = db.Property(sparsitymatrix, properties)
+    prop_json = prop_obj.json()
+    data = json.loads(prop_json)
+    rowidxs = data["data"]["row_idxs"]
+    colidxs = data["data"]["col_idxs"]
+    values = data["data"]["values"]
+    bondcollection = su.BondOrderCollection(len(centroid.get_atoms()))
+    for a, b, c in zip(rowidxs, colidxs, values):
+        bondcollection.set_order(a, b, c)
+    try:
+        result = masm.interpret.molecules(atomcollection, bondcollection, masm.interpret.BondDiscretization.RoundToNearest)
+        mol = result.molecules[0]
+        smiles = masm.io.experimental.emit_smiles(mol)
+    except:
+        print("WARNING! Aggregate could not be converted to SMILES format")
+        smiles = None
+    dsmiles = {"smiles": smiles}
+    return dsmiles
+
 def get_canolized_compid(centroid, properties, timestmp):
     """
     Generates a canonical identifier for a structure using Weisfeiler-Lehman graph hashing.
@@ -271,6 +303,8 @@ def convert_struct_to_smiles(centroid, properties, timestmp, multiplicity, smile
         if (dsmiles["smiles"] is None) and (multiplicity == 1): 
             # xyz2mol handles better singlet zwitterions
             dsmiles = _convert_xyz_to_smiles(centroid)
+    elif smilesmode == 'molassembler':
+        dsmiles = _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles)
     return dsmiles
 
 def is_valid_smiles(smiles):
