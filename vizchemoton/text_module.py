@@ -476,7 +476,6 @@ def process_compound_dbs(compounds,dblist=["pubchem","chebi","chembl"]):
             entry = {dbii:db_presence[dbii][ii] for dbii in dblist}
             entry.update({"smiles":smilist[ii],"crn_id":cid_list[ii]})
             mongoid_mapping[mid] = entry
-
     return mongoid_mapping
 
 def count_matches(mongoid_mapping,error_flags=["None","Error","False",None,False]):
@@ -513,3 +512,46 @@ def count_matches(mongoid_mapping,error_flags=["None","Error","False",None,False
         values = [v[field] for v in mongoid_mapping.values() if v[field] not in error_flags]
         counts[field] = len(values)
     return counts
+
+def flatten_xyz_structure(xyz_data):
+    """
+    Flattens nested xyz structure into a simple list:
+    [(atom, x, y, z), ...]
+    """
+    flattened = []
+
+    for block in xyz_data:
+        element = block[0]
+        coords = block[1]
+        flattened.append((element, coords[0], coords[1], coords[2]))
+
+    return flattened
+
+
+def convert_bohr_to_angstrom(atoms, BOHR_TO_ANGSTROM=0.529177):
+    """
+    Converts coordinates from Bohr to Angstrom.
+    """
+    converted = []
+    for element, x, y, z in atoms:
+        converted.append(
+            (
+                element,
+                x * BOHR_TO_ANGSTROM,
+                y * BOHR_TO_ANGSTROM,
+                z * BOHR_TO_ANGSTROM,
+            )
+        )
+    return converted
+
+
+def write_xyz(filename, atoms):
+    """
+    Writes atoms to XYZ file format.
+    """
+    with open(filename, "w") as f:
+        f.write(f"{len(atoms)}\n")
+        f.write("Converted from Bohr to Angstrom\n")
+        for element, x, y, z in atoms:
+            f.write(f"{element:2s} {x:15.8f} {y:15.8f} {z:15.8f}\n")
+

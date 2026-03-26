@@ -315,7 +315,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
     cmp_idx, rxn_idx = 1, 0
     for rxn_id in lhs_rxn_list:
         # Iterate through the reations of the network
-        print(rxn_id)
+        #print(rxn_id)
         tmpstr = '### Iteration {a} out of {b}'
         rxn_idx += 1
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
@@ -389,7 +389,9 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                     html_reactions.append([cmp_dict[node_x],
                                            cmp_dict[node_y], None])
                 elif not_none:
-                    node_ts = es_from_graph.get_transition_state().string()+";"
+                    #node_ts = es_from_graph.get_transition_state().string()+";"
+                    str_id = es_from_graph.get_transition_state().string()+";"
+                    node_ts = str_id + "_" + rxn_id
                     if node_ts not in cmp_dict.keys():
                         cmp_dict[node_ts] = cmp_idx
                         cmp_idx = cmp_idx + 1
@@ -449,7 +451,9 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                     html_reactions.append([cmp_dict[node_x],
                                            cmp_dict[node_y], None])
                 elif not_none:
-                    node_ts = es_from_graph.get_transition_state().string()+";"
+                    #node_ts = es_from_graph.get_transition_state().string()+";"
+                    str_id = es_from_graph.get_transition_state().string()+";"
+                    node_ts = str_id + "_" + rxn_id
                     if node_ts not in cmp_dict.keys():
                         cmp_dict[node_ts] = cmp_idx
                         cmp_idx = cmp_idx + 1
@@ -751,16 +755,19 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
             html_compounds[compound_key]['xyzdes'] = tmpchemsim
 
         elif ";" in compound_id:  # transition state structure
+            # get structure and rxn ids
+            compound_id, rxn_id = compound_id.split("_")
             html_compounds[compound_key] = {}
             structure = compound_id[0:-1]
             structure_obj = db.Structure(db.ID(structure), structures)
             _calcsmiles = (False, 'placeholder') # TSs do not need SMILES
             struct_data = _extract_structure_data(structure_obj, model1, structures, properties, _calcsmiles, rdkitprop, databases, timestmp)
             crn_id = "ts" + str(compound_key)
+            # for ts the mongodb_id correspond to the rxn id
             html_compounds[compound_key] = {
             **struct_data,
             "crn_id": crn_id,
-            "mongodb_id": compound_id,}
+            "mongodb_id": rxn_id[:-3],}
 
         else:  # unimolecular reaction side
             compound, crn_id = _get_compound_and_crnid(pathfinder, cmp_dict, compound_id, compounds, flasks)

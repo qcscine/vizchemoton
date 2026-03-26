@@ -204,8 +204,17 @@ def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
         bondcollection.set_order(a, b, c)
     try:
         result = masm.interpret.molecules(atomcollection, bondcollection, masm.interpret.BondDiscretization.RoundToNearest)
-        mol = result.molecules[0]
-        smiles = masm.io.experimental.emit_smiles(mol)
+        # If interpretation failed to yield a single molecule, try detecting bonds from scratch
+        if len(result.molecules) != 1:
+            bondcollection = utils.BondDetector.detect_bonds(atomcollection)
+            result = masm.interpret.molecules(atomcollection, bondcollection, masm.interpret.BondDiscretization.RoundToNearest)
+        if len(result.molecules) != 1:
+            print("WARNING! Molassembler could not interpret a single molecule.")
+            smiles = None
+        else:
+            mol = result.molecules[0]
+            print("DEBUG", result.molecules, "centroid id", centroid.get_id())
+            smiles = masm.io.experimental.emit_smiles(mol)
     except:
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
