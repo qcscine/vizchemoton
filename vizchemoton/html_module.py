@@ -22,8 +22,6 @@ import networkx as nx
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-
-
 def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
     node_ids = list(descriptors.keys())
     X = np.array([descriptors[n] for n in node_ids])
@@ -268,12 +266,13 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 		if (mol_query.includes("TS") || mol_query.includes("ts")) {
 			var renderer = erend
 			var other_renderer = nrend
+            var pool_smiles = []
 		} else {
 			var renderer = nrend
 			var other_renderer = erend
+            var pool_smiles = renderer.data["smilesStr"]
 		}
 		var pool_names = renderer.data["name"]
-		var pool_smiles = renderer.data["smilesStr"]
 
 		// split species joined by + sign
 		var pool_species = pool_names.reduce((acc,name) =>
