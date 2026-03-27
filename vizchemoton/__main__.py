@@ -20,6 +20,8 @@ def main():
     if len(sys.argv) == 2:
         configfile = sys.argv[1]
     else:
+        print("Pass a valid YAML configuration file when running VizChemoton")
+        print("python -m vizchemoton [config.yaml]")
         raise ValueError 
     # Load configuration
     config = load_config(configfile)

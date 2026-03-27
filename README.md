@@ -107,12 +107,6 @@ python3 -m pip install -r requirements.txt
 python3 -m pip install .
 cd ..
 
-# Install amk-tools
-git clone https://gitlab.com/dgarayr/amk_tools.git
-cd amk_tools
-python3 -m pip install -e .
-cd ..
-
 # Install VizChemoton
 git clone https://github.com/petrusen/vizchemoton.git
 cd vizchemoton
@@ -137,7 +131,7 @@ conda activate my_env
 vi config.yaml
 
 # Run the code of this repository (at the /vizchemoton level) to obtain the html
-python3 -m viz_chemoton.py 
+python3 -m vizchemoton config.yaml 
 
 ```
 
