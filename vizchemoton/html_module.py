@@ -340,6 +340,25 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 		}
 		"""
     
+    # Callback for exporting the currently viewed nodes 
+    exportCurrent = """
+    	var nrend = graph.node_renderer.data_source
+        var nodeIndices = nrend.data["index"]
+        var presentNodes = nodeIndices.filter((node) => node != null)
+        var outDict = {nodes: presentNodes}
+        
+        // downloading a file
+        function download(content, fileName, contentType) {
+            var a = document.createElement("a")
+            var file = new Blob([content], {type: contentType})
+            a.href = URL.createObjectURL(file)
+            a.download = fileName
+            a.click()
+        }
+        download(JSON.stringify(outDict),"vizchemoton_export_sel.json","text/plain")
+
+    """
+    
     tooltips = [("tag","@name"),("charge","@chargeStr"),("multiplicity","@multiplicityStr"),
                                          ("formula","@formulaStr"),("smiles","@smilesStr")]
     tooltips += kwargs.get("custom_hovers",[])
@@ -377,6 +396,18 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
     sel_row = lay.children[0][0].children[2]
     sel_row.children[1].max_width = int(w1/6)
     sel_row.children = sel_row.children[0:2] + [b_highlight,b_hidebarrless] + [sel_row.children[-1]]
+
+    # Export functionality
+    export_callback = bkm.CustomJS(args={"figure":bk_fig,"graph":bk_graph},code=exportCurrent)
+    # Additional upper button -> readjust spacing to fit
+    up_row = lay.children[0][0].children[0]
+    b_export = bkm.Button(label="Export current nodes",max_width=int(w1/6),align="center")
+    b_export.js_on_click(export_callback)
+
+    for item in up_row.children:
+        item.max_width = int(w1/6)
+    
+    up_row.children.append(b_export)
 
     # Modify the callback of the locate molecule button
     text_input = sel_row.children[0]

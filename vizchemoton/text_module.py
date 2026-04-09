@@ -555,3 +555,13 @@ def write_xyz(filename, atoms):
         for element, x, y, z in atoms:
             f.write(f"{element:2s} {x:15.8f} {y:15.8f} {z:15.8f}\n")
 
+def read_filter_file(filter_file):
+    try:
+        with open(filter_file,"r") as ffilt:
+            filter_mapping = json.load(ffilt)
+    except:
+        print(f"Filter file {filter_file} not found")
+        filter_mapping = {}
+        
+    flag = (filter_mapping != {})
+    return flag,filter_mapping

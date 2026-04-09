@@ -9,11 +9,11 @@ import sys
 import networkx as nx
 from .text_module import (vizchemoton_header, write_compound_reactions_files,
                           read_compound_reactions_files, load_config,
-                          review_compound_file, upgrade_compound_file)
+                          review_compound_file, upgrade_compound_file,
+                          read_filter_file)
 from .scine_module import (get_crn_as_pathfinder, get_reactions_and_compounds)
 from .html_module import (process_graph, build_dashboard, aggregate_property)
 from .cheminfo_module import (db_node_check,compute_cheminf_props)
-
 
 def main():
     print(sys.argv)
@@ -59,6 +59,7 @@ def main():
     node_size = float(config["html"]["node_size"])
     title_html = config["html"]["title"]
     output_file = config["html"]["path"]
+    filter_file = config["html"].get("filter_file",None)
 
     # qualitative or quantitative palette selection -> should adapt later for flexibility
     if "Rank" in map_field:
@@ -140,7 +141,16 @@ def main():
         nx.set_node_attributes(graph,field_to_nodes)
     else:
         map_field_name = map_field
-   
+
+    # Enable post-filtering of exported selections
+    if filter_file: 
+        flag,filter_mapping = read_filter_file(filter_file)
+        if flag:
+            graph_work = graph.copy() 
+            out_nodes = [nd for nd in graph.nodes if nd not in filter_mapping["nodes"]]
+            graph_work.remove_nodes_from(out_nodes)
+            graph = graph_work
+
     build_dashboard(
         graph,
         compounds,
