@@ -1,5 +1,5 @@
 scine-chemoton                   
-scine-database                   
+scine-database==1.3                   
 scine-utilities
 #scine-art==1.0.0
 scine_molassembler

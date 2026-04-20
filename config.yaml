@@ -1,34 +1,34 @@
 scine:
-  active: False
-  name: "ozone_eth_xtb"
+  active: True
+  name: "ozone_tme_lcpbe"
   ip: "localhost"
-  port: "8888"
+  port: "27017"
   method:
-    method_family: "gfn2"
-    method: "gfn2"
-    basis_set: ""
-    program: "xtb"
+    method_family: "dft"
+    method: "lc-pbe"
+    basis_set: "def2-svp"
+    program: "orca"
     vfilter: False
   pathfinder:
-    path: "crn_eth_xtb_251120.json"
-    mode: "read"
+    path: "crn_tme_lcpbe_deleteme.json"
+    mode: "write"
 
 cheminfo:
   smiles: True
   smiles_method: "hybrid"
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
-  pubchem: True
-  chembl: True
+  pubchem: False
+  chembl: False
   chemspider: False
-  chebi: True
-  verbose: True
+  chebi: False
+  verbose: False
 
 files:
   reactions:
-    path: "reactions_eth_xtb_scinesmiles_251120.csv"
+    path: "reactions_tme_dft_deleteme.csv"
     mode: "write"
   compounds:
-    path: "compounds_eth_xtb_scinesmiles_251120.json"
+    path: "compounds_tme_dft_deleteme.json"
     mode: "write"
 
 html:
@@ -38,4 +38,4 @@ html:
   map_field: "energy" #"pubchemRank"
   node_size: 10
   title: "Chemoton graph"
-  path: "network_eth_xtb.html"
+  path: "network_tme_dft_deleteme.html"
