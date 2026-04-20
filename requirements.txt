@@ -1,6 +1,6 @@
 scine-chemoton                   
 scine-database==1.3                   
-scine-utilities
+scine-utilities==8.0.0
 #scine-art==1.0.0
 scine_molassembler
 pyyaml
