@@ -493,7 +493,7 @@ def _init_list_fields(rdkitprop):
     return {k: [] for k in [
         "crn_id", "mongodb_id", "xyz", "charge", "multiplicity", "can_id",
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
-        "smiles", "xyzdes", "pubchem", "chembl", "chebi"] + rdkitprop}
+        "smiles", "inchikey", "xyzdes", "pubchem", "chembl", "chebi"] + rdkitprop}
 
 def _extract_structure_data(structure_obj, model, structures, properties, calcsmiles, rdkitprop, databases, timestmp):
     """
@@ -561,7 +561,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
     bolsmiles, typsmiles = calcsmiles
     dsmiles = convert_struct_to_smiles(
-        structure_obj, properties, timestmp, s, typsmiles) if bolsmiles else {'smiles': False}
+            structure_obj, properties, timestmp, s, typsmiles) if bolsmiles else {'smiles': False, "inchikey": False}
     cancompid = get_canolized_compid(structure_obj, properties, timestmp)
     # smiles calculation
     if bolsmiles and dsmiles['smiles'] != None:
@@ -594,6 +594,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "solvent": model.solvent,
         "solvation": model.solvation,
         "smiles": dsmiles['smiles'],
+        "inchikey": dsmiles['inchikey'],
         "can_id": cancompid,
         "xyzdes": xyzdes,
         "pubchem": dpublidbs["pubchem"],
@@ -743,7 +744,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
                 html_compounds[compound_key]["mongodb_id"].append(_ids)
                 for k, v in struct_data.items():
                     html_compounds[compound_key][k].append(v)
-            for s, k in [("+", "crn_id"), ("//", "mongodb_id"), ("//", "smiles")]:
+            for s, k in [("+", "crn_id"), ("//", "mongodb_id"), ("//", "smiles"), ("//", "inchikey")]:
                 copy = html_compounds[compound_key][k].copy()
                 tmpstr = s.join([str(o) for o in copy])
                 html_compounds[compound_key][k] = tmpstr

@@ -19,6 +19,7 @@ from xyz2mol import xyz2mol
 from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors, Crippen, rdMolDescriptors
 from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
+from rdkit.Chem import inchi
 import networkx as nx
 
 #Local Imports
@@ -108,15 +109,17 @@ def _convert_xyz_to_smiles(centroid):
     coordinates = [[cj * conv2angs for cj in ci]
                    for ci in centroid.get_atoms().positions.tolist()]
     charge = centroid.get_charge()
-    data = {'smiles': None}
+    data = {'smiles': None, 'inchikey': None}
     try:
-        molformat = xyz2mol(elements, coordinates, charge, use_huckel=False,
-                            embed_chiral=False, allow_charged_fragments=True)
+        print("modified xyz2mol")
+        molformat = xyz2mol(elements, coordinates, charge, use_huckel=True) #, use_graph=True, embed_chiral=False, allow_charged_fragments=True)
         if len(molformat) != 0:
             smiles = MolToSmiles(molformat[0])
             m = MolFromSmiles(smiles)
             smiles = MolToSmiles(m)
-            data = {'smiles': smiles}
+            mol = Chem.MolFromSmiles(smiles)
+            inchikey = inchi.MolToInchiKey(mol)
+            data = {'smiles': smiles, 'inchikey': inchikey}
             return data
         else:
             return data
@@ -175,10 +178,12 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     rdkitmol = Chem.MolFromMolFile(tmpfile)
     try:
         smiles = Chem.MolToSmiles(rdkitmol)
+        # wrong sematic inchikey = Chem.MolToInChiKey(rdkitmol)
     except:
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
-    dsmiles = {"smiles": smiles}
+        inchikey = None
+    dsmiles = {"smiles": smiles, "inchikey": inchikey}
     return dsmiles
 
 def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):

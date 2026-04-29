@@ -15,7 +15,7 @@ scine:
 
 cheminfo:
   smiles: True
-  smiles_method: "hybrid"
+  smiles_method: "xyz2mol"
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
   pubchem: False
   chembl: False
