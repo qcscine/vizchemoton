@@ -275,22 +275,14 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 		}
 		var pool_names = renderer.data["name"]
 
-		// split species joined by + sign
-		var pool_species = pool_names.reduce((acc,name) =>
-					{acc.push(name.split("+"));
-					return acc},[])
-        // smiles are separated by // instead
-		var pool_smiles_split = pool_smiles.reduce((acc,smiles) =>
-					{acc.push(smiles.split("//"));
-					return acc},[])
+		// split species joined by + sign, smiles by //, inchikeys are already listd
+        var pool_species = pool_names.map((name) => name.split("+"))
+        var pool_smiles_split = pool_smiles.map((smi) => smi.split("//"))
         
         var split_ikey = function(ikey){
             var terms = [ikey.slice(0,14),ikey.slice(15,25),ikey];
             return terms}
-
-        var pool_inchikeys_split = pool_inchikeys.reduce((acc,ikeys) => 
-            {acc.push(ikeys.map(split_ikey).flat());
-            return acc},[])
+        var pool_inchikeys_split = pool_inchikeys.map((ikeys) => ikeys.map(split_ikey).flat())
 
 		// function to match results in the array
 		var getSubstringIndices = function(arr,query){
