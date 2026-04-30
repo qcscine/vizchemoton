@@ -146,7 +146,6 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         descriptors, prop_values = {}, []
         for nd in G.nodes(data=True):
              prop = nd[1][cluster_property]
-             print("prop", prop)
              prop_values.append(prop)
         #prop_values,flag = aggregate_property(G,cluster_property)#,"none")
         #print("propvalues", prop_values)
@@ -267,10 +266,12 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 			var renderer = erend
 			var other_renderer = nrend
             var pool_smiles = []
-		} else {
+            var pool_inchikeys = []
+        } else {
 			var renderer = nrend
 			var other_renderer = erend
             var pool_smiles = renderer.data["smilesStr"]
+            var pool_inchikeys = renderer.data["inchikey"]
 		}
 		var pool_names = renderer.data["name"]
 
@@ -282,6 +283,14 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 		var pool_smiles_split = pool_smiles.reduce((acc,smiles) =>
 					{acc.push(smiles.split("//"));
 					return acc},[])
+        
+        var split_ikey = function(ikey){
+            var terms = [ikey.slice(0,14),ikey.slice(15,25),ikey];
+            return terms}
+
+        var pool_inchikeys_split = pool_inchikeys.reduce((acc,ikeys) => 
+            {acc.push(ikeys.map(split_ikey).flat());
+            return acc},[])
 
 		// function to match results in the array
 		var getSubstringIndices = function(arr,query){
@@ -294,27 +303,27 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 					[]);
 		}
 
-		if (!mol_query.includes("+")) {
-			var ndx1 = getSubstringIndices(pool_species,mol_query)
-			var ndx2 = getSubstringIndices(pool_smiles_split,mol_query)
-		} else {
+        if (mol_query.includes("+")) {
 			var ndx_u1 = pool_names.indexOf(mol_query)
-			var ndx_u2 = pool_smiles.indexOf(mol_query)
-
 			if (ndx_u1 < 0) {var ndx1 = []} 
             else {var ndx1 = [ndx_u1]}
+        } else {
+			var ndx1 = getSubstringIndices(pool_species,mol_query) 
+        }
 
-            if (ndx_u2 < 0) {var ndx2 = []} 
-            else {var ndx2 = [ndx_u2]}
-		}
+        var ndx2 = getSubstringIndices(pool_smiles_split,mol_query)
+        var ndx3 = getSubstringIndices(pool_inchikeys_split,mol_query)
         
-        // check both -> only choose the ones having matches, if both do, prefer SMILES
-        if ((ndx1.length == 0) && (ndx2.length == 0)){
-            var ndx = []
-        } else if ((ndx1.length > 0) && (ndx2.length == 0)){
-            var ndx = ndx1 
+        // check all -> only choose the ones having matches => if several do, order of preference is ikey/smiles/name
+
+        if (ndx3.length > 0){
+            var ndx = ndx3
         } else if (ndx2.length > 0) {
             var ndx = ndx2
+        } else if (ndx1.length > 0) {
+            var ndx = ndx1
+        } else {
+            var ndx = []
         }
 
 		// locate positions of the node or of the nodes defining an edge
@@ -570,6 +579,7 @@ def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
         nd[1]["formula"] = [formula_from_xyz_block(xyz) for xyz in xyz_list]
         nd[1]["neighbors"] = list(graph.neighbors(nd[0]))
         nd[1]["smiles"] = str(comp.get("smiles", "None")).split("//")
+        nd[1]["inchikey"] = str(comp.get("inchikey", "None")).split("//")
         nd[1]["xyzdes"] = comp["xyzdes"]
 
 def add_edge_attributes(graph, compounds):
