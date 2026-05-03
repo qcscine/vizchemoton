@@ -582,6 +582,7 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     else:
         e_kj = 0
     xyzdes = get_cartesian_descriptors(xyz)   
+    print(dsmiles)
     # create static dictionary
     tmpd = {
         "xyz": xyz,

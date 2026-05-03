@@ -10,8 +10,8 @@ scine:
     program: "orca"
     vfilter: False
   pathfinder:
-    path: "crn_tme_lcpbe_deleteme.json"
-    mode: "write"
+    path: "crn_tme_lcpbe.json"
+    mode: "read"
 
 cheminfo:
   smiles: True
@@ -25,10 +25,10 @@ cheminfo:
 
 files:
   reactions:
-    path: "reactions_tme_dft_deleteme.csv"
+    path: "reactions_tme_dft.csv"
     mode: "write"
   compounds:
-    path: "compounds_tme_dft_deleteme.json"
+    path: "compounds_tme_dft.json"
     mode: "write"
 
 html:
