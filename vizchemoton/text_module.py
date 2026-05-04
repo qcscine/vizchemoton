@@ -142,9 +142,11 @@ def write_compound_reactions_files(
     # Open a file in write mode
     with open(reaction_file, 'w') as f:
         # Loop through the list and write each tuple to the file
+        f.write("reactant, product, transition_state, rxn_id, es_id\n")
         for item in html_reactions:
-            r, p, ts = item
-            f.write("{r},{p},{ts}\n".format(r=r, p=p, ts=ts))
+            r, p, ts, rxnid, esid = item
+            f.write("{r},{p},{ts},{rxnid},{esid}\n".format(r=r, p=p, ts=ts,
+                                                           rxnid=rxnid, esid=esid))
     
     with open(compound_file, "w") as f:
         f.write(custom_json_dump(html_compounds, indent=2))

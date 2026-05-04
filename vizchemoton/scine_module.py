@@ -387,7 +387,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                 is_barrierless = step_type == db.ElementaryStepType.BARRIERLESS
                 if is_barrierless and not_none and _energy is not None:
                     html_reactions.append([cmp_dict[node_x],
-                                           cmp_dict[node_y], None])
+                                           cmp_dict[node_y], None, rxn_id[:-3], es_id.string()])
                 elif not_none:
                     #node_ts = es_from_graph.get_transition_state().string()+";"
                     str_id = es_from_graph.get_transition_state().string()+";"
@@ -397,7 +397,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                         cmp_idx = cmp_idx + 1
                     html_reactions.append(
                         [cmp_dict[node_x], cmp_dict[node_y],
-                         cmp_dict[node_ts]])
+                         cmp_dict[node_ts], rxn_id[:-3], es_id.string()])
 
         elif s_lhs == 3 or s_rhs == 3 and vfilter:
             # Get reactant indexes
@@ -449,7 +449,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                 is_barrierless = step_type == db.ElementaryStepType.BARRIERLESS
                 if is_barrierless and not_none and _energy is not None:
                     html_reactions.append([cmp_dict[node_x],
-                                           cmp_dict[node_y], None])
+                                           cmp_dict[node_y], None, rxn_id[:-3], es_id.string()])
                 elif not_none:
                     #node_ts = es_from_graph.get_transition_state().string()+";"
                     str_id = es_from_graph.get_transition_state().string()+";"
@@ -459,7 +459,7 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
                         cmp_idx = cmp_idx + 1
                     html_reactions.append(
                         [cmp_dict[node_x], cmp_dict[node_y],
-                         cmp_dict[node_ts]])
+                         cmp_dict[node_ts], rxn_id[:-3], es_id.string()])
 
     # Create a dictionary for the compounds and their properties
     html_compounds = _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, 
@@ -491,7 +491,7 @@ def _init_list_fields(rdkitprop):
         with compound-specific data.
     """
     return {k: [] for k in [
-        "crn_id", "mongodb_id", "xyz", "charge", "multiplicity", "can_id",
+        "crn_id", "mongodb_id", "xyz", "charge", "multiplicity", 
         "energy", "method", "basis_set", "program", "solvent", "solvation", 
         "smiles", "inchikey", "xyzdes", "pubchem", "chembl", "chebi"] + rdkitprop}
 
@@ -542,7 +542,6 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
             - "solvent" : str, solvent used (if any)
             - "solvation" : str, solvation model (if any)
             - "smiles" : str or False, generated SMILES string
-            - "can_id" : str, canonical compound identifier
             - "xyzdes" : dict, Cartesian-based molecular descriptors
             - "pubchem", "chembl", "chebi" : str or False, IDs from public databases
             - additional RDKit properties as requested in `rdkitprop`
@@ -596,7 +595,6 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
         "solvation": model.solvation,
         "smiles": dsmiles['smiles'],
         "inchikey": dsmiles['inchikey'],
-        "can_id": cancompid,
         "xyzdes": xyzdes,
         "pubchem": dpublidbs["pubchem"],
         "chembl": dpublidbs["chembl"],
@@ -707,7 +705,6 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
         A dictionary mapping each compound's CRN numeric key to a dictionary containing:
             - "xyz", "charge", "multiplicity", "energy"
             - "method", "basis_set", "program", "solvent", "solvation"
-            - "smiles" and canonical compound ID ("can_id")
             - "xyzdes" descriptors
             - "pubchem", "chembl", "chebi" identifiers
             - Additional RDKit properties as specified

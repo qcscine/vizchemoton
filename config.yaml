@@ -34,8 +34,8 @@ files:
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "random" #"kamada_kawai"
+  layout: "kamada_kawai"
   map_field: "energy" #"pubchemRank"
-  node_size: 10
+  node_size: 25
   title: "Chemoton graph"
-  path: "network_tme_dft_deleteme.html"
+  path: "network_tme_dft_inchikey.html"
