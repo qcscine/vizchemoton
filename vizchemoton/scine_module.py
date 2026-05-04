@@ -315,7 +315,6 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
     cmp_idx, rxn_idx = 1, 0
     for rxn_id in lhs_rxn_list:
         # Iterate through the reations of the network
-        #print(rxn_id)
         tmpstr = '### Iteration {a} out of {b}'
         rxn_idx += 1
         if verbose: print(tmpstr.format(b=str(numreac), a=str(rxn_idx)))
@@ -581,7 +580,6 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     else:
         e_kj = 0
     xyzdes = get_cartesian_descriptors(xyz)   
-    print(dsmiles)
     # create static dictionary
     tmpd = {
         "xyz": xyz,

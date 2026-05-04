@@ -111,7 +111,6 @@ def _convert_xyz_to_smiles(centroid):
     charge = centroid.get_charge()
     data = {'smiles': None, 'inchikey': None}
     try:
-        print("modified xyz2mol")
         molformat = xyz2mol(elements, coordinates, charge, use_huckel=True) #, use_graph=True, embed_chiral=False, allow_charged_fragments=True)
         if len(molformat) != 0:
             smiles = MolToSmiles(molformat[0])
@@ -218,7 +217,6 @@ def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
             smiles = None
         else:
             mol = result.molecules[0]
-            print("DEBUG", result.molecules, "centroid id", centroid.get_id())
             smiles = masm.io.experimental.emit_smiles(mol)
     except:
         print("WARNING! Aggregate could not be converted to SMILES format")
