@@ -177,7 +177,7 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     rdkitmol = Chem.MolFromMolFile(tmpfile)
     try:
         smiles = Chem.MolToSmiles(rdkitmol)
-        # wrong sematic inchikey = Chem.MolToInChiKey(rdkitmol)
+        inchikey = inchi.MolToInchiKey(rdkitmol)
     except:
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
