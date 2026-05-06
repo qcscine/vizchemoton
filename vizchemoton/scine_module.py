@@ -269,7 +269,7 @@ def get_energy_and_barriers(
 
 def get_reactions_and_compounds(manager, pathfinder, dmethod, 
                                 calcsmiles, rdkitprop, databases, 
-                                debugiter=False, verbose=True):
+                                debugiter=10, verbose=True):
     """
     Extract the chemical reactions, compounds and transition states from the
     Mongo-DB where the exploration with Chemoton was run.
@@ -297,6 +297,9 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         dmethod["method"],
         dmethod["basis_set"])
     model1.program = dmethod["program"]
+    print(dmethod["solvent"], dmethod["solvation"])
+    if dmethod["solvent"] is not False: model1.solvent = dmethod["solvent"]
+    if dmethod["solvation"] is not False: model1.solvation = dmethod["solvation"]
     structures = manager.get_collection("structures")
     reactions = manager.get_collection("reactions")
     flasks = manager.get_collection("flasks")

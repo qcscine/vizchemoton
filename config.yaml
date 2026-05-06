@@ -7,6 +7,8 @@ scine:
     method_family: "dft"
     method: "lc-pbe"
     basis_set: "def2-svp"
+    solvation: "gbsa"
+    solvent: "thf"
     program: "orca"
     vfilter: False
   pathfinder:
