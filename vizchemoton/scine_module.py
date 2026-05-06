@@ -85,6 +85,8 @@ def get_crn_as_pathfinder(
         dmethod["method"],
         dmethod["basis_set"])
     model1.program = dmethod["program"]
+    if dmethod["solvent"] is not False: model1.solvent = dmethod["solvent"]
+    if dmethod["solvation"] is not False: model1.solvation = dmethod["solvation"]
 
     # Load Pathfinder and assign NetworkX Digraph
     pathfinder = pf(manager)
