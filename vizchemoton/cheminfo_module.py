@@ -20,6 +20,9 @@ from rdkit.Chem import MolToSmiles, MolFromSmiles, Descriptors, Crippen, rdMolDe
 from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
 from rdkit.Chem import inchi
+from rdkit import RDLogger
+# Disable all RDKit warnings/errors/info messages
+RDLogger.DisableLog('rdApp.*')
 import networkx as nx
 
 #Local Imports

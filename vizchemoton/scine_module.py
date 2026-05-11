@@ -271,7 +271,7 @@ def get_energy_and_barriers(
 
 def get_reactions_and_compounds(manager, pathfinder, dmethod, 
                                 calcsmiles, rdkitprop, databases, 
-                                debugiter=10, verbose=True):
+                                debugiter=False, verbose=True):
     """
     Extract the chemical reactions, compounds and transition states from the
     Mongo-DB where the exploration with Chemoton was run.
