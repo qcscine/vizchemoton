@@ -227,55 +227,6 @@ def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
     dsmiles = {"smiles": smiles}
     return dsmiles
 
-def get_canolized_compid(centroid, properties, timestmp):
-    """
-    Generates a canonical identifier for a structure using Weisfeiler-Lehman graph hashing.
-
-    This function extracts bond orders from a SCINE database object, constructs a 
-    NetworkX graph where edges are weighted by bond orders, and computes a 
-    topological hash. This serves as a robust 'Component ID' that is invariant 
-    to atom indexing (canonicalization).
-
-    Args:
-        centroid (db.Structure): A SCINE database Structure object.
-        properties (db.Collection): The SCINE properties collection containing 
-            the 'bond_orders' sparse matrix.
-        timestmp (float/str): A timestamp associated with the calculation 
-            (currently unused in the function body).
-
-    Returns:
-        str: A hexadecimal string representing the Weisfeiler-Lehman graph hash.
-        None: If the structure lacks 'bond_orders' or if the property lookup fails.
-
-    Notes:
-        - The graph $G = (V, E)$ is constructed where $V$ are atoms and $E$ are bonds.
-        - The `edge_attr="bond"` ensures that bond orders (e.g., 1.0 vs 2.0) 
-          result in distinct hashes.
-        - This is often more computationally robust than SMILES canonicalization 
-          for complex organometallic aggregates.
-    """
-    atomcollection = centroid.get_atoms()
-    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
-    if not centroid.has_property("bond_orders"):
-        return None
-    try:
-        sparsitymatrix = centroid.get_property("bond_orders")
-    except RuntimeError:
-        return None
-    prop_obj = db.Property(sparsitymatrix, properties)
-    prop_json = prop_obj.json()
-    data = json.loads(prop_json)
-    rowidxs = data["data"]["row_idxs"]
-    colidxs = data["data"]["col_idxs"]
-    values = data["data"]["values"]
-    x = []
-    for a, b, c in zip(rowidxs, colidxs, values):
-        x.append((a, b, {"bond": str(c)}))
-    G = nx.Graph()
-    G.add_edges_from(x)
-    cancompid = nx.weisfeiler_lehman_graph_hash(G, edge_attr="bond")
-    return cancompid
-
 def convert_struct_to_smiles(centroid, properties, timestmp, multiplicity, smilesmode='hybrid'):
     """
     Orchestrates the conversion of 3D molecular structures to SMILES strings.

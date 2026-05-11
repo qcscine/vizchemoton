@@ -7,17 +7,17 @@ scine:
     method_family: "dft"
     method: "lc-pbe"
     basis_set: "def2-svp"
-    solvation: "gbsa"
-    solvent: "thf"
+    solvation: False
+    solvent: False
     program: "orca"
     vfilter: False
   pathfinder:
-    path: "crn_tme_lcpbe.json"
+    path: "/home/cds/petruse/crn_data/crn_tme_lcpbe.json"
     mode: "read"
 
 cheminfo:
-  smiles: True
-  smiles_method: "hybrid"
+  rdkitobj: False
+  smiles_method: "xyz2mol"
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
   pubchem: False
   chembl: False
@@ -36,8 +36,8 @@ files:
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "kamada_kawai"
-  map_field: "energy" #"pubchemRank"
+  layout: "kamada_kawai" # for small networks
+  map_field: "energy" 
   node_size: 25
   title: "Chemoton graph"
   path: "network_tme_dft.html"

@@ -5,30 +5,38 @@ Changelog
 Release 2.0.0
 -------------
 
-Second release of VizChemoton. We expanded and improved the functionalities of the three main output files (JSON, CSV and HTML) created by VizChemoton to move from prototype to routine applications.
+Second release of VizChemoton. This version expands and improves the functionalities of the three main output formats (JSON, CSV, and HTML), enabling the transition from prototype development to routine applications.
 
-**Technical Details**
+### Technical Details
 
-As a result of the increase in VizChemoton's functionalities, a considerable refactor has been done to accomodate the new functionalities. 
+As a result of the expanded functionality, a considerable refactor of the codebase has been carried out to improve modularity and maintainability.
 
-* Refactored "vizchemoton\_module" into four different modules: "scine\_module", "cheminfo\_module", "html\_module" and "text\_module".
-* RDKit is now a required dependency to manage cheminformatic results.
-* Approved compatibility with Python 3.8
-* Added unitary test to check the main functionalities of the four modules
-* CSV file contains the MongoDB IDs of the elementary steps and reactions. This facilitates tracing back reaction results from the VizChemoton files (HTML, JSON and CSV) to the original MongoDB.  
+* Refactored `vizchemoton_module` into four dedicated modules:
+  * `scine_module`
+  * `cheminfo_module`
+  * `html_module`
+  * `text_module`
+* Added `RDKit` as a required dependency for handling cheminformatics functionality.
+* Approved compatibility with Python 3.8.
+* Added unit tests covering the main functionalities of all four modules.
+* Extended CSV outputs to include MongoDB IDs for elementary steps and reactions, facilitating traceability between VizChemoton outputs (HTML, JSON, and CSV) and the original MongoDB database.
 
-**New Features**
-* Added SMILES search in the HTML file. This is done by adding a new key in the compounds.json dictionary where the canonical SMILES with rdkit are computed. The calculation of SMILES can be switched on (or off) in the config file.
-* Added static HTML documentation folder.
-* Added atom filter when iterating the reaction collection in order to make the HTML more interpretable for large CRNs. 
-* Added button in the HTML dashboard for hiding barrierless reactions, thus easing the interpretation of large/complex CRNs. 
-* Added a custom JSON dump function to improve the readability of the compounds.json file. 
-* Added a custom layout function for plotting the graph in HTML format. This bypasses the use of the "kamada\_kawai" option in NetworkX because it consumes too much memory for large CRNs. The custom function uses Cartesian geometric descriptors for each structure in order to then perform a K-Means clustering. The (x,y) position of each structure according to the clustering is then input in the NetworkX plotting function.
-* Added the kwargs "node\_size" in the build\_dashboard() to control the size of the nodes in the HTML. 
-* Added plotting functionality to color the nodes of the HTML based on quantitative (e.g., energy) or qualitative (e.g., PubChem matches).
-* Added query to the Python APIs of three public chemical structural databases: PubChem, ChEMBL and ChEBI. 
-* Added InChiKeys in the JSON and HTML so that it is possible to search for specific target compounds.
-* Added "Export current nodes" button to create a subset of the reaction network to ease interpretability.
+### New Features
+
+* Added SMILES search functionality to the HTML dashboard. Canonical SMILES are computed with RDKit and stored in the `compounds.json` dictionary. SMILES generation can be enabled or disabled through the configuration file.
+* Added a static HTML documentation folder.
+* Added atom filtering during reaction collection iteration to improve interpretability for large CRNs.
+* Added a toggle button in the HTML dashboard to hide barrierless reactions, simplifying the analysis of large and complex CRNs.
+* Added a custom JSON dump function to improve the readability of `compounds.json`.
+* Added a custom graph layout function for HTML visualization. This replaces the `kamada_kawai` layout from NetworkX, which becomes memory-intensive for large CRNs. The new implementation uses Cartesian geometric descriptors combined with K-Means clustering to determine node positions before graph rendering.
+* Added the `node_size` keyword argument to `build_dashboard()` to control node size in the HTML visualization.
+* Added node-coloring functionality in the HTML dashboard based on quantitative properties (e.g., energies) or qualitative annotations (e.g., PubChem matches).
+* Added queries to the Python APIs of three public chemical structure databases:
+  * PubChem
+  * ChEMBL
+  * ChEBI
+* Added InChIKeys to the JSON and HTML outputs, enabling searches for specific target compounds.
+* Added an `Export current nodes` button to generate subsets of the reaction network and improve interpretability.
 
 Release 1.0.0
 -------------

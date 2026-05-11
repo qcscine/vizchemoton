@@ -91,7 +91,7 @@ def complete_cluster(node_list,cluster_dict,cluster_idx):
     return cluster_dict
     
 def build_dashboard(G, compounds, title,outfile,size=(1400,800), 
-                    layout_function=nx.kamada_kawai_layout,  
+                    layout_function="kamada_kawai",  
                     map_field="energy", verbose=True, **kwargs):
     """
     Wrapper function to generate HTML visualizations for a given network.
@@ -508,7 +508,7 @@ def preprocess_compounds(compounds):
     """
     Helper function to process compounds properties.
     """
-    tgt_vars = ["energy", "charge", "multiplicity", "MolLogP"]
+    tgt_vars = ["energy", "charge", "multiplicity"]
     for comp in compounds.values():
         for vv in tgt_vars:
             if not isinstance(comp[vv], list):
@@ -519,7 +519,7 @@ def build_graph_edges(reaction_list):
     """
     Build graph edges.
     """
-    return [(item[0], item[1], {"tsidx": item[2]}) for item in reaction_list]
+    return [(item[0], item[1], {"tsidx": item[2]}) for item in reaction_list[1:]]
 
 
 def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):

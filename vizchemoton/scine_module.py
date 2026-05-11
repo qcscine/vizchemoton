@@ -29,8 +29,7 @@ from scine_database.energy_query_functions import (
     get_barriers_for_elementary_step_by_type,
     get_energy_for_structure)
 from .cheminfo_module import (get_cartesian_descriptors, convert_struct_to_smiles, 
-                              get_rdkit_properties, get_public_database_id,
-                              get_canolized_compid)
+                              get_rdkit_properties, get_public_database_id)
 
 
 def get_crn_as_pathfinder(
@@ -299,7 +298,6 @@ def get_reactions_and_compounds(manager, pathfinder, dmethod,
         dmethod["method"],
         dmethod["basis_set"])
     model1.program = dmethod["program"]
-    print(dmethod["solvent"], dmethod["solvation"])
     if dmethod["solvent"] is not False: model1.solvent = dmethod["solvent"]
     if dmethod["solvation"] is not False: model1.solvation = dmethod["solvation"]
     structures = manager.get_collection("structures")
@@ -565,7 +563,6 @@ def _extract_structure_data(structure_obj, model, structures, properties, calcsm
     bolsmiles, typsmiles = calcsmiles
     dsmiles = convert_struct_to_smiles(
             structure_obj, properties, timestmp, s, typsmiles) if bolsmiles else {'smiles': False, "inchikey": False}
-    cancompid = get_canolized_compid(structure_obj, properties, timestmp)
     # smiles calculation
     if bolsmiles and dsmiles['smiles'] != None:
         dprop = get_rdkit_properties(dsmiles['smiles'], rdkitprop)
@@ -673,7 +670,7 @@ def _get_html_compound_dict(pathfinder, model1, cmp_dict, structures, compounds,
         - Cartesian coordinates (xyz) and descriptors (xyzdes)
         - Charge, multiplicity, and energy
         - Quantum chemical model details (method, basis_set, program, solvent, solvation)
-        - SMILES representation (if applicable) and canonical compound ID
+        - SMILES representation (if applicable) 
         - Public database identifiers (PubChem, ChEMBL, ChEBI)
         - Additional RDKit properties as requested
 
