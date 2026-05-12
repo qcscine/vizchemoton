@@ -11,6 +11,7 @@ from datetime import datetime
 
 # Third-Party Library Imports
 import numpy as np
+from typing import Any, Dict
 
 # Project-Specific SCINE imports
 import scine_utilities as utils
@@ -139,7 +140,7 @@ def _calculate_weight(
         - "weight": The computed weight of the structure.
         - "stoichiometry": The associated stoichiometric information.
     """
-    molec_dict = {}
+    molec_dict: Dict[str, Any] = {}
     structure.link(structures)
     atoms = structure.get_atoms()
     weight, tmp = 0.0, list()
