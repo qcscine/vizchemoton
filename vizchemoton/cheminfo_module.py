@@ -114,8 +114,9 @@ def _convert_xyz_to_smiles(centroid):
     charge = centroid.get_charge()
     data = {"smiles": None, "inchikey": None}
     try:
-        # use_graph=True, embed_chiral=False, allow_charged_fragments=True)
-        molformat = xyz2mol(elements, coordinates, charge, use_huckel=True)
+        molformat = xyz2mol(elements, coordinates, charge, use_graph=True,
+                            embed_chiral=False, allow_charged_fragments=True)
+        #molformat = xyz2mol(elements, coordinates, charge, use_huckel=True)
         if len(molformat) != 0:
             smiles = MolToSmiles(molformat[0])
             m = MolFromSmiles(smiles)
@@ -126,7 +127,7 @@ def _convert_xyz_to_smiles(centroid):
             return data
         else:
             return data
-    except Exception:  # filter out cases where a SMILES is not feasible
+    except (Exception, SystemExit): # unsuccessful conversions
         print("WARNING! Aggregate could not be converted to SMILES format")
         return data
 
@@ -183,7 +184,7 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     try:
         smiles = Chem.MolToSmiles(rdkitmol)
         inchikey = inchi.MolToInchiKey(rdkitmol)
-    except Exception:
+    except (Exception, SystemExit):
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
         inchikey = None
@@ -231,7 +232,7 @@ def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
         else:
             mol = result.molecules[0]
             smiles = masm.io.experimental.emit_smiles(mol)
-    except Exception:
+    except (Exception, SystemExit):
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
     dsmiles = {"smiles": smiles}
@@ -384,7 +385,7 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
         compounds = get_compounds(inchikey, "inchikey")
         if len(compounds) > 0:  # True if found
             dpub["id"] = compounds[0].cid
-    except Exception:
+    except (Exception, SystemExit):
         dpub["id"] = "Error"  # PubChem rejected the request
     strtmp = "#### Querying PubChem. {s} has id = {b}"
     if verbose:
@@ -427,7 +428,7 @@ def get_chembl_id(smiles, verbose=True):
             idchembl = results[0]["molecule_chembl_id"]
             number = int("".join(filter(str.isdigit, idchembl)))
             dchembl["id"] = number
-    except Exception:
+    except (Exception, SystemExit):
         dchembl["id"] = "Error"
     strtmp = "#### Querying ChEMBL. {s} has id = {b}"
     if verbose:
