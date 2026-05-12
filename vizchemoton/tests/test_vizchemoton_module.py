@@ -88,7 +88,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         assert dsmiles["test_flask.xyz"]["smiles"] == "Cl.O.[C-]#[O+]"
         assert dsmiles["test_flask_3h2o.xyz"]["smiles"] == "O.O.O"
         assert dsmiles["test_ts.xyz"]["smiles"] == "Cl.[O-]/[O+]=C\\O"
-        assert dsmiles["test_h6.xyz"]["smiles"] == None
+        assert dsmiles["test_h6.xyz"]["smiles"] is None
 
     def test_get_reactions_and_compounds(self):
         """

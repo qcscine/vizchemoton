@@ -144,7 +144,7 @@ def build_dashboard(
 
     style_template = """
     {% block postamble %}
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/dgarayr/jsmol_to_bokeh/jsmol_to_bokeh.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/dgarayr/jsmol_to_bokeh/jsmol_to_bokeh.min.js"></script>
     <style>
     .bk-root .bk-btn-default {
         font-size: 1.2vh;
@@ -284,28 +284,28 @@ def build_dashboard(
 
     # Custom locateMolecule function to support search by SMILES
     locateMolecule = """
-		// source - source object for JSMol
-		// pass graph and fetch node and edge renderers
-		// from fig, we modify x_range and y_range. Default plot starts from -1.2 to 1.2,
-		var nrend = graph.node_renderer.data_source
-		var erend = graph.edge_renderer.data_source
-		var layout = graph.layout_provider.graph_layout
-		// fetch the query in the data sources, choosing the appropiate renderer depending on the query
-		var mol_query = text_input.value
-		if (mol_query.includes("TS") || mol_query.includes("ts")) {
-			var renderer = erend
-			var other_renderer = nrend
+        // source - source object for JSMol
+        // pass graph and fetch node and edge renderers
+        // from fig, we modify x_range and y_range. Default plot starts from -1.2 to 1.2,
+        var nrend = graph.node_renderer.data_source
+        var erend = graph.edge_renderer.data_source
+        var layout = graph.layout_provider.graph_layout
+        // fetch the query in the data sources, choosing the appropiate renderer depending on the query
+        var mol_query = text_input.value
+        if (mol_query.includes("TS") || mol_query.includes("ts")) {
+            var renderer = erend
+            var other_renderer = nrend
             var pool_smiles = []
             var pool_inchikeys = []
         } else {
-			var renderer = nrend
-			var other_renderer = erend
+            var renderer = nrend
+            var other_renderer = erend
             var pool_smiles = renderer.data["smilesStr"]
             var pool_inchikeys = renderer.data["inchikey"]
-		}
-		var pool_names = renderer.data["name"]
+        }
+        var pool_names = renderer.data["name"]
 
-		// split species joined by + sign, smiles by //, inchikeys are already listd
+        // split species joined by + sign, smiles by //, inchikeys are already listd
         var pool_species = pool_names.map((name) => name.split("+"))
         var pool_smiles_split = pool_smiles.map((smi) => smi.split("//"))
         
@@ -314,23 +314,23 @@ def build_dashboard(
             return terms}
         var pool_inchikeys_split = pool_inchikeys.map((ikeys) => ikeys.map(split_ikey).flat())
 
-		// function to match results in the array
-		var getSubstringIndices = function(arr,query){
-			return arr.reduce(
-					function(matches,tgt,i){
-							if (tgt.includes(query))
-						{matches.push(i)};
-							return matches;
-					},
-					[]);
-		}
+        // function to match results in the array
+        var getSubstringIndices = function(arr,query){
+            return arr.reduce(
+                    function(matches,tgt,i){
+                            if (tgt.includes(query))
+                        {matches.push(i)};
+                            return matches;
+                    },
+                    []);
+        }
 
         if (mol_query.includes("+")) {
-			var ndx_u1 = pool_names.indexOf(mol_query)
-			if (ndx_u1 < 0) {var ndx1 = []} 
+            var ndx_u1 = pool_names.indexOf(mol_query)
+            if (ndx_u1 < 0) {var ndx1 = []} 
             else {var ndx1 = [ndx_u1]}
         } else {
-			var ndx1 = getSubstringIndices(pool_species,mol_query) 
+            var ndx1 = getSubstringIndices(pool_species,mol_query) 
         }
 
         var ndx2 = getSubstringIndices(pool_smiles_split,mol_query)
@@ -348,32 +348,32 @@ def build_dashboard(
             var ndx = []
         }
 
-		// locate positions of the node or of the nodes defining an edge
-		if (mol_query.includes("TS") || mol_query.includes("ts")) {
-			var n1 = renderer.data["start"][ndx]
-			var n2 = renderer.data["end"][ndx]
-			var pos1 = layout[n1]
-			var pos2 = layout[n2]
-			var positions = new Array(2)
-			positions[0] = 0.5*(pos1[0]+pos2[0])
-			positions[1] = 0.5*(pos1[1]+pos2[1])
-		} else {
-			var positions = layout[pool_names[ndx[0]]]
-		}
-		if (ndx.length > 0) {
-			// clearing other sel. avoids problems for model loading sometimes
-			other_renderer.selected.indices = []
-			renderer.selected.indices = ndx
-			fig.x_range.start = positions[0] - 0.5
-			fig.x_range.end = positions[0] + 0.5
-			fig.y_range.start = positions[1] - 0.5
-			fig.y_range.end = positions[1] + 0.5
-		}
-		"""
+        // locate positions of the node or of the nodes defining an edge
+        if (mol_query.includes("TS") || mol_query.includes("ts")) {
+            var n1 = renderer.data["start"][ndx]
+            var n2 = renderer.data["end"][ndx]
+            var pos1 = layout[n1]
+            var pos2 = layout[n2]
+            var positions = new Array(2)
+            positions[0] = 0.5*(pos1[0]+pos2[0])
+            positions[1] = 0.5*(pos1[1]+pos2[1])
+        } else {
+            var positions = layout[pool_names[ndx[0]]]
+        }
+        if (ndx.length > 0) {
+            // clearing other sel. avoids problems for model loading sometimes
+            other_renderer.selected.indices = []
+            renderer.selected.indices = ndx
+            fig.x_range.start = positions[0] - 0.5
+            fig.x_range.end = positions[0] + 0.5
+            fig.y_range.start = positions[1] - 0.5
+            fig.y_range.end = positions[1] + 0.5
+        }
+        """
 
     # Callback for exporting the currently viewed nodes
     exportCurrent = """
-    	var nrend = graph.node_renderer.data_source
+        var nrend = graph.node_renderer.data_source
         var nodeIndices = nrend.data["index"]
         var presentNodes = nodeIndices.filter((node) => node != null)
         var outDict = {nodes: presentNodes}

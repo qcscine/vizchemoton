@@ -190,7 +190,6 @@ def check_natoms(
     """
     lhs, rhs = reactants
     lhst, rhst = reactants_type
-    atomlist = dstoich.keys()
     condlist = []
     for lhsi, lhsti in zip(lhs, lhst):
         compound_id = lhsi.string()
@@ -202,7 +201,7 @@ def check_natoms(
         molec_dict = _calculate_weight(
             db.Structure(structure), structures, dstoich
         )
-        weight, dstoich_i = molec_dict["weight"], molec_dict["stoich"]
+        dstoich_i = molec_dict["stoich"]
         for d in dstoich.keys():
             condlist.append(dstoich_i[d] < dstoich[d])
     for rhsi, rhsti in zip(rhs, rhst):
@@ -215,7 +214,7 @@ def check_natoms(
         molec_dict = _calculate_weight(
             db.Structure(structure), structures, dstoich
         )
-        weight, dstoich_j = molec_dict["weight"], molec_dict["stoich"]
+        dstoich_j = molec_dict["stoich"]
         for d in dstoich.keys():
             condlist.append(dstoich_j[d] < dstoich[d])
     if all(condlist):
@@ -430,7 +429,6 @@ def get_reactions_and_compounds(
                         ]
                     )
                 elif not_none:
-                    # node_ts = es_from_graph.get_transition_state().string()+";"
                     str_id = (
                         es_from_graph.get_transition_state().string() + ";"
                     )
@@ -518,7 +516,6 @@ def get_reactions_and_compounds(
                         ]
                     )
                 elif not_none:
-                    # node_ts = es_from_graph.get_transition_state().string()+";"
                     str_id = (
                         es_from_graph.get_transition_state().string() + ";"
                     )
@@ -612,7 +609,8 @@ def _extract_structure_data(
     timestmp,
 ):
     """
-    Extracts detailed structural, energetic, chemical, and database information from a SCINE structure object.
+    Extracts detailed structural, energetic, chemical, and database information
+    from a SCINE structure object.
 
     This function processes a molecular structure object to collect:
       - Cartesian coordinates (xyz)
@@ -629,17 +627,20 @@ def _extract_structure_data(
     structure_obj : scine.structure.Structure
         SCINE structure object representing the molecular system.
     model : object
-        Quantum chemistry model containing attributes `method`, `basis_set`, `program`, `version`, `solvent`, and `solvation`.
+        Quantum chemistry model containing attributes `method`, `basis_set`,
+        `program`, `version`, `solvent`, and `solvation`.
     structures : list
         List of structures used for reference in energy computations.
     properties : dict
         Dictionary of properties for computation and database mapping.
     calcsmiles : tuple(bool, bool)
-        Tuple indicating whether to calculate SMILES (`bolsmiles`) and which type (`typsmiles`) to generate.
+        Tuple indicating whether to calculate SMILES (`bolsmiles`) and which
+        type (`typsmiles`) to generate.
     rdkitprop : list of str
         List of RDKit property names to compute for the molecule.
     databases : dict
-        Dictionary specifying which public chemical databases to query. Example: {"pubchem": True, "chembl": False, ...}.
+        Dictionary specifying which public chemical databases to query.
+        Example: {"pubchem": True, "chembl": False, ...}.
     timestmp : datetime.datetime
         Timestamp to use for logging or record keeping.
 
@@ -647,7 +648,8 @@ def _extract_structure_data(
     -------
     dict
         A dictionary containing the following keys:
-            - "xyz" : list of tuples, each containing element symbol and Cartesian coordinates
+            - "xyz" : list of tuples, each containing element symbol and
+               Cartesian coordinates
             - "charge" : int, molecular charge
             - "multiplicity" : int, spin multiplicity
             - "energy" : float, electronic energy in kJ/mol
@@ -658,15 +660,18 @@ def _extract_structure_data(
             - "solvation" : str, solvation model (if any)
             - "smiles" : str or False, generated SMILES string
             - "xyzdes" : dict, Cartesian-based molecular descriptors
-            - "pubchem", "chembl", "chebi" : str or False, IDs from public databases
+            - "pubchem", "chembl", "chebi" : str or False, IDs from public
+               databases
             - additional RDKit properties as requested in `rdkitprop`
 
     Notes
     -----
     - Energy is converted from Hartree to kJ/mol.
     - RDKit properties are computed only if SMILES generation is successful.
-    - Database queries are performed only if the corresponding flag in `databases` is True.
-    - The function handles both static properties (like xyz, energy) and dynamic properties requested at runtime.
+    - Database queries are performed only if the corresponding flag in
+      `databases` is True.
+    - The function handles both static properties (like xyz, energy) and
+      dynamic properties requested at runtime.
     """
     dprop = {k: None for k in rdkitprop}
     dpublidbs = {
@@ -688,7 +693,7 @@ def _extract_structure_data(
         else {"smiles": False, "inchikey": False}
     )
     # smiles calculation
-    if bolsmiles and dsmiles["smiles"] != None:
+    if bolsmiles and dsmiles["smiles"] is not None:
         dprop = get_rdkit_properties(dsmiles["smiles"], rdkitprop)
         # query public databases
         for name in ["pubchem", "chembl", "chebi"]:  # hardcoded
@@ -733,20 +738,20 @@ def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
     and generate its CRN (Chemical Reaction Network) identifier.
 
     This function checks the type of the node in the graph associated with
-    `pathfinder`. Depending on whether the node represents a Compound or a Flask,
+    `pathfinder`. Depending on if the node represents a Compound or a Flask,
     it initializes the appropriate object and constructs a CRN ID prefixed with
     'c' for compounds and 'f' for flasks.
 
     Parameters
     ----------
     pathfinder : object
-        Pathfinder instance containing the graph_handler with the chemical network graph.
+        Pathfinder instance containing the graph_handler with the etwork graph.
     cmp_dict : dict
-        Dictionary mapping MongoDB IDs to their numeric identifiers within the CRN.
+        Dictionary mapping MongoDB IDs to their numeric identifiers in the CRN.
     mongoid : str or int
         The MongoDB ID of the node (compound or flask) to retrieve.
     compounds : dict or collection
-        Collection of Compound objects or data used to initialize a `db.Compound`.
+        Collection of Compound objects used to initialize a `db.Compound`.
     flasks : dict or collection
         Collection of Flask objects or data used to initialize a `db.Flask`.
 
@@ -754,7 +759,7 @@ def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
     -------
     tuple
         - compound : db.Compound or db.Flask
-            The instantiated compound or flask object corresponding to `mongoid`.
+            The instantiated compound or flask corresponding to `mongoid`.
         - crn_id : str
             The CRN identifier for the object, formatted as:
                 - "c<number>" for compounds
@@ -762,9 +767,9 @@ def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
 
     Notes
     -----
-    - The function relies on the node's "type" attribute in the graph to distinguish
+    - The function relies on the node's attribute in the graph to distinguish
       between compounds and flasks.
-    - CRN IDs are derived from `cmp_dict` which maps MongoDB IDs to numeric indices.
+    - CRN IDs come from `cmp_dict` mapping MongoDB IDs to numeric indices.
     """
     type_object = pathfinder.graph_handler.graph.nodes(data=True)[mongoid][
         "type"
@@ -793,11 +798,12 @@ def _get_html_compound_dict(
     verbose=False,
 ):
     """
-    Generate a dictionary containing chemical compounds and their computed properties for a chemical reaction network (CRN).
+    Generate a dictionary containing chemical compounds and their computed
+    properties for a chemical reaction network (CRN).
 
-    This function iterates over all compounds in `cmp_dict` and constructs a dictionary
-    mapping each compound's key to its chemical and structural data. It handles three
-    types of compounds differently:
+    This function iterates over all compounds in `cmp_dict` and constructs a
+    dictionary mapping each compound's key to its chemical and structural data
+    It handles three types of compounds differently:
         1. Adducts of multiple aggregates (compound IDs containing "//")
         2. Transition state structures (compound IDs containing ";")
         3. Standard unimolecular compounds
@@ -805,7 +811,7 @@ def _get_html_compound_dict(
     For each compound, it extracts:
         - Cartesian coordinates (xyz) and descriptors (xyzdes)
         - Charge, multiplicity, and energy
-        - Quantum chemical model details (method, basis_set, program, solvent, solvation)
+        - Quantum model (method, basis_set, program, solvent, solvation)
         - SMILES representation (if applicable)
         - Public database identifiers (PubChem, ChEMBL, ChEBI)
         - Additional RDKit properties as requested
@@ -815,7 +821,8 @@ def _get_html_compound_dict(
     pathfinder : object
         Pathfinder instance containing the CRN graph and chemical network data.
     model1 : object
-        Quantum chemistry model containing method, basis set, program, version, solvent, and solvation attributes.
+        Quantum model containing method, basis set, program, version, solvent,
+        and solvation attributes.
     cmp_dict : dict
         Dictionary mapping MongoDB IDs to numeric CRN identifiers.
     structures : list
@@ -825,20 +832,25 @@ def _get_html_compound_dict(
     flasks : dict or collection
         Collection of Flask objects for CRN initialization.
     properties : dict
-        Dictionary of properties used for structure analysis and database queries.
+        Dictionary of properties used for structure analysis and database
+        queries.
     calcsmiles : tuple(bool, str)
-        Tuple indicating whether to compute SMILES (boolean) and the type of SMILES to generate.
+        Tuple indicating whether to compute SMILES (boolean) and the type of
+        SMILES to generate.
     rdkitprop : list of str
         List of RDKit properties to compute for each molecule.
     databases : dict
-        Flags indicating which public chemical databases to query for each compound.
+        Flags indicating which public chemical databases to query for each
+        compound.
     verbose : bool, optional
-        If True, prints progress messages during dictionary construction (default is False).
+        If True, prints progress messages during dictionary construction
+        (default is False).
 
     Returns
     -------
     dict
-        A dictionary mapping each compound's CRN numeric key to a dictionary containing:
+        A dictionary mapping each compound's CRN numeric key to a dictionary
+        containing:
             - "xyz", "charge", "multiplicity", "energy"
             - "method", "basis_set", "program", "solvent", "solvation"
             - "xyzdes" descriptors
@@ -846,15 +858,17 @@ def _get_html_compound_dict(
             - Additional RDKit properties as specified
             - "crn_id" : CRN identifier string
             - "mongodb_id" : original MongoDB ID
-        For adducts (multi-aggregate compounds), values are merged appropriately.
+        For adducts, values are merged appropriately.
 
     Notes
     -----
-    - Adducts with IDs containing "//" are combined, their SMILES and CRN IDs concatenated.
+    - Adducts with IDs containing "//" are combined, their SMILES and CRN IDs
+      concatenated.
     - Transition states with ";" in their IDs do not generate SMILES.
     - Energy is converted to kJ/mol in `_extract_structure_data`.
-    - The function uses `_get_compound_and_crnid` and `_extract_structure_data` for data extraction.
-    - Returned dictionaries have keys sorted alphabetically via `_sort_dict_keys`.
+    - The function uses `_get_compound_and_crnid` and `_extract_structure_data`
+      for data extraction.
+    - Returned dictionaries keys sorted alphabetically via `_sort_dict_keys`.
     """
     if verbose:
         print("## Creating compounds and reaction objects")
@@ -975,7 +989,8 @@ def _sort_dict_keys(d):
     Returns
     -------
     dict
-        A new dictionary with the same key-value pairs as `d` but with keys sorted alphabetically.
+        A new dictionary with the same key-value pairs as `d` but with keys
+        sorted alphabetically.
 
     Notes
     -----
