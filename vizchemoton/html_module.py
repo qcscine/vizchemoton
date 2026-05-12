@@ -1,19 +1,16 @@
-'''
+"""
 Enric Petrus, December 2024. Added SCINE helper function to link with the
 amk-tools generation of HTML files.
 Diego Garay-Ruiz, November 2023. Collection of helper functions to link
 amk-tools and grrm-tools, generating interactive
 HTML dashboards to visualize GRRM-generated reaction networks.
-'''
+"""
 
 # Standard Library Imports
 from collections import Counter
-import json
 import copy
-import random
 
 # Third-Party Library Imports
-import yaml
 import numpy as np
 import bokeh.plotting
 import bokeh.models as bkm
@@ -22,15 +19,16 @@ import networkx as nx
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
+
+def cluster_nodes(descriptors, n_clusters="silhouettes", verbose=True):
     node_ids = list(descriptors.keys())
     X = np.array([descriptors[n] for n in node_ids])
 
     if n_clusters == "silhouettes":
         silhouettes = []
-        k_values = range(2, int(np.sqrt(len(X)/2)))  # candidate k values
+        k_values = range(2, int(np.sqrt(len(X) / 2)))  # candidate k values
         tolerance = 0.005
-        window = 5 
+        window = 5
         for k in k_values:
             print(type(X))
             print(len(X))
@@ -49,7 +47,7 @@ def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
                     break
         # pick the k that gave the max silhouette
         best_index = np.argmax(silhouettes)
-        n_clusters = k_values[best_index]   # <-- use k_values, not X
+        n_clusters = k_values[best_index]  # <-- use k_values, not X
         if verbose:
             print("## Optimal number of clusters:", n_clusters)
 
@@ -71,7 +69,9 @@ def assign_coordinates(graph, clusters):
     angle_step = 2 * np.pi / n_clusters
 
     for i, cluster_id in enumerate(sorted(set(clusters.values()))):
-        cluster_centers[cluster_id] = np.array([np.cos(i * angle_step), np.sin(i * angle_step)])
+        cluster_centers[cluster_id] = np.array(
+            [np.cos(i * angle_step), np.sin(i * angle_step)]
+        )
 
     pos = {}
     for node in graph.nodes:
@@ -81,18 +81,28 @@ def assign_coordinates(graph, clusters):
         pos[node] = center + offset
     return pos
 
-def complete_cluster(node_list,cluster_dict,cluster_idx):
+
+def complete_cluster(node_list, cluster_dict, cluster_idx):
     """
     Convenience function to assign a cluster index for unassigned nodes in a dictionary
     """
     unassigned = set(node_list).difference(set(cluster_dict.keys()))
-    new_assignments = [(nd,cluster_idx) for nd in unassigned]
+    new_assignments = [(nd, cluster_idx) for nd in unassigned]
     cluster_dict.update(dict(new_assignments))
     return cluster_dict
-    
-def build_dashboard(G, compounds, title,outfile,size=(1400,800), 
-                    layout_function="kamada_kawai",  
-                    map_field="energy", verbose=True, **kwargs):
+
+
+def build_dashboard(
+    G,
+    compounds,
+    title,
+    outfile,
+    size=(1400, 800),
+    layout_function="kamada_kawai",
+    map_field="energy",
+    verbose=True,
+    **kwargs,
+):
     """
     Wrapper function to generate HTML visualizations for a given network.
 
@@ -110,19 +120,22 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
     try:
         assert len(G.edges) > 0
     except AssertionError:
-        print("## WARNING! Chemical reaction network has no reactions. Check whether model variables (e.g., electronic method, solvent etc) fit model data in the MongoDB. Aborting html creation.")
+        print(
+            "## WARNING! Chemical reaction network has no reactions. Check whether model variables (e.g., electronic method, solvent etc) fit model data in the MongoDB. Aborting html creation."
+        )
         return None
-    
-    if verbose: print("## Writing {f1} output file".format(f1=outfile))
-    ### Define sizing
-    w1 = int(size[0]*4/7)
-    w2 = int(size[0]*3/7)
-    wu = int(size[0]/7)
-    h = int(size[1]*6/8)
 
-    sizing_dict = {'w1':w1,'w2':w2,'wu':wu,'h':h}
+    if verbose:
+        print("## Writing {f1} output file".format(f1=outfile))
+    # Define sizing
+    w1 = int(size[0] * 4 / 7)
+    w2 = int(size[0] * 3 / 7)
+    wu = int(size[0] / 7)
+    h = int(size[1] * 6 / 8)
 
-    ### Define custom classes
+    sizing_dict = {"w1": w1, "w2": w2, "wu": wu, "h": h}
+
+    # Define custom classes
 
     style_template = """
     {% block postamble %}
@@ -145,47 +158,54 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
     </style>
     {% endblock %}
     """
-    if layout_function == 'KMeans':  # custom clustering of nodes
+    if layout_function == "KMeans":  # custom clustering of nodes
         # this should be modifiable later
         cluster_property = "xyzdes"
         descriptors, prop_values = {}, []
         for nd in G.nodes(data=True):
-             prop = nd[1][cluster_property]
-             prop_values.append(prop)
-        #prop_values,flag = aggregate_property(G,cluster_property)#,"none")
-        #print("propvalues", prop_values)
-        descriptors = dict(zip(G.nodes(),prop_values))
-        clusters = cluster_nodes(descriptors) #, n_clusters=5)
+            prop = nd[1][cluster_property]
+            prop_values.append(prop)
+        # prop_values,flag = aggregate_property(G,cluster_property)#,"none")
+        # print("propvalues", prop_values)
+        descriptors = dict(zip(G.nodes(), prop_values))
+        clusters = cluster_nodes(descriptors)  # , n_clusters=5)
         posx = assign_coordinates(G, clusters)
     else:
-        layout_function = getattr(nx, f"{layout_function}_layout") 
+        layout_function = getattr(nx, f"{layout_function}_layout")
         posx = layout_function(G)
-    
+
     # Add model field to all nodes and edges & also vibrations
     arxviz.add_models(G)
-    
+
     # Other properties
     node_size = kwargs.get("node_size", 30)
 
     # Bokeh-powered visualization via RXVisualizer
-    bk_fig,bk_graph = arxviz.bokeh_network_view(G,positions=posx,graph_title=title,width=w1,height=h,
-                                                map_field=map_field,hide_energy=True,
-                                                palette=kwargs["palette"],qual_mapping=kwargs.get("qual_mapping",{}))
+    bk_fig, bk_graph = arxviz.bokeh_network_view(
+        G,
+        positions=posx,
+        graph_title=title,
+        width=w1,
+        height=h,
+        map_field=map_field,
+        hide_energy=True,
+        palette=kwargs["palette"],
+        qual_mapping=kwargs.get("qual_mapping", {}),
+    )
     bk_graph.node_renderer.glyph.size = node_size
 
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()
     bk_graph.selection_policy = bkm.EdgesAndLinkedNodes()
 
-    ### Modify the hovering tools here to add additional fields, removing the previous ones first
+    # Modify the hovering tools here to add additional fields, removing the previous ones first
     valid_tools = [tool for tool in bk_fig.tools if tool.description]
     old_hovers = [tool for tool in valid_tools if "hover" in tool.description]
     for tool in old_hovers:
         bk_fig.tools.remove(tool)
 
-
     # custom edge hovering to reduce noise
     #
-    hover_edgeJS = '''
+    hover_edgeJS = """
     var erend = graph.edge_renderer.data_source
     var label1 = String.fromCharCode(916).concat("E1")
     var label2 = String.fromCharCode(916).concat("E2")
@@ -200,9 +220,9 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
                                 [label1,"@deltaE1"],[label2,"@deltaE2"]]
         }
     }
-    '''
-        
-    hide_barrlessJS = '''
+    """
+
+    hide_barrlessJS = """
         var erend = graph.edge_renderer.data_source
         var nrend = graph.node_renderer.data_source
         var edgenames = erend.data["name"]
@@ -255,7 +275,7 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         counter[0] = statusCounter
         nrend.change.emit()
         erend.change.emit()
-        '''
+        """
 
     # Custom locateMolecule function to support search by SMILES
     locateMolecule = """
@@ -345,8 +365,8 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
 			fig.y_range.end = positions[1] + 0.5
 		}
 		"""
-    
-    # Callback for exporting the currently viewed nodes 
+
+    # Callback for exporting the currently viewed nodes
     exportCurrent = """
     	var nrend = graph.node_renderer.data_source
         var nodeIndices = nrend.data["index"]
@@ -364,69 +384,108 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         download(JSON.stringify(outDict),"vizchemoton_export_sel.json","text/plain")
 
     """
-    
-    tooltips = [("tag","@name"),("charge","@chargeStr"),("multiplicity","@multiplicityStr"),
-                                         ("formula","@formulaStr"),("smiles","@smilesStr")]
-    tooltips += kwargs.get("custom_hovers",[])
 
-    hover_node = bkm.HoverTool(description="Node hover",renderers=[bk_graph.node_renderer],
-                               tooltips=tooltips,
-                               formatters={"@energy":"printf"})
+    tooltips = [
+        ("tag", "@name"),
+        ("charge", "@chargeStr"),
+        ("multiplicity", "@multiplicityStr"),
+        ("formula", "@formulaStr"),
+        ("smiles", "@smilesStr"),
+    ]
+    tooltips += kwargs.get("custom_hovers", [])
+
+    hover_node = bkm.HoverTool(
+        description="Node hover",
+        renderers=[bk_graph.node_renderer],
+        tooltips=tooltips,
+        formatters={"@energy": "printf"},
+    )
     bk_fig.add_tools(hover_node)
-    hover_edge = bkm.HoverTool(description="Edge hover",renderers=[bk_graph.edge_renderer],
-                               formatters={"@energy":"printf"},line_policy="interp")
-    hover_edge.callback = bkm.CustomJS(args={"hover":hover_edge,"graph":bk_graph},code=hover_edgeJS)
+    hover_edge = bkm.HoverTool(
+        description="Edge hover",
+        renderers=[bk_graph.edge_renderer],
+        formatters={"@energy": "printf"},
+        line_policy="interp",
+    )
+    hover_edge.callback = bkm.CustomJS(
+        args={"hover": hover_edge, "graph": bk_graph}, code=hover_edgeJS
+    )
     bk_fig.add_tools(hover_edge)
 
-    highl_callback = bkm.CustomJS(args={"graph":bk_graph}, code=arxviz.js_callback_dict["highlightNeighbors"])
+    highl_callback = bkm.CustomJS(
+        args={"graph": bk_graph}, code=arxviz.js_callback_dict["highlightNeighbors"]
+    )
 
     # We need edge backups
     edgesource = bk_graph.edge_renderer.data_source
-    backup_edges = {"start":copy.deepcopy(edgesource.data["start"]),
-					"end":copy.deepcopy(edgesource.data["end"])}
-    backup_nodes = {"index":bk_graph.node_renderer.data_source.data["index"],
-                    "name":bk_graph.node_renderer.data_source.data["name"]}
-    hide_barrless_callback = bkm.CustomJS(args={"graph":bk_graph,"figure":bk_fig,"counter":[0],
-                                                "backupNodes":backup_nodes,
-                                                "backupEdgeRoutes":backup_edges}, code=hide_barrlessJS)
+    backup_edges = {
+        "start": copy.deepcopy(edgesource.data["start"]),
+        "end": copy.deepcopy(edgesource.data["end"]),
+    }
+    backup_nodes = {
+        "index": bk_graph.node_renderer.data_source.data["index"],
+        "name": bk_graph.node_renderer.data_source.data["name"],
+    }
+    hide_barrless_callback = bkm.CustomJS(
+        args={
+            "graph": bk_graph,
+            "figure": bk_fig,
+            "counter": [0],
+            "backupNodes": backup_nodes,
+            "backupEdgeRoutes": backup_edges,
+        },
+        code=hide_barrlessJS,
+    )
 
-    lay = arxviz.full_view_layout(bk_fig,bk_graph,sizing_dict=sizing_dict)
+    lay = arxviz.full_view_layout(bk_fig, bk_graph, sizing_dict=sizing_dict)
 
     # add a button to the layout
-    b_highlight = bkm.Button(label="Highlight neighbors",max_width=int(w1/6),align="center")
+    b_highlight = bkm.Button(
+        label="Highlight neighbors", max_width=int(w1 / 6), align="center"
+    )
     b_highlight.js_on_click(highl_callback)
-    b_hidebarrless = bkm.Button(label="Hide barrierless",max_width=int(w1/6),align="center")
+    b_hidebarrless = bkm.Button(
+        label="Hide barrierless", max_width=int(w1 / 6), align="center"
+    )
     b_hidebarrless.js_on_click(hide_barrless_callback)
 
-
     sel_row = lay.children[0][0].children[2]
-    sel_row.children[1].max_width = int(w1/6)
-    sel_row.children = sel_row.children[0:2] + [b_highlight,b_hidebarrless] + [sel_row.children[-1]]
+    sel_row.children[1].max_width = int(w1 / 6)
+    sel_row.children = (
+        sel_row.children[0:2] + [b_highlight, b_hidebarrless] + [sel_row.children[-1]]
+    )
 
     # Export functionality
-    export_callback = bkm.CustomJS(args={"figure":bk_fig,"graph":bk_graph},code=exportCurrent)
+    export_callback = bkm.CustomJS(
+        args={"figure": bk_fig, "graph": bk_graph}, code=exportCurrent
+    )
     # Additional upper button -> readjust spacing to fit
     up_row = lay.children[0][0].children[0]
-    b_export = bkm.Button(label="Export current nodes",max_width=int(w1/6),align="center")
+    b_export = bkm.Button(
+        label="Export current nodes", max_width=int(w1 / 6), align="center"
+    )
     b_export.js_on_click(export_callback)
 
     for item in up_row.children:
-        item.max_width = int(w1/6)
-    
+        item.max_width = int(w1 / 6)
+
     up_row.children.append(b_export)
 
     # Modify the callback of the locate molecule button
     text_input = sel_row.children[0]
-    js_mol_locator_nw = bkm.CustomJS(args = {"graph":bk_graph,"fig":bk_fig,"text_input":text_input},
-								     code = locateMolecule)
+    js_mol_locator_nw = bkm.CustomJS(
+        args={"graph": bk_graph, "fig": bk_fig, "text_input": text_input},
+        code=locateMolecule,
+    )
     sel_button = sel_row.children[1]
-    sel_button.js_event_callbacks['button_click'] = [js_mol_locator_nw]
+    sel_button.js_event_callbacks["button_click"] = [js_mol_locator_nw]
     sel_button.js_on_click(js_mol_locator_nw)
 
-    bokeh.plotting.output_file(outfile,title=title,mode="cdn")
-    bokeh.plotting.save(lay,template=style_template)
+    bokeh.plotting.output_file(outfile, title=title, mode="cdn")
+    bokeh.plotting.save(lay, template=style_template)
 
-    return lay,bk_fig,bk_graph
+    return lay, bk_fig, bk_graph
+
 
 def scale_xyz_list(xyz, displ_vector=np.zeros(3)):
     """
@@ -461,8 +520,7 @@ def xyz_list_to_xyz_block(xyz):
     a1,x1,y1,z2\na2,x2,y2,z2...
     """
 
-    xyz_block = "\n".join(["%s %.6f %.6f %.6f" %
-                           (item[0], *item[1]) for item in xyz])
+    xyz_block = "\n".join(["%s %.6f %.6f %.6f" % (item[0], *item[1]) for item in xyz])
     return xyz_block
 
 
@@ -528,34 +586,30 @@ def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
     """
     if isinstance(comp["crn_id"], list):
         comp["crn_id"] = "+".join(comp["crn_id"])
-    if "+" in comp["crn_id"]: # or isinstance(comp["crn_id"], list):
-        #node_name = "+".join(comp["crn_id"])
+    if "+" in comp["crn_id"]:  # or isinstance(comp["crn_id"], list):
+        # node_name = "+".join(comp["crn_id"])
         node_name = comp["crn_id"]
         xyz_list = comp["xyz"]
         xyz0_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
         cntr = xyz0_arr.mean(axis=0)
-        xyz0 = [[item[0], list(xyz0_arr[ii])]
-                for ii, item in enumerate(xyz_list[0])]
+        xyz0 = [[item[0], list(xyz0_arr[ii])] for ii, item in enumerate(xyz_list[0])]
         xyz_full = xyz0
 
         for ii, xyz in enumerate(xyz_list[1:]):
             displ_vec = cntr + (ii + 1) * dist_adduct
             xyz_arr = np.array([it[1] for it in xyz]) * bohr_to_ang + displ_vec
-            xyz_nw = [[item[0], list(xyz_arr[ii])]
-                      for ii, item in enumerate(xyz)]
+            xyz_nw = [[item[0], list(xyz_arr[ii])] for ii, item in enumerate(xyz)]
             xyz_full += xyz_nw
     else:
         node_name = comp["crn_id"]
         xyz_list = [comp["xyz"]]
         xyz_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
-        xyz_full = [[item[0], list(xyz_arr[ii])]
-                    for ii, item in enumerate(xyz_list[0])]
+        xyz_full = [[item[0], list(xyz_arr[ii])] for ii, item in enumerate(xyz_list[0])]
 
     return node_name, xyz_full, xyz_list
 
 
-def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
-                        bohr_to_ang):
+def add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang):
     """
     Add nodes attributes to the graph for building the HTML file.
     """
@@ -579,6 +633,7 @@ def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
         nd[1]["inchikey"] = str(comp.get("inchikey", "None")).split("//")
         nd[1]["xyzdes"] = comp["xyzdes"]
 
+
 def add_edge_attributes(graph, compounds):
     """
     Add edges attributes to the graph for building the HTML file.
@@ -592,7 +647,7 @@ def add_edge_attributes(graph, compounds):
             compounds_renamed[comp["crn_id"]] = comp
     for ii, ed in enumerate(graph.edges(data=True)):
         e1, e2 = [sum(compounds_renamed[nd]["energy"]) for nd in ed[0:2]]
-        if ed[2]["tsidx"] == None or ed[2]["tsidx"] == 'None':
+        if ed[2]["tsidx"] == None or ed[2]["tsidx"] == "None":
             e_ts = max(e1, e2)
             ed[2]["name"] = "TSb_%04d" % ii
             ed[2]["geometry"] = None
@@ -619,13 +674,14 @@ def add_edge_attributes(graph, compounds):
         ed[2]["multiplicity"] = ts_compound["multiplicity"]
         ed[2]["formula"] = [formula_from_xyz_block(xyz) for xyz in xyz_list]
 
+
 def format_string_attributes(graph):
     """
     Processes node & edge attributes that are shown as strings in the
     final dashboard
     """
-    node_attrs = ["charge","multiplicity","formula","smiles"]
-    edge_attrs = ["charge","multiplicity","formula"]
+    node_attrs = ["charge", "multiplicity", "formula", "smiles"]
+    edge_attrs = ["charge", "multiplicity", "formula"]
     for nd in graph.nodes(data=True):
         for tgt in node_attrs:
             nd[1][tgt + "Str"] = "//".join([str(item) for item in nd[1][tgt]])
@@ -636,7 +692,8 @@ def format_string_attributes(graph):
                 continue
             ed[2][tgt + "Str"] = "//".join([str(item) for item in ed[2][tgt]])
 
-    return None 
+    return None
+
 
 def _clean_empty_entries(compounds):
     """
@@ -647,6 +704,7 @@ def _clean_empty_entries(compounds):
         if compounds[c] != {}:
             filtered_compounds[c] = compounds[c]
     return filtered_compounds
+
 
 def process_graph(reaction_list, compounds, dist_adduct=3.0):
     """
@@ -661,8 +719,7 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
     graph.add_edges_from(edge_list)
     node_renaming = {}
     preprocess_compounds(compounds)
-    add_node_attributes(graph, compounds, node_renaming, dist_adduct,
-                        bohr_to_ang)
+    add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang)
     nx.relabel_nodes(graph, node_renaming, copy=False)
 
     # update neighbors after renaming
@@ -674,40 +731,47 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
 
     return graph
 
-def format_value_list(val_list,fmt="%.4f",sep="//"):
+
+def format_value_list(val_list, fmt="%.4f", sep="//"):
     """
     TO-DO
     """
     return sep.join([fmt % vv if vv is not None else "None" for vv in val_list])
 
-def aggregate_property(Gx,prop_name,agg_func="mean",na_value=0):
+
+def aggregate_property(Gx, prop_name, agg_func="mean", na_value=0):
     """
     TO-DO
     """
-    fmap = {"max":np.max,"min":np.min,"mean":np.mean,"sum":np.sum,
-            "none":lambda x: x}
-    func = fmap.get(agg_func,np.mean)
+    fmap = {
+        "max": np.max,
+        "min": np.min,
+        "mean": np.mean,
+        "sum": np.sum,
+        "none": lambda x: x,
+    }
+    func = fmap.get(agg_func, np.mean)
     agg_values = []
     flags = []
     for nd in Gx.nodes(data=True):
         prop = nd[1][prop_name]
         print("PROP", prop_name, prop)
         flag = 0
-        if isinstance(prop,float) or isinstance(prop,int):
-            val = prop 
-        elif isinstance(prop,list):
+        if isinstance(prop, float) or isinstance(prop, int):
+            val = prop
+        elif isinstance(prop, list):
             values = [item if item is not None else np.nan for item in nd[1][prop_name]]
             mask = np.isnan(values)
-            values = np.where(mask,na_value,values)
+            values = np.where(mask, na_value, values)
             if np.all(mask):
                 flag = 2
             elif np.any(mask):
-                flag = 1 
+                flag = 1
             val = func(values)
         elif prop is None:
-            val = na_value 
+            val = na_value
             flag = 2
 
         agg_values.append(val)
         flags.append(flag)
-    return agg_values,flags
+    return agg_values, flags
