@@ -149,8 +149,12 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         rr = resources_root_path()
         compounds_file = "compounds_tme_dft.json"
         reaction_file = "reactions_tme_dft.csv"
-        rfile, cfile = os.path.join(rr, reaction_file), os.path.join(rr, compounds_file)
-        reactions, compounds = read_compound_reactions_files(rfile, cfile, verbose=True)
+        rfile, cfile = os.path.join(rr, reaction_file), os.path.join(
+            rr, compounds_file
+        )
+        reactions, compounds = read_compound_reactions_files(
+            rfile, cfile, verbose=True
+        )
         graph = process_graph(reactions, compounds, dist_adduct=3.0)
         assert len(graph.edges) == 477
         assert len(graph.nodes) == 435
@@ -163,7 +167,9 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             "palette": palette,
             "qual_mapping": qual_map,
         }
-        bokehobj = build_dashboard(graph, compounds, title, outfile, **kwargs_dash)
-        assert any(isinstance(x, Figure) for x in bokehobj), (
-            "No Figure in build_dashboard output"
+        bokehobj = build_dashboard(
+            graph, compounds, title, outfile, **kwargs_dash
         )
+        assert any(
+            isinstance(x, Figure) for x in bokehobj
+        ), "No Figure in build_dashboard output"

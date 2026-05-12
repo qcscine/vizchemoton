@@ -114,9 +114,15 @@ def _convert_xyz_to_smiles(centroid):
     charge = centroid.get_charge()
     data = {"smiles": None, "inchikey": None}
     try:
-        molformat = xyz2mol(elements, coordinates, charge, use_graph=True,
-                            embed_chiral=False, allow_charged_fragments=True)
-        #molformat = xyz2mol(elements, coordinates, charge, use_huckel=True)
+        molformat = xyz2mol(
+            elements,
+            coordinates,
+            charge,
+            use_graph=True,
+            embed_chiral=False,
+            allow_charged_fragments=True,
+        )
+        # molformat = xyz2mol(elements, coordinates, charge, use_huckel=True)
         if len(molformat) != 0:
             smiles = MolToSmiles(molformat[0])
             m = MolFromSmiles(smiles)
@@ -127,7 +133,7 @@ def _convert_xyz_to_smiles(centroid):
             return data
         else:
             return data
-    except (Exception, SystemExit): # unsuccessful conversions
+    except (Exception, SystemExit):  # unsuccessful conversions
         print("WARNING! Aggregate could not be converted to SMILES format")
         return data
 
@@ -275,13 +281,15 @@ def convert_struct_to_smiles(
     dsmiles = {"smiles": None}
     tmpfile = "tmp" + timestmp + ".mol"
     if smilesmode == "scine":
-        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, tmpfile,
-                                              dsmiles)
+        dsmiles = _convert_scine_bo_to_smiles(
+            centroid, properties, tmpfile, dsmiles
+        )
     elif smilesmode == "xyz2mol":
         dsmiles = _convert_xyz_to_smiles(centroid)
     elif smilesmode == "hybrid":
-        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, tmpfile,
-                                              dsmiles)
+        dsmiles = _convert_scine_bo_to_smiles(
+            centroid, properties, tmpfile, dsmiles
+        )
         if (dsmiles["smiles"] is None) and (multiplicity == 1):
             # xyz2mol handles better singlet zwitterions
             dsmiles = _convert_xyz_to_smiles(centroid)
@@ -423,7 +431,8 @@ def get_chembl_id(smiles, verbose=True):
     try:
         molecule = new_client.molecule
         results = molecule.filter(
-                molecule_structures__standard_inchi_key=inchikey)
+            molecule_structures__standard_inchi_key=inchikey
+        )
         if len(results) > 0:
             idchembl = results[0]["molecule_chembl_id"]
             number = int("".join(filter(str.isdigit, idchembl)))
@@ -453,9 +462,7 @@ def get_chebi_id(smiles, verbose=True):
     """
     # to not lose time querying the URL
     dchebi = {"id": "Error"}
-    print(
-        "Warning!: ChEBI deactivate due to problems with API."
-    )
+    print("Warning!: ChEBI deactivate due to problems with API.")
     return dchebi
 
 
@@ -580,8 +587,7 @@ def pubchem_node_check(graph, compounds):
         None: Updates `graph` nodes with 'pubchemRank', 'pubchemInfo',
               and 'pubchemInfoStr'.
     """
-    pubchem_mapping = {v["crn_id"]: v["pubchem"]
-                       for k, v in compounds.items()}
+    pubchem_mapping = {v["crn_id"]: v["pubchem"] for k, v in compounds.items()}
     for nd in graph.nodes(data=True):
         pubchem_info = pubchem_mapping.get(nd[0], None)
         if not isinstance(pubchem_info, list):

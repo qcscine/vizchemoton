@@ -77,7 +77,9 @@ def get_crn_as_pathfinder(
     if verbose:
         print("## Connecting to the Mongo-DB")
     manager.connect()
-    model1 = db.Model(dmethod["method_family"], dmethod["method"], dmethod["basis_set"])
+    model1 = db.Model(
+        dmethod["method_family"], dmethod["method"], dmethod["basis_set"]
+    )
     model1.program = dmethod["program"]
     if dmethod["solvent"] is not False:
         model1.solvent = dmethod["solvent"]
@@ -151,7 +153,9 @@ def _calculate_weight(
     return molec_dict
 
 
-def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoich):
+def check_natoms(
+    reactants, reactants_type, compounds, flasks, structures, dstoich
+):
     """
     Filter reactions based on atom count consistency.
 
@@ -195,7 +199,9 @@ def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoi
         else:
             compound = db.Flask(db.ID(compound_id), flasks)
         structure = compound.get_centroid()
-        molec_dict = _calculate_weight(db.Structure(structure), structures, dstoich)
+        molec_dict = _calculate_weight(
+            db.Structure(structure), structures, dstoich
+        )
         weight, dstoich_i = molec_dict["weight"], molec_dict["stoich"]
         for d in dstoich.keys():
             condlist.append(dstoich_i[d] < dstoich[d])
@@ -206,7 +212,9 @@ def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoi
         else:
             compound = db.Flask(db.ID(compound_id), flasks)
         structure = compound.get_centroid()
-        molec_dict = _calculate_weight(db.Structure(structure), structures, dstoich)
+        molec_dict = _calculate_weight(
+            db.Structure(structure), structures, dstoich
+        )
         weight, dstoich_j = molec_dict["weight"], molec_dict["stoich"]
         for d in dstoich.keys():
             condlist.append(dstoich_j[d] < dstoich[d])
@@ -217,7 +225,13 @@ def check_natoms(reactants, reactants_type, compounds, flasks, structures, dstoi
 
 
 def get_energy_and_barriers(
-    energy_type, es_id, elementary_steps, model1, structures, properties, es_from_graph
+    energy_type,
+    es_id,
+    elementary_steps,
+    model1,
+    structures,
+    properties,
+    es_from_graph,
 ):
     """
     Wrapper function Gets the elementary step ID with the lowest energy of the
@@ -291,7 +305,9 @@ def get_reactions_and_compounds(
       relevant information (charge, spin, xyz ...)
     """
     # Get the SCINE collections
-    model1 = db.Model(dmethod["method_family"], dmethod["method"], dmethod["basis_set"])
+    model1 = db.Model(
+        dmethod["method_family"], dmethod["method"], dmethod["basis_set"]
+    )
     model1.program = dmethod["program"]
     if dmethod["solvent"] is not False:
         model1.solvent = dmethod["solvent"]
@@ -415,7 +431,9 @@ def get_reactions_and_compounds(
                     )
                 elif not_none:
                     # node_ts = es_from_graph.get_transition_state().string()+";"
-                    str_id = es_from_graph.get_transition_state().string() + ";"
+                    str_id = (
+                        es_from_graph.get_transition_state().string() + ";"
+                    )
                     node_ts = str_id + "_" + rxn_id
                     if node_ts not in cmp_dict.keys():
                         cmp_dict[node_ts] = cmp_idx
@@ -501,7 +519,9 @@ def get_reactions_and_compounds(
                     )
                 elif not_none:
                     # node_ts = es_from_graph.get_transition_state().string()+";"
-                    str_id = es_from_graph.get_transition_state().string() + ";"
+                    str_id = (
+                        es_from_graph.get_transition_state().string() + ";"
+                    )
                     node_ts = str_id + "_" + rxn_id
                     if node_ts not in cmp_dict.keys():
                         cmp_dict[node_ts] = cmp_idx
@@ -649,12 +669,21 @@ def _extract_structure_data(
     - The function handles both static properties (like xyz, energy) and dynamic properties requested at runtime.
     """
     dprop = {k: None for k in rdkitprop}
-    dpublidbs = {"pubchem": False, "chembl": False, "chebi": False, "chemspi": False}
-    xyz = [(str(o.element), tuple(o.position)) for o in structure_obj.get_atoms()]
+    dpublidbs = {
+        "pubchem": False,
+        "chembl": False,
+        "chebi": False,
+        "chemspi": False,
+    }
+    xyz = [
+        (str(o.element), tuple(o.position)) for o in structure_obj.get_atoms()
+    ]
     z, s = structure_obj.get_charge(), structure_obj.multiplicity
     bolsmiles, typsmiles = calcsmiles
     dsmiles = (
-        convert_struct_to_smiles(structure_obj, properties, timestmp, s, typsmiles)
+        convert_struct_to_smiles(
+            structure_obj, properties, timestmp, s, typsmiles
+        )
         if bolsmiles
         else {"smiles": False, "inchikey": False}
     )
@@ -737,7 +766,9 @@ def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
       between compounds and flasks.
     - CRN IDs are derived from `cmp_dict` which maps MongoDB IDs to numeric indices.
     """
-    type_object = pathfinder.graph_handler.graph.nodes(data=True)[mongoid]["type"]
+    type_object = pathfinder.graph_handler.graph.nodes(data=True)[mongoid][
+        "type"
+    ]
     if type_object == db.CompoundOrFlask.COMPOUND.name:
         compound = db.Compound(db.ID(mongoid), compounds)
         crn_id = "c" + str(cmp_dict[mongoid])
@@ -869,7 +900,9 @@ def _get_html_compound_dict(
                 html_compounds[compound_key][k] = tmpstr
             # _sima, _simb = html_compounds[compound_key]['xyzdes']
             # tmpchemsim = [np.mean(s) for s in zip(_sima, _simb)]
-            transposed = list(map(list, zip(*html_compounds[compound_key]["xyzdes"])))
+            transposed = list(
+                map(list, zip(*html_compounds[compound_key]["xyzdes"]))
+            )
             tmpchemsim = [np.mean(s) for s in transposed]
             assert len(tmpchemsim) == 4
             html_compounds[compound_key]["xyzdes"] = tmpchemsim

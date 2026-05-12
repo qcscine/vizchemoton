@@ -139,7 +139,9 @@ def write_compound_reactions_files(
     """
     if verbose:
         print(
-            "## Writing {f1} and {f2} files".format(f1=reaction_file, f2=compound_file)
+            "## Writing {f1} and {f2} files".format(
+                f1=reaction_file, f2=compound_file
+            )
         )
     # Open a file in write mode
     with open(reaction_file, "w") as f:
@@ -178,10 +180,14 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
     """
     if verbose:
         print(
-            "## Reading {f1} and {f2} files".format(f1=reaction_file, f2=compounds_file)
+            "## Reading {f1} and {f2} files".format(
+                f1=reaction_file, f2=compounds_file
+            )
         )
     with open(reaction_file, "r") as freac:
-        reaction_tuples = [line.strip().split(",") for line in freac.readlines()]
+        reaction_tuples = [
+            line.strip().split(",") for line in freac.readlines()
+        ]
     with open(compounds_file, "r") as fcomp:
         compounds = json.load(fcomp)
 
@@ -249,10 +255,14 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
             # Alternate checkpoints to have backup in case it crashes when editing
             # the checkpoint file.
             if flagcheckpoint == "A":
-                checkpoint_file = compounds_file + ".checkpoint" + flagcheckpoint
+                checkpoint_file = (
+                    compounds_file + ".checkpoint" + flagcheckpoint
+                )
                 flagcheckpoint = "B"
             elif flagcheckpoint == "B":
-                checkpoint_file = compounds_file + ".checkpoint" + flagcheckpoint
+                checkpoint_file = (
+                    compounds_file + ".checkpoint" + flagcheckpoint
+                )
                 flagcheckpoint = "A"
 
             with open(checkpoint_file, "w") as fcheckpoint:
@@ -435,7 +445,9 @@ def simplify_compounds(compounds):
         dict: A "clean" dictionary containing only stable nodes (where 'ts'
               is not in the 'crn_id').
     """
-    compounds_clean = {k: v for k, v in compounds.items() if "ts" not in v["crn_id"]}
+    compounds_clean = {
+        k: v for k, v in compounds.items() if "ts" not in v["crn_id"]
+    }
     return compounds_clean
 
 
@@ -489,7 +501,9 @@ def process_compound_dbs(compounds, dblist=["pubchem", "chebi", "chembl"]):
     return mongoid_mapping
 
 
-def count_matches(mongoid_mapping, error_flags=["None", "Error", "False", None, False]):
+def count_matches(
+    mongoid_mapping, error_flags=["None", "Error", "False", None, False]
+):
     """
     Calculates the frequency of valid metadata entries across the species mapping.
 
@@ -521,7 +535,9 @@ def count_matches(mongoid_mapping, error_flags=["None", "Error", "False", None, 
     counts["mongodb_id"] = len(mongoid_mapping)
     for field in field_list:
         values = [
-            v[field] for v in mongoid_mapping.values() if v[field] not in error_flags
+            v[field]
+            for v in mongoid_mapping.values()
+            if v[field] not in error_flags
         ]
         counts[field] = len(values)
     return counts

@@ -127,8 +127,12 @@ def main():
         # write the reactions and compounds
         if reactions_mode == "write" and compounds_mode == "write":
             write_compound_reactions_files(
-                reactions, compounds, reactions_file, compounds_file,
-                verbose=verbose)
+                reactions,
+                compounds,
+                reactions_file,
+                compounds_file,
+                verbose=verbose,
+            )
 
     if compounds_mode == "review":
         reactions, compounds = read_compound_reactions_files(
@@ -146,13 +150,17 @@ def main():
         compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
 
     graph = process_graph(reactions, compounds, dist_adduct)
-    kwargs_dash = {"custom_hovers": [], "palette": palette,
-                   "qual_mapping": qual_map}
+    kwargs_dash = {
+        "custom_hovers": [],
+        "palette": palette,
+        "qual_mapping": qual_map,
+    }
     if "Rank" in map_field:
         db_name = map_field.replace("Rank", "")
         db_node_check(graph, compounds, db_name)
-        kwargs_dash["custom_hovers"] += [(f"{db_name}Ids",
-                                          f"@{db_name}InfoStr")]
+        kwargs_dash["custom_hovers"] += [
+            (f"{db_name}Ids", f"@{db_name}InfoStr")
+        ]
 
     # adapting collision of modifications
     if rdkitprop:
@@ -165,8 +173,10 @@ def main():
         fun = "mean"
         mapping_values, mapping_flags = aggregate_property(graph, map_field)
         map_field_name = map_field + "_" + fun
-        field_to_nodes = {nd: {map_field_name: val}
-                          for nd, val in zip(graph.nodes, mapping_values)}
+        field_to_nodes = {
+            nd: {map_field_name: val}
+            for nd, val in zip(graph.nodes, mapping_values)
+        }
         nx.set_node_attributes(graph, field_to_nodes)
     else:
         map_field_name = map_field
