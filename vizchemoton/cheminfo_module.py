@@ -28,7 +28,7 @@ from rdkit.Chem import inchi
 from rdkit import RDLogger
 
 # Disable all RDKit warnings/errors/info messages
-RDLogger.DisableLog("rdApp.*")
+RDLogger.DisableLog("rdApp.*")  # type: ignore[attr-defined]
 
 # Local Imports
 
