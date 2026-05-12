@@ -11,7 +11,6 @@ from collections import Counter, defaultdict
 import json
 import time
 import requests
-import ast
 
 # Third-Party Library Imports
 import numpy as np
@@ -36,10 +35,12 @@ RDLogger.DisableLog("rdApp.*")
 
 def get_cartesian_descriptors(xyz):
     """
-    Calculate fundamental geometric and mass-based descriptors from Cartesian coordinates.
+    Calculate fundamental geometric and mass-based descriptors from
+    Cartesian coordinates.
 
-    This function computes structural metrics used for post-clustering analysis,
-    including atom counts, Radius of Gyration ($R_g$), and the bounding box volume.
+    This function computes structural metrics used for post-clustering
+    analysis, including atom counts, Radius of Gyration ($R_g$), and the
+    bounding box volume.
 
     Args:
         xyz (list of tuple): A list where each element is a tuple of
@@ -52,11 +53,6 @@ def get_cartesian_descriptors(xyz):
             - heavy_atoms (int): Count of non-hydrogen atoms.
             - rg (float): Mass-weighted Radius of Gyration in Angstroms.
             - bbox_volume (float): Volume of the axis-aligned bounding box.
-
-    Notes:
-        The Radius of Gyration is calculated as:
-        $$R_g = \sqrt{\frac{\sum_{i} m_i (\mathbf{r}_i - \mathbf{r}_{cm})^2}{\sum_{i} m_i}}$$
-        where $m_i$ is the atomic weight and $\mathbf{r}_i$ are the coordinates.
     """
     atom_list = [a for a, _ in xyz]
     pt = GetPeriodicTable()
@@ -71,12 +67,12 @@ def get_cartesian_descriptors(xyz):
         atom_masses = np.ones(len(coords))  # default: equal mass
 
     total_mass = np.sum(atom_masses)
-    center_of_mass = np.sum(coords * atom_masses[:, None], axis=0) / total_mass
+    coordmass = coords * atom_masses[:, None]
+    center_of_mass = np.sum(coordmass, axis=0) / total_mass
 
     # Radius of gyration
-    rg = np.sqrt(
-        np.sum(atom_masses[:, None] * (coords - center_of_mass) ** 2) / total_mass
-    )
+    gyramass = atom_masses[:, None] * (coords - center_of_mass) ** 2
+    rg = np.sqrt(np.sum(gyramass) / total_mass)
 
     # Bounding box
     bbox = np.ptp(coords, axis=0)  # peak-to-peak along each axis
@@ -88,17 +84,15 @@ def _convert_xyz_to_smiles(centroid):
     """
     Infers molecular connectivity (SMILES) from 3D Cartesian coordinates.
 
-    Uses the `xyz2mol` algorithm to determine bond orders based on atomic distances
-    and total charge. It handles the conversion from Bohr to Angstroms and
-    canonicalizes the resulting SMILES string via RDKit.
-
-
+    Uses the `xyz2mol` algorithm to determine bond orders based on atomic
+    distances and total charge. It handles the conversion from Bohr to
+    Angstroms and canonicalizes the resulting SMILES string via RDKit.
 
     Args:
         centroid (Object): A molecular object containing:
-            - .get_atoms().elements: List of atomic symbols or values.
-            - .get_atoms().positions: NumPy array or list of coordinates in Bohr.
-            - .get_charge(): Integer representing the total molecular charge.
+        - .get_atoms().elements: List of atomic symbols or values.
+        - .get_atoms().positions: NumPy array or list of coordinates in Bohr.
+        - .get_charge(): Integer representing the total molecular charge.
 
     Returns:
         dict: A dictionary containing the 'smiles' key.
@@ -115,13 +109,12 @@ def _convert_xyz_to_smiles(centroid):
     # deprecated - now implemented in rdkit
     conv2angs = 0.529177  # conversion of bohrs to anstrongs
     elements = [atom.value for atom in centroid.get_atoms().elements]
-    coordinates = [
-        [cj * conv2angs for cj in ci] for ci in centroid.get_atoms().positions.tolist()
-    ]
+    lcentroid = centroid.get_atoms().positions.tolist()
+    coordinates = [[cj * conv2angs for cj in ci] for ci in lcentroid]
     charge = centroid.get_charge()
     data = {"smiles": None, "inchikey": None}
     try:
-        # , use_graph=True, embed_chiral=False, allow_charged_fragments=True)
+        # use_graph=True, embed_chiral=False, allow_charged_fragments=True)
         molformat = xyz2mol(elements, coordinates, charge, use_huckel=True)
         if len(molformat) != 0:
             smiles = MolToSmiles(molformat[0])
@@ -133,18 +126,19 @@ def _convert_xyz_to_smiles(centroid):
             return data
         else:
             return data
-    except:  # filter out cases where a SMILES is not feasible
+    except Exception:  # filter out cases where a SMILES is not feasible
         print("WARNING! Aggregate could not be converted to SMILES format")
         return data
 
 
 def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     """
-    Converts SCINE-derived bond orders and atom collections into a SMILES string.
+    Converts SCINE-derived bond orders and atom collections into a SMILES
+    string.
 
-    This function extracts a sparse bond order matrix from a SCINE database object,
-    reconstructs the molecular topology, writes it to a temporary file, and
-    uses RDKit to generate a canonical SMILES string.
+    This function extracts a sparse bond order matrix from a SCINE database
+    object, reconstructs the molecular topology, writes it to a temporary file
+    and uses RDKit to generate a canonical SMILES string.
 
     Args:
         centroid (db.Structure): A SCINE database Structure object containing
@@ -153,8 +147,8 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
             retrieve the bond order data.
         tmpfile (str): Path to a temporary file (e.g., .mol or .pdb) used for
             intermediary topology storage.
-        dsmiles (dict): A fallback dictionary (e.g., {'smiles': None}) to return
-            if the conversion fails early.
+        dsmiles (dict): A fallback dictionary (e.g., {'smiles': None}) to
+            return if the conversion fails early.
 
     Returns:
         dict: A dictionary containing the key 'smiles'.
@@ -162,14 +156,13 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
             - Returns the input `dsmiles` or `{'smiles': None}` on failure.
 
     Raises:
-        RuntimeError: Caught internally if bond order properties are inaccessible.
+        RuntimeError: Caught if bond order properties are inaccessible.
 
     Note:
-        Requires the `scine_utilities` (as `su`) and `scine_database` (as `db`)
+        Requires the `scine_utilities` (`su`) and `scine_database` (`db`)
         modules, as well as RDKit's `Chem` module.
     """
     atomcollection = centroid.get_atoms()
-    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
     if not centroid.has_property("bond_orders"):
         return dsmiles
     try:
@@ -190,7 +183,7 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
     try:
         smiles = Chem.MolToSmiles(rdkitmol)
         inchikey = inchi.MolToInchiKey(rdkitmol)
-    except:
+    except Exception:
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
         inchikey = None
@@ -203,7 +196,6 @@ def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
     TO-DO
     """
     atomcollection = centroid.get_atoms()
-    bonds = ast.literal_eval(centroid.get_graph("masm_idx_map"))
     if not centroid.has_property("bond_orders"):
         return dsmiles
     try:
@@ -225,21 +217,21 @@ def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
             bondcollection,
             masm.interpret.BondDiscretization.RoundToNearest,
         )
-        # If interpretation failed to yield a single molecule, try detecting bonds from scratch
+        # If interpretation failed, try detecting bonds from scratch
         if len(result.molecules) != 1:
-            bondcollection = utils.BondDetector.detect_bonds(atomcollection)
+            bondcollection = su.BondDetector.detect_bonds(atomcollection)
             result = masm.interpret.molecules(
                 atomcollection,
                 bondcollection,
                 masm.interpret.BondDiscretization.RoundToNearest,
             )
         if len(result.molecules) != 1:
-            print("WARNING! Molassembler could not interpret a single molecule.")
+            print("WARNING! Molassembler could not interpret a molecule.")
             smiles = None
         else:
             mol = result.molecules[0]
             smiles = masm.io.experimental.emit_smiles(mol)
-    except:
+    except Exception:
         print("WARNING! Aggregate could not be converted to SMILES format")
         smiles = None
     dsmiles = {"smiles": smiles}
@@ -252,14 +244,14 @@ def convert_struct_to_smiles(
     """
     Orchestrates the conversion of 3D molecular structures to SMILES strings.
 
-    This function provides a unified interface for structure-to-SMILES conversion
-    using SCINE bond orders, the xyz2mol distance-based algorithm, or a hybrid
-    fallback approach optimized for singlet zwitterions.
+    This function provides a unified interface for structure-to-SMILES
+    conversion using SCINE bond orders, the xyz2mol distance-based algorithm,
+    or a hybrid fallback approach optimized for singlet zwitterions.
 
     Args:
         centroid (db.Structure): SCINE database structure object.
-        properties (db.Collection): SCINE properties collection for bond order lookup.
-        timestmp (str): Unique identifier used to prevent collisions in temporary
+        properties (db.Collection): SCINE properties for bond order lookup.
+        timestmp (str): Unique identifier to prevent collisions in temporary
             file creation (e.g., "tmp{timestmp}.mol").
         multiplicity (int): The spin multiplicity of the molecule.
         smilesmode (str, optional): The conversion strategy to use.
@@ -275,18 +267,20 @@ def convert_struct_to_smiles(
             - {'smiles': None} if all attempted methods fail.
 
     References:
-        [1] Brunken, C., & Reiher, M. J. Chem. Inf. Model. 2020, 60, 8, 3884–3900.
-        [2] Kim, J. H., & Kim, H. S. Bull. Korean Chem. Soc. 2015, 36, 1769-1777.
+        [1] J. Chem. Inf. Model. 2020, 60, 8, 3884-3900.
+        [2] Bull. Korean Chem. Soc. 2015, 36, 1769-1777.
         [3] Forthcoming: ChemRxiv 2026 (Internal hybrid refinement).
     """
     dsmiles = {"smiles": None}
     tmpfile = "tmp" + timestmp + ".mol"
     if smilesmode == "scine":
-        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles)
+        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, tmpfile,
+                                              dsmiles)
     elif smilesmode == "xyz2mol":
         dsmiles = _convert_xyz_to_smiles(centroid)
     elif smilesmode == "hybrid":
-        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles)
+        dsmiles = _convert_scine_bo_to_smiles(centroid, properties, tmpfile,
+                                              dsmiles)
         if (dsmiles["smiles"] is None) and (multiplicity == 1):
             # xyz2mol handles better singlet zwitterions
             dsmiles = _convert_xyz_to_smiles(centroid)
@@ -336,7 +330,7 @@ def get_public_database_id(name, smiles):
     ChEMBL, and ChEBI lookups.
 
     Args:
-        name (str): The database to query. Supported: 'pubchem', 'chembl', 'chebi'.
+        name (str): The database to query: 'pubchem', 'chembl', 'chebi'.
         smiles (str): The SMILES string to look up.
 
     Returns:
@@ -372,7 +366,7 @@ def get_pubchem_cid(smiles, delay=0.5, verbose=True):
 
     Args:
         smiles (str): The SMILES string of the compound.
-        delay (float): Time in seconds to wait before the API call. Default 0.5s.
+        delay (float): Time in seconds to wait before the API call.
         verbose (bool): If True, prints the query result to the console.
 
     Returns:
@@ -410,7 +404,7 @@ def get_chembl_id(smiles, verbose=True):
 
     Args:
         smiles (str): The SMILES string of the compound.
-        verbose (bool): If True, prints the query status and result to the console.
+        verbose (bool): If True, prints query status & result to the console.
 
     Returns:
         dict: A dictionary containing the key 'id'.
@@ -427,7 +421,8 @@ def get_chembl_id(smiles, verbose=True):
     dchembl = {"id": None}
     try:
         molecule = new_client.molecule
-        results = molecule.filter(molecule_structures__standard_inchi_key=inchikey)
+        results = molecule.filter(
+                molecule_structures__standard_inchi_key=inchikey)
         if len(results) > 0:
             idchembl = results[0]["molecule_chembl_id"]
             number = int("".join(filter(str.isdigit, idchembl)))
@@ -458,7 +453,7 @@ def get_chebi_id(smiles, verbose=True):
     # to not lose time querying the URL
     dchebi = {"id": "Error"}
     print(
-        "Warning!: ChEBI deactivate due to problems with API. Returns Error without querying."
+        "Warning!: ChEBI deactivate due to problems with API."
     )
     return dchebi
 
@@ -484,7 +479,7 @@ def _get_chebi_id(smiles, verbose=True):
             - If connection/API failure: {'id': 'Error'}
 
     Notes:
-        - API endpoint: https://www.ebi.ac.uk/chebi/backend/api/public/es_search/
+        - Endpoint: https://www.ebi.ac.uk/chebi/backend/api/public/es_search/
         - Uses a broad search term and then validates the exact InChIKey match
           within the result results to ensure accuracy.
     """
@@ -524,7 +519,7 @@ def _get_rdkit_descriptor(mol, name, modules):
 
     Args:
         mol (rdkit.Chem.rdchem.Mol): The RDKit molecule object.
-        name (str): The exact name of the descriptor function (e.g., 'MolLogP').
+        name (str): The exact name of the descriptor function ('MolLogP').
         modules (list): A list of imported RDKit descriptor modules to search.
 
     Returns:
@@ -545,8 +540,8 @@ def get_rdkit_properties(smiles, rdkitprop):
     """
     Calculates a set of chemical properties using RDKit modules.
 
-    Parses a SMILES string and extracts multiple descriptors by searching through
-    the `Descriptors`, `Crippen`, and `rdMolDescriptors` modules.
+    Parses a SMILES string and extracts multiple descriptors by searching
+    through the `Descriptors`, `Crippen`, and `rdMolDescriptors` modules.
 
     Args:
         smiles (str): The SMILES string of the molecule.
@@ -569,7 +564,8 @@ def get_rdkit_properties(smiles, rdkitprop):
 
 def pubchem_node_check(graph, compounds):
     """
-    Checks nodes for PubChem IDs and assigns a representation rank for visualization.
+    Checks nodes for PubChem IDs and assigns a representation rank for
+    visualization.
 
     This is a specialized version of `db_node_check` focused specifically on
     PubChem data. It updates the graph nodes in-place.
@@ -583,7 +579,8 @@ def pubchem_node_check(graph, compounds):
         None: Updates `graph` nodes with 'pubchemRank', 'pubchemInfo',
               and 'pubchemInfoStr'.
     """
-    pubchem_mapping = {v["crn_id"]: v["pubchem"] for k, v in compounds.items()}
+    pubchem_mapping = {v["crn_id"]: v["pubchem"]
+                       for k, v in compounds.items()}
     for nd in graph.nodes(data=True):
         pubchem_info = pubchem_mapping.get(nd[0], None)
         if not isinstance(pubchem_info, list):
@@ -613,14 +610,15 @@ def db_node_check(graph, compounds, db="pubchem"):
     Enriches graph nodes with availability data from a specified database.
 
     Evaluates whether the species associated with a node exist in an external
-    database (e.g., PubChem, ChEMBL) and assigns a numerical rank (0, 1, or 2).
-    This rank is typically used to drive node color gradients in graph visualizations.
+    database (e.g., PubChem, ChEMBL) and assigns a numerical rank (0, 1, or 2)
+    This rank is typically used to drive node color gradients in graph
+    visualizations.
 
     Args:
         graph (networkx.Graph): The networkx graph object to be enriched.
-        compounds (dict): Compound metadata dictionary. Expected schema per entry:
+        compounds (dict): Compound metadata dictionary. Expected per entry:
             {'crn_id': str, 'db_name': int | list | None}.
-        db (str): The key for the database to check (e.g., "pubchem", "chembl").
+        db (str): The key for the database to check ("pubchem", "chembl").
 
     Returns:
         None: Updates graph nodes in-place with:
@@ -658,7 +656,7 @@ def add_multiple_dbs(
     graph, compounds, dblist=["pubchem", "chembl", "chebi", "chemspider"]
 ):
     """
-    Iteratively runs database availability checks for a suite of external sources.
+    Runs database availability checks for a suite of external sources.
 
     This is a wrapper function to batch-process multiple database rankings
     onto the same graph.
@@ -669,16 +667,16 @@ def add_multiple_dbs(
         dblist (list of str): List of database keys to process.
 
     Returns:
-        None: Graph is updated with ranking attributes for every database in dblist.
+        None: Graph is updated with ranking attributes for every database.
     """
-    for db in dblist:
-        db_node_check(graph, compounds, db)
+    for _db in dblist:
+        db_node_check(graph, compounds, _db)
     return None
 
 
 def compute_cheminf_props(graph, prop_keys):
     """
-    Computes and maps RDKit chemical properties to all nodes in a reaction graph.
+    Computes and maps RDKit properties to all nodes in a reaction graph.
 
     This function handles nodes that may contain multiple molecular species
     (represented by '+' delimited IDs and a corresponding SMILES list). It
@@ -693,12 +691,12 @@ def compute_cheminf_props(graph, prop_keys):
 
     Returns:
         None: Updates the graph in-place. Each node receives:
-            - {prop_key}: A list of numerical values for each species in the node.
+            - {prop_key}: A list of values for each species in the node.
             - {prop_key}Str: A formatted string representation for tooltips.
 
     Notes:
         - If a SMILES string is "None", the property value is set to `None`.
-        - Uses an internal dictionary (`id_to_props`) to cache results, ensuring
+        - Uses internal dictionary (`id_to_props`) to cache results, ensuring
           each unique species ID is only processed by RDKit once.
     """
     id_to_props = {}

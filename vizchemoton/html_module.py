@@ -54,7 +54,8 @@ def cluster_nodes(descriptors, n_clusters="silhouettes", verbose=True):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=n_clusters)
     cluster_labels = kmeans.fit_predict(X)
 
-    clusters = {node_id: int(label) for node_id, label in zip(node_ids, cluster_labels)}
+    clusters = {node_id: int(label)
+                for node_id, label in zip(node_ids, cluster_labels)}
     return clusters
 
 
@@ -63,7 +64,7 @@ def assign_coordinates(graph, clusters):
     Creates positions for NetworkX nodes such that nodes in the same cluster
     are closer together.
     """
-    # Simple layout: place clusters on a circle, nodes in cluster randomly around center
+    # place clusters on a circle, nodes in cluster randomly around center
     cluster_centers = {}
     n_clusters = len(set(clusters.values()))
     angle_step = 2 * np.pi / n_clusters
@@ -84,7 +85,7 @@ def assign_coordinates(graph, clusters):
 
 def complete_cluster(node_list, cluster_dict, cluster_idx):
     """
-    Convenience function to assign a cluster index for unassigned nodes in a dictionary
+    Function to assign a cluster index for unassigned nodes in a dictionary
     """
     unassigned = set(node_list).difference(set(cluster_dict.keys()))
     new_assignments = [(nd, cluster_idx) for nd in unassigned]
@@ -107,10 +108,11 @@ def build_dashboard(
     Wrapper function to generate HTML visualizations for a given network.
 
     Input:
-    - G (nx.Graph): object as generated from RXReader. For profile support, it should contain a graph["pathList"] property.
+    - G (nx.Graph): object as generated from RXReader. For profile support,
+      it should contain a graph["pathList"] property.
     - title (str): title for the visualization.
     - outfile (str): name of the output HTML file.
-    - size (tuple): tuple of integers, size of the final visualization in pixels.
+    - size (tuple): tuple of integers, size of the visualization in pixels.
     - layout_function (nx.object, optional): Function to generate graph layout.
     - map_field (str): name of the field used for node coloring.
 
@@ -121,7 +123,9 @@ def build_dashboard(
         assert len(G.edges) > 0
     except AssertionError:
         print(
-            "## WARNING! Chemical reaction network has no reactions. Check whether model variables (e.g., electronic method, solvent etc) fit model data in the MongoDB. Aborting html creation."
+            "## WARNING! Chemical reaction network has no reactions. Check "
+            "whether model variables (e.g., electronic method, solvent etc) "
+            "fit model data in the MongoDB. Aborting html creation."
         )
         return None
 
@@ -412,8 +416,8 @@ def build_dashboard(
     )
     bk_fig.add_tools(hover_edge)
 
-    highl_callback = bkm.CustomJS(
-        args={"graph": bk_graph}, code=arxviz.js_callback_dict["highlightNeighbors"]
+    highl_callback = bkm.CustomJS(args={"graph": bk_graph},
+            code=arxviz.js_callback_dict["highlightNeighbors"]
     )
 
     # We need edge backups
@@ -451,8 +455,8 @@ def build_dashboard(
 
     sel_row = lay.children[0][0].children[2]
     sel_row.children[1].max_width = int(w1 / 6)
-    sel_row.children = (
-        sel_row.children[0:2] + [b_highlight, b_hidebarrless] + [sel_row.children[-1]]
+    sel_row.children = (sel_row.children[0:2] + [b_highlight, b_hidebarrless]
+                        + [sel_row.children[-1]]
     )
 
     # Export functionality
@@ -520,7 +524,8 @@ def xyz_list_to_xyz_block(xyz):
     a1,x1,y1,z2\na2,x2,y2,z2...
     """
 
-    xyz_block = "\n".join(["%s %.6f %.6f %.6f" % (item[0], *item[1]) for item in xyz])
+    xyz_block = "\n".join(["%s %.6f %.6f %.6f" % (item[0], *item[1])
+                                                  for item in xyz])
     return xyz_block
 
 
@@ -577,7 +582,7 @@ def build_graph_edges(reaction_list):
     """
     Build graph edges.
     """
-    return [(item[0], item[1], {"tsidx": item[2]}) for item in reaction_list[1:]]
+    return [(it[0], it[1], {"tsidx": it[2]}) for it in reaction_list[1:]]
 
 
 def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
@@ -592,24 +597,28 @@ def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
         xyz_list = comp["xyz"]
         xyz0_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
         cntr = xyz0_arr.mean(axis=0)
-        xyz0 = [[item[0], list(xyz0_arr[ii])] for ii, item in enumerate(xyz_list[0])]
+        xyz0 = [[item[0], list(xyz0_arr[ii])]
+                 for ii, item in enumerate(xyz_list[0])]
         xyz_full = xyz0
 
         for ii, xyz in enumerate(xyz_list[1:]):
             displ_vec = cntr + (ii + 1) * dist_adduct
             xyz_arr = np.array([it[1] for it in xyz]) * bohr_to_ang + displ_vec
-            xyz_nw = [[item[0], list(xyz_arr[ii])] for ii, item in enumerate(xyz)]
+            xyz_nw = [[item[0], list(xyz_arr[ii])]
+                      for ii, item in enumerate(xyz)]
             xyz_full += xyz_nw
     else:
         node_name = comp["crn_id"]
         xyz_list = [comp["xyz"]]
         xyz_arr = np.array([item[1] for item in xyz_list[0]]) * bohr_to_ang
-        xyz_full = [[item[0], list(xyz_arr[ii])] for ii, item in enumerate(xyz_list[0])]
+        xyz_full = [[item[0], list(xyz_arr[ii])]
+                     for ii, item in enumerate(xyz_list[0])]
 
     return node_name, xyz_full, xyz_list
 
 
-def add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang):
+def add_node_attributes(graph, compounds, node_renaming, dist_adduct,
+                        bohr_to_ang):
     """
     Add nodes attributes to the graph for building the HTML file.
     """
@@ -719,7 +728,8 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
     graph.add_edges_from(edge_list)
     node_renaming = {}
     preprocess_compounds(compounds)
-    add_node_attributes(graph, compounds, node_renaming, dist_adduct, bohr_to_ang)
+    add_node_attributes(graph, compounds, node_renaming, dist_adduct,
+                        bohr_to_ang)
     nx.relabel_nodes(graph, node_renaming, copy=False)
 
     # update neighbors after renaming
@@ -736,7 +746,8 @@ def format_value_list(val_list, fmt="%.4f", sep="//"):
     """
     TO-DO
     """
-    return sep.join([fmt % vv if vv is not None else "None" for vv in val_list])
+    fvlist = [fmt % vv if vv is not None else "None" for vv in val_list]
+    return sep.join(fvlist)
 
 
 def aggregate_property(Gx, prop_name, agg_func="mean", na_value=0):
@@ -760,7 +771,8 @@ def aggregate_property(Gx, prop_name, agg_func="mean", na_value=0):
         if isinstance(prop, float) or isinstance(prop, int):
             val = prop
         elif isinstance(prop, list):
-            values = [item if item is not None else np.nan for item in nd[1][prop_name]]
+            values = [item if item is not None else np.nan
+                      for item in nd[1][prop_name]]
             mask = np.isnan(values)
             values = np.where(mask, na_value, values)
             if np.all(mask):

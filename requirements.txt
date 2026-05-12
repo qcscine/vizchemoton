@@ -10,5 +10,8 @@ rdkit
 requests
 scikit-learn
 bokeh==2.3.3
+rdkit
+scikit-learn
+requests
 xyz2mol @ git+https://github.com/jensengroup/xyz2mol.git
 amk_tools @ git+https://gitlab.com/dgarayr/amk_tools.git

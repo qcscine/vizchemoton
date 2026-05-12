@@ -17,7 +17,7 @@ scine:
   verbose: True
 
 cheminfo:
-  rdkitobj: False
+  rdkitobj: True
   smiles_method: "xyz2mol"
   rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
   pubchem: False
