@@ -5,6 +5,11 @@ variables:
   GIT_DEPTH: 1
   PYTHON_ARTIFACT_DIR: "$CI_PROJECT_DIR/.cache"
   PIP_CACHE_DIR: "$PYTHON_ARTIFACT_DIR/pip"
+  CHEMOTON_REPO: "https://github.com/qcscine/chemoton.git"
+  CHEMOTON_VERSION: "3.1.0"
+  VIZCHEMOTON_REPO: "https://github.com/petrusen/vizchemoton.git"
+  VIZCHEMOTON_VERSION: "main"  # Replace with a tag or commit SHA
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 include:
   - project: 'scine/development-utils'
@@ -35,45 +40,32 @@ check_mypy:
     - python3 -m mypy --ignore-missing-imports -p vizchemoton
 
 setup_environment:
-  stage: build
-  image: ubuntu:22.04
-  extends: .gcc
-  services:
-    - mongo:bionic
-  before_script:
-    - apt-get update && apt-get install -y wget git build-essential python3-pip
-    - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - source $HOME/miniconda/etc/profile.d/conda.sh
-    - conda init bash
-    - conda config --set always_yes yes --set changeps1 no
-    - conda create --name my_env python=3.8
-    - conda activate my_env
-    - conda install -c conda-forge xyz2mol
-    - python -m pip install --upgrade pip
-    # Clone and install Chemoton
-    - git clone https://github.com/qcscine/chemoton.git
+  stage: setup
+  image: python:3.8
+  interruptible: true
+  cache:
+    key: "pip-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .cache/pip/
+  script:
+    # Install Chemoton
+    - git clone "$CHEMOTON_REPO"
     - cd chemoton
-    - git checkout 3.1.0
-    - python -m pip install -r requirements.txt
-    - python -m pip install .
+    - git checkout "$CHEMOTON_VERSION"
+    - pip install --no-cache-dir -r requirements.txt
+    - pip install --no-cache-dir .
     - cd ..
 
-    # Clone and install amk_tools
-    - git clone https://gitlab.com/dgarayr/amk_tools.git
-    - cd amk_tools
-    - python -m pip install -e .
-    - cd ..
-  script: 
+    # Install VizChemoton
+    - git clone "$VIZCHEMOTON_REPO"
+    - cd vizchemoton
+    - git checkout "$VIZCHEMOTON_VERSION"
+    - pip install --no-cache-dir -r ./requirements.txt
+    - pip install --no-cache-dir .
+
     # Run unitary tests
-    - find . -name "test_*csv"
-    - python3 -m pip install -r requirements-dev.txt
-    - python3 -m pytest vizchemoton
-  artifacts:
-    paths:
-      - chemoton/
-      - amk_tools/
+    - pip install -r requirements-dev.txt
+    - pip pytest vizchemoton
 
 sphinx:devel:
   stage: build
