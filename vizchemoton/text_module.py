@@ -13,7 +13,6 @@ import time
 # Third-Party Library Imports
 import yaml
 import numpy as np
-from rdkit.Chem import GetPeriodicTable
 
 # Local Imports
 from .cheminfo_module import (
@@ -46,7 +45,7 @@ def load_config(config_file="config.yaml"):
     Loads runtime parameters from a YAML configuration file.
 
     Args:
-        config_file (str): Path to the configuration file. Defaults to "config.yaml".
+        config_file: Path to the configuration file. Defaults to "config.yaml".
 
     Returns:
         dict: Parsed configuration parameters.
@@ -204,8 +203,8 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
     network tasks, it implements an alternating "A/B" checkpointing strategy.
 
     Args:
-        compounds_file (str): Path to the JSON file containing compound metadata.
-        verbose (bool): If True, logs progress and API re-attempts to the console.
+        compounds_file (str): Path to JSON file containing compound metadata.
+        verbose (bool): If True, logs progress and API attempts to the console.
         checkpoint_every (int): Frequency of metadata serialization to
             prevent data loss (number of compounds processed).
 
@@ -252,7 +251,7 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
 
         # Save checkpoint periodically
         if (i + 1) % checkpoint_every == 0:
-            # Alternate checkpoints to have backup in case it crashes when editing
+            # Alternate checkpoints to backup in case it crashes when editing
             # the checkpoint file.
             if flagcheckpoint == "A":
                 checkpoint_file = (
@@ -272,7 +271,7 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
             if verbose:
                 elapsed = time.time() - last_checkpoint
                 print(
-                    f"Checkpoint saved after {i + 1}/{total} compounds (elapsed: {elapsed:.1f}s)"
+                    f"Saved after {i + 1}/{total} compounds ({elapsed:.1f}s)"
                 )
                 last_checkpoint = time.time()
 
@@ -284,29 +283,6 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
         print(f"Review completed. Output saved to {reviewed_file}")
 
     return compounds
-
-
-def _add_smiles_to_compounds(xyz, charge):
-    """
-    Top-level wrapper for converting Cartesian coordinates to a SMILES dictionary.
-
-    This function handles the conversion of atomic symbols to atomic numbers and
-    scales coordinates from Bohr to Angstroms ($0.529177$ factor) before passing
-    them to the inference engine.
-
-    Args:
-        xyz (list of tuple): List containing (symbol, [x, y, z]) coordinates in Bohr.
-        charge (int): The total formal charge of the species.
-
-    Returns:
-        dict: A dictionary containing the inferred SMILES string.
-            Example: {'smiles': 'CCO'}
-    """
-    ptable = GetPeriodicTable()
-    elements = [ptable.GetAtomicNumber(a) for a, b in xyz]
-    coordinates = [[b2 * 0.529177 for b2 in b1] for a, b1 in xyz]
-    dsmiles = convert_xyz_to_smiles(elements, coordinates, charge)
-    return dsmiles
 
 
 def _add_rdkit_properties(dsmiles, rdkitprop):
@@ -323,7 +299,7 @@ def _add_rdkit_properties(dsmiles, rdkitprop):
               `None` values if the input SMILES is missing or invalid.
     """
     dprop = {k: None for k in rdkitprop}
-    if dsmiles["smiles"] != None:
+    if dsmiles["smiles"] is not None:
         dprop = get_rdkit_properties(dsmiles["smiles"], rdkitprop)
 
     return dprop
@@ -331,7 +307,7 @@ def _add_rdkit_properties(dsmiles, rdkitprop):
 
 def _add_public_db_ids(dsmiles, databases):
     """
-    Cross-references a SMILES string against selected public chemical databases.
+    Cross-references SMILES against selected public chemical databases.
 
     Args:
         dsmiles (dict): Dictionary containing the 'smiles' key.
@@ -345,7 +321,7 @@ def _add_public_db_ids(dsmiles, databases):
     """
     dpublidbs = {"pubchem": None, "chembl": None, "chebi": None}
     for name in databases.keys():
-        if databases[name] and dsmiles["smiles"] != None:
+        if databases[name] and dsmiles["smiles"] is not None:
             db_id = get_public_database_id(name, dsmiles["smiles"])["id"]
             dpublidbs[name] = db_id
     return dpublidbs
@@ -357,14 +333,14 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
     fetching missing database identifiers.
 
     This function iterates through a JSON compound file and fills in missing
-    information for each entry, including SMILES inference from XYZ coordinates,
+    information for each entry, including SMILES inference from XYZ coordinates
     RDKit physical properties, and cross-references to public databases. It
     specifically handles "aggregate" species (mixtures/complexes) by processing
     lists of coordinates and averaging Cartesian descriptors.
 
     Args:
         compounds_file (str): Path to the JSON file containing compound data.
-        rdkitprop (list of str): RDKit descriptors to calculate (e.g., 'MolLogP').
+        rdkitprop (list of str): RDKit descriptors to calculate ('MolLogP').
         databases (dict): Configuration mapping database names to booleans for
             API lookups (e.g., {'pubchem': True}).
         verbose (bool): If True, prints the progress of the file review.
@@ -374,7 +350,7 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
 
     Note:
         - The function saves a new file with the '.upgraded' extension.
-        - For aggregate species (lists), SMILES are joined using the "//" delimiter.
+        - For aggregate species, SMILES are joined using the "//" delimiter.
         - Cartesian descriptors for aggregates are calculated as the mean
           of the individual components.
     """
@@ -389,8 +365,10 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
         cmp = compounds[k1]
         if cmp == {}:  # empty dict - artifact of submethods
             continue
+        dsmiles = {}
         if isinstance(cmp["method"], str):
-            dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
+            # dsmiles = _add_smiles_to_compounds(cmp["xyz"], cmp["charge"])
+            dsmiles["smiles"] = cmp["smiles"]
             smiles = dsmiles["smiles"]
             dprop = _add_rdkit_properties(dsmiles, rdkitprop)
             for p in dprop:
@@ -406,7 +384,8 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
             for d in databases:
                 compounds[k1][d] = []
             for xyz, charge in zip(cmp["xyz"], cmp["charge"]):
-                dsmiles = _add_smiles_to_compounds(xyz, charge)
+                # dsmiles = _add_smiles_to_compounds(xyz, charge)
+                dsmiles["smiles"] = cmp["smiles"]
                 lsmiles.append(dsmiles["smiles"])
                 dpublidbs = _add_public_db_ids(dsmiles, databases)
                 dprop = _add_rdkit_properties(dsmiles, rdkitprop)
@@ -468,7 +447,7 @@ def process_compound_dbs(compounds, dblist=["pubchem", "chebi", "chembl"]):
             species (e.g., ["pubchem", "chembl"]).
 
     Returns:
-        dict: A mapping of unique MongoDB IDs to a flattened species dictionary:
+        dict: mapping of unique MongoDB IDs to a flattened species dictionary:
             {
               'mongodb_id': {
                   'smiles': str,
@@ -505,7 +484,7 @@ def count_matches(
     mongoid_mapping, error_flags=["None", "Error", "False", None, False]
 ):
     """
-    Calculates the frequency of valid metadata entries across the species mapping.
+    Calculates the frequency of valid metadata across the species mapping.
 
     This function audits the results of database cross-referencing and property
     calculations. It identifies "valid" entries by excluding a customizable
@@ -528,7 +507,7 @@ def count_matches(
         'mongodb_id' entries.
     """
     counts = {}
-    # select a given entry in the dict to determine the keys to count automatically
+    # select a given entry in the dict to determine the keys to count
     kr = next(iter(mongoid_mapping.keys()))
     field_list = mongoid_mapping[kr].keys()
 
@@ -590,7 +569,7 @@ def read_filter_file(filter_file):
     try:
         with open(filter_file, "r") as ffilt:
             filter_mapping = json.load(ffilt)
-    except:
+    except Exception:
         print(f"Filter file {filter_file} not found")
         filter_mapping = {}
 

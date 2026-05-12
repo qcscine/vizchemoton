@@ -141,28 +141,32 @@ def build_dashboard(
     sizing_dict = {"w1": w1, "w2": w2, "wu": wu, "h": h}
 
     # Define custom classes
-
-    style_template = """
-    {% block postamble %}
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/dgarayr/jsmol_to_bokeh/jsmol_to_bokeh.min.js"></script>
+    jsmol_script = (
+        "https://cdn.jsdelivr.net/gh/dgarayr/"
+        "jsmol_to_bokeh/jsmol_to_bokeh.min.js"
+    )
+    style_template = f"""
+    {{% block postamble %}}
+    <script type="text/javascript" src="{jsmol_script}"></script>
     <style>
-    .bk-root .bk-btn-default {
+    .bk-root .bk-btn-default {{
         font-size: 1.2vh;
-    }
-    .bk-root .bk-input {
+    }}
+    .bk-root .bk-input {{
         font-size: 1.2vh;
         padding-bottom: 5px;
         padding-top: 5px;
-    }
-    .bk-root .bk {
+    }}
+    .bk-root .bk {{
         font-size: 1.2vh;
-    }
-    .bk-root .bk-clearfix{
+    }}
+    .bk-root .bk-clearfix{{
         padding-bottom: 0.8vh;
-    }
+    }}
     </style>
-    {% endblock %}
+    {{% endblock %}}
     """
+
     if layout_function == "KMeans":  # custom clustering of nodes
         # this should be modifiable later
         cluster_property = "xyzdes"
@@ -202,7 +206,8 @@ def build_dashboard(
     # bk_graph.selection_policy = bkm.NodesAndLinkedEdges()
     bk_graph.selection_policy = bkm.EdgesAndLinkedNodes()
 
-    # Modify the hovering tools here to add additional fields, removing the previous ones first
+    # Modify the hovering tools to add additional fields
+    # removing the previous ones first
     valid_tools = [tool for tool in bk_fig.tools if tool.description]
     old_hovers = [tool for tool in valid_tools if "hover" in tool.description]
     for tool in old_hovers:
@@ -237,15 +242,13 @@ def build_dashboard(
         var statusCounter = counter[0]
         var connectedNodes = []
         var labsNodes = figure.center[2].source.data
-        
-    
         if (statusCounter == 0){
         // remove and set 1
             for (let j = 0; j < numEdges; j++){
                 var is_tsb = edgenames[j].includes("TSb")
                 if (is_tsb) {
-                    erend.data["start"][j] = null            
-                    erend.data["end"][j] = null            
+                    erend.data["start"][j] = null
+                    erend.data["end"][j] = null
                 }
                 else {
                     connectedNodes.push(erend.data["start"][j])
@@ -265,7 +268,7 @@ def build_dashboard(
              for (let j = 0; j < numEdges; j++){
                 var is_tsb = edgenames[j].includes("TSb")
                 if (is_tsb){
-                    erend.data["start"][j] = backupEdgeRoutes["start"][j]            
+                    erend.data["start"][j] = backupEdgeRoutes["start"][j]
                     erend.data["end"][j] = backupEdgeRoutes["end"][j]
                 }
             }
@@ -286,11 +289,13 @@ def build_dashboard(
     locateMolecule = """
         // source - source object for JSMol
         // pass graph and fetch node and edge renderers
-        // from fig, we modify x_range and y_range. Default plot starts from -1.2 to 1.2,
+        // from fig, we modify x_range and y_range.
+        // Default plot starts from -1.2 to 1.2,
         var nrend = graph.node_renderer.data_source
         var erend = graph.edge_renderer.data_source
         var layout = graph.layout_provider.graph_layout
-        // fetch the query in the data sources, choosing the appropiate renderer depending on the query
+        // fetch the query in the data sources, choosing the appropiate
+        // renderer depending on the query
         var mol_query = text_input.value
         if (mol_query.includes("TS") || mol_query.includes("ts")) {
             var renderer = erend
@@ -305,14 +310,15 @@ def build_dashboard(
         }
         var pool_names = renderer.data["name"]
 
-        // split species joined by + sign, smiles by //, inchikeys are already listd
+        // split species joined by + sign, smiles by //,
+        // inchikeys are already listd
         var pool_species = pool_names.map((name) => name.split("+"))
         var pool_smiles_split = pool_smiles.map((smi) => smi.split("//"))
-        
         var split_ikey = function(ikey){
             var terms = [ikey.slice(0,14),ikey.slice(15,25),ikey];
             return terms}
-        var pool_inchikeys_split = pool_inchikeys.map((ikeys) => ikeys.map(split_ikey).flat())
+        var pool_inchikeys_split = pool_inchikeys
+                    .map((ikeys) => ikeys.map(split_ikey).flat())
 
         // function to match results in the array
         var getSubstringIndices = function(arr,query){
@@ -327,16 +333,16 @@ def build_dashboard(
 
         if (mol_query.includes("+")) {
             var ndx_u1 = pool_names.indexOf(mol_query)
-            if (ndx_u1 < 0) {var ndx1 = []} 
+            if (ndx_u1 < 0) {var ndx1 = []}
             else {var ndx1 = [ndx_u1]}
         } else {
-            var ndx1 = getSubstringIndices(pool_species,mol_query) 
+            var ndx1 = getSubstringIndices(pool_species,mol_query)
         }
 
         var ndx2 = getSubstringIndices(pool_smiles_split,mol_query)
         var ndx3 = getSubstringIndices(pool_inchikeys_split,mol_query)
-        
-        // check all -> only choose the ones having matches => if several do, order of preference is ikey/smiles/name
+        // check all -> only choose the ones having matches => if several do,
+        // order of preference is ikey/smiles/name
 
         if (ndx3.length > 0){
             var ndx = ndx3
@@ -377,7 +383,6 @@ def build_dashboard(
         var nodeIndices = nrend.data["index"]
         var presentNodes = nodeIndices.filter((node) => node != null)
         var outDict = {nodes: presentNodes}
-        
         // downloading a file
         function download(content, fileName, contentType) {
             var a = document.createElement("a")
@@ -386,8 +391,11 @@ def build_dashboard(
             a.download = fileName
             a.click()
         }
-        download(JSON.stringify(outDict),"vizchemoton_export_sel.json","text/plain")
-
+        download(
+                    JSON.stringify(outDict),
+                    "vizchemoton_export_sel.json",
+                    "text/plain"
+                )
     """
 
     tooltips = [
@@ -666,7 +674,7 @@ def add_edge_attributes(graph, compounds):
             compounds_renamed[comp["crn_id"]] = comp
     for ii, ed in enumerate(graph.edges(data=True)):
         e1, e2 = [sum(compounds_renamed[nd]["energy"]) for nd in ed[0:2]]
-        if ed[2]["tsidx"] == None or ed[2]["tsidx"] == "None":
+        if ed[2]["tsidx"] is None or ed[2]["tsidx"] == "None":
             e_ts = max(e1, e2)
             ed[2]["name"] = "TSb_%04d" % ii
             ed[2]["geometry"] = None
