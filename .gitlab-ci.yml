@@ -16,15 +16,31 @@ include:
     file: '/ci/jobs.yml'
 
 stages:
-  - setup
+  - quality
   - build
   - package
 
 .pipeline_setup: &pipeline_setup
   - !reference [.python_venv]
 
+check_flake8:
+  stage: quality
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - python3 -m pip install -r requirements-dev.txt
+    - python3 -m flake8 vizchemoton
+
+check_mypy:
+  stage: quality
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - python3 -m pip install -r requirements-dev.txt
+    - python3 -m mypy --ignore-missing-imports -p vizchemoton
+
 setup_environment:
-  stage: setup
+  stage: build
   image: ubuntu:22.04
 
   extends: .gcc
