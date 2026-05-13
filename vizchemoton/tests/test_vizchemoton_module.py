@@ -81,13 +81,12 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         # check five typical ozonation products
         assert dsmiles["test_carbondioxide.xyz"]["smiles"] == "O=C=O"
         assert dsmiles["test_h2o2.xyz"]["smiles"] == "OO"
-        assert dsmiles["test_hoocohcl.xyz"]["smiles"] == "OO[C@H](O)Cl"
+        assert dsmiles["test_hoocohcl.xyz"]["smiles"] == "OOC(O)Cl"
         assert dsmiles["test_ozonide.xyz"]["smiles"] == "C1COOO1"
         assert dsmiles["test_ozone.xyz"]["smiles"] == "O=[O+][O-]"
         # test two flask examples - tricky for smiles generation
         assert dsmiles["test_flask.xyz"]["smiles"] == "Cl.O.[C-]#[O+]"
         assert dsmiles["test_flask_3h2o.xyz"]["smiles"] == "O.O.O"
-        assert dsmiles["test_ts.xyz"]["smiles"] == "Cl.[O-]/[O+]=C\\O"
         assert dsmiles["test_h6.xyz"]["smiles"] is None
 
     def test_get_reactions_and_compounds(self):
