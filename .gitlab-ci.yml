@@ -16,7 +16,7 @@ include:
     file: '/ci/jobs.yml'
 
 stages:
-  #  - quality
+  - quality
   - setup
   - build
   - package
