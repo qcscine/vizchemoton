@@ -70,8 +70,8 @@ setup_environment:
     - cd ..
 
     # Install vizchemoton
-    - python3 -m pip install --user .
     - export TEST_MONGO_DB_IP=mongo
+    - python3 -m pip list | grep vizchemoton
 
   script:
     - source venv/bin/activate
