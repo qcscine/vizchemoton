@@ -41,14 +41,17 @@ check_mypy:
     - python3 -m mypy --ignore-missing-imports -p vizchemoton
 
 setup_environment:
-  stage: setup
-  image: python:3.8
-  interruptible: true
-  cache:
-    key: "pip-$CI_COMMIT_REF_SLUG"
-    paths:
-      - .cache/pip/
+  stage: build
+  image: ubuntu:22.04
+  extends: .gcc
+  services:
+    - mongo:bionic
   script:
+    # Set up environment
+    - python3.8 -m venv env4vizco
+    - cd env4vizco
+    - source bin/activate
+
     # Install Chemoton
     - git clone "$CHEMOTON_REPO"
     - cd chemoton
