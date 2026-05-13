@@ -42,34 +42,50 @@ check_mypy:
 
 setup_environment:
   stage: build
-  image: ubuntu:22.04
+  image: python:3.8
+
   extends: .gcc
+
   services:
     - mongo:bionic
-  script:
-    # Set up environment
-    - python3.8 -m venv env4vizco
-    - cd env4vizco
-    - source bin/activate
 
-    # Install Chemoton
-    - git clone "$CHEMOTON_REPO"
+  before_script:
+    - apt-get update && apt-get install -y wget git build-essential
+
+    # Create virtual environment
+    - python -m venv venv
+    - source venv/bin/activate
+
+    # Upgrade pip
+    - python -m pip install --upgrade pip
+
+    # Install dependencies
+    - pip install xyz2mol
+
+    # Clone and install Chemoton
+    - git clone https://github.com/qcscine/chemoton.git
     - cd chemoton
-    - git checkout "$CHEMOTON_VERSION"
-    - pip install --no-cache-dir -r requirements.txt
-    - pip install --no-cache-dir .
+    - git checkout 3.1.0
+    - pip install -r requirements.txt
+    - pip install .
     - cd ..
 
-    # Install VizChemoton
-    - git clone "$VIZCHEMOTON_REPO"
-    - cd vizchemoton
-    - git checkout "$VIZCHEMOTON_VERSION"
-    - pip install --no-cache-dir -r ./requirements.txt
-    - pip install --no-cache-dir .
+    # Clone and install amk_tools
+    - git clone https://gitlab.com/dgarayr/amk_tools.git
+    - cd amk_tools
+    - pip install -e .
+    - cd ..
 
-    # Run unitary tests
+  script:
+    - source venv/bin/activate
+    - find . -name "test_*csv"
     - pip install -r requirements-dev.txt
-    - pip pytest vizchemoton
+    - pytest vizchemoton
+
+  artifacts:
+    paths:
+      - chemoton/
+      - amk_tools/
 
 sphinx:devel:
   stage: build

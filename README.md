@@ -1,9 +1,12 @@
 # VizChemoton - Visualization of Reaction Networks Generated with Chemoton
 
 VizChemoton allows the **visualization of chemical reaction networks (CRNs)** constructed by [Chemoton](https://github.com/qcscine/chemoton) 
-through the generation of standalone HTML files with [amk-tools](https://github.com/dgarayr/amk_tools), allowing the user to easily interact 
-with the network **just via browser**.
+through the generation of standalone HTML files with [amk-tools](https://github.com/dgarayr/amk_tools), allowing the user to easily interact with the network **just via browser**.
 
+* Standalone HTML to visualize and interact with the reaction network (see [example](https://enricpp.gitlab.io/crn_t_wsmiles.html))
+* Interoperable reaction data in CSV (reactions) and JSON (compounds) formats for downstream machine learning applications
+* Compound search via SMILES and InChiKeys in the reaction network and public databases (PubChem, ChEMBL and ChEBI)
+* Reaction data interfaced with cheminformatics 
 
 ![Example Image](./docs/example_crn_html.png)
 
