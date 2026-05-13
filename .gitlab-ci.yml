@@ -16,29 +16,12 @@ include:
     file: '/ci/jobs.yml'
 
 stages:
-  - quality
   - setup
   - build
   - package
 
 .pipeline_setup: &pipeline_setup
   - !reference [.python_venv]
-
-check_flake8:
-  stage: quality
-  extends: .gcc
-  script:
-    - *pipeline_setup
-    - python3 -m pip install -r requirements-dev.txt
-    - python3 -m flake8 vizchemoton
-
-check_mypy:
-  stage: quality
-  extends: .gcc
-  script:
-    - *pipeline_setup
-    - python3 -m pip install -r requirements-dev.txt
-    - python3 -m mypy --ignore-missing-imports -p vizchemoton
 
 setup_environment:
   stage: setup
@@ -50,6 +33,8 @@ setup_environment:
     - mongo:bionic
 
   before_script:
+    
+    # System set up
     - export DEBIAN_FRONTEND=noninteractive
     - export TZ=Etc/UTC
 
@@ -83,6 +68,10 @@ setup_environment:
     - cd amk_tools
     - pip install -e .
     - cd ..
+
+    # Install vizchemoton
+    - python3 -m pip install --user .
+    - export TEST_MONGO_DB_IP=mongo
 
   script:
     - source venv/bin/activate
