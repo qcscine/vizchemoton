@@ -41,7 +41,7 @@ check_mypy:
     - python3 -m mypy --ignore-missing-imports -p vizchemoton
 
 setup_environment:
-  stage: build
+  stage: setup
   image: ubuntu:22.04
 
   extends: .gcc
@@ -69,9 +69,6 @@ setup_environment:
 
     # Upgrade pip
     - python -m pip install --upgrade pip setuptools wheel
-
-    # Install dependencies
-    - pip install xyz2mol
 
     # Clone and install Chemoton
     - git clone https://github.com/qcscine/chemoton.git
