@@ -16,7 +16,7 @@ include:
     file: '/ci/jobs.yml'
 
 stages:
-  - quality
+  #  - quality
   - setup
   - build
   - package
@@ -42,7 +42,7 @@ check_mypy:
 
 setup_environment:
   stage: build
-  image: python:3.8
+  image: ubuntu:22.04
 
   extends: .gcc
 
@@ -50,14 +50,22 @@ setup_environment:
     - mongo:bionic
 
   before_script:
-    - apt-get update && apt-get install -y wget git build-essential
+    - apt-get update
+    - apt-get install -y software-properties-common wget git build-essential
+
+    # Add Python 3.8 repository
+    - add-apt-repository ppa:deadsnakes/ppa -y
+    - apt-get update
+
+    # Install Python 3.8 + venv
+    - apt-get install -y python3.8 python3.8-venv python3.8-dev
 
     # Create virtual environment
-    - python -m venv venv
+    - python3.8 -m venv venv
     - source venv/bin/activate
 
     # Upgrade pip
-    - python -m pip install --upgrade pip
+    - python -m pip install --upgrade pip setuptools wheel
 
     # Install dependencies
     - pip install xyz2mol

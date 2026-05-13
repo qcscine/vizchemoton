@@ -1,12 +1,11 @@
-# VizChemoton - Visualization of Reaction Networks Generated with Chemoton
+# VizChemoton
 
-VizChemoton allows the **visualization of chemical reaction networks (CRNs)** constructed by [Chemoton](https://github.com/qcscine/chemoton) 
-through the generation of standalone HTML files with [amk-tools](https://github.com/dgarayr/amk_tools), allowing the user to easily interact with the network **just via browser**.
+VizChemoton offers the following features:
 
-* Standalone HTML to visualize and interact with the reaction network (see [example](https://enricpp.gitlab.io/crn_t_wsmiles.html))
-* Interoperable reaction data in CSV (reactions) and JSON (compounds) formats for downstream machine learning applications
-* Compound search via SMILES and InChiKeys in the reaction network and public databases (PubChem, ChEMBL and ChEBI)
-* Reaction data interfaced with cheminformatics 
+* **Standalone HTML** to visualize and interact with the reaction network (see [example](https://enricpp.gitlab.io/crn_t_wsmiles.html))
+* Interoperable reaction data in **CSV (reactions)** and **JSON (compounds)** formats for downstream machine learning applications
+* Compound **search via SMILES and InChiKeys** in the reaction network and public databases (PubChem, ChEMBL and ChEBI)
+* Reaction data interfaced with **cheminformatics applications**
 
 ![Example Image](./docs/example_crn_html.png)
 
@@ -156,6 +155,14 @@ Next, you should search on the right-side of the screen the box named Author, an
 The Title name of the searched structure will be the same as the one in the network html file. 
 
 ![Example Image](./docs/iochem_find.png)
+
+## How to Cite
+
+When publishing results generated with VizChemoton, we kindly request you to cite the original article and the corresponding release in Zenodo:
+
+> E. Petrus, D. Garay-Ruiz, T. Weymuth,  *ChemRxiv*, **2026** [DOI]()
+
+> Petrus, E.; Buils, J.; Garay-Ruiz, D.; Segado-Centellas, M.; Bo, C. *J. Comput. Chem.* **2024**, 45, 2242-2250 [DOI](https://doi.org/10.1002/jcc.27389)
 
 ## References
 
