@@ -158,11 +158,9 @@ The Title name of the searched structure will be the same as the one in the netw
 
 ## How to Cite
 
-When publishing results generated with VizChemoton, we kindly request you to cite the original article and the corresponding release in Zenodo:
+When publishing results generated with VizChemoton, we kindly request you to cite the original article and the corresponding release in [Zenodo](https://zenodo.org/records/14803803):
 
-> E. Petrus, D. Garay-Ruiz, T. Weymuth,  *ChemRxiv*, **2026** [DOI]()
-
-> Petrus, E.; Buils, J.; Garay-Ruiz, D.; Segado-Centellas, M.; Bo, C. *J. Comput. Chem.* **2024**, 45, 2242-2250 [DOI](https://doi.org/10.1002/jcc.27389)
+> E. Petrus, D. Garay-Ruiz, T. Weymuth, M. Reiher, T. Hofstetter. *ChemRxiv*, **2026** [DOI]()
 
 ## References
 
