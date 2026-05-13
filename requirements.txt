@@ -1,17 +1,17 @@
-scine-chemoton                   
+# warning! scine versions must match the ones used in the
+# original reaction exploration
+scine-chemoton==3.1.0           
 scine-database==1.3                   
 scine-utilities==8.0.0
-#scine-art==1.0.0
-scine_molassembler
-pyyaml
-networkx
-Jinja2
-rdkit
-requests
-scikit-learn
+scine_molassembler==3.0.1
+
+# nonscine libraries
+pyyaml==6.0.3
+networkx==3.1.0
+Jinja2==3.1.6
+rdkit==2024.3.5
+requests==2.32.4
+scikit-learn==1.3.2
 bokeh==2.3.3
-rdkit
-scikit-learn
-requests
 xyz2mol @ git+https://github.com/jensengroup/xyz2mol.git
 amk_tools @ git+https://gitlab.com/dgarayr/amk_tools.git
