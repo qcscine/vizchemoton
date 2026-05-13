@@ -47,11 +47,10 @@ First implementation of VizChemoton. The package is a light-weight alternative t
 
 VizChemoton is implemented in Python and JavaScript, and it can be installed via PIP. To generate the HTML file of the reaction network, it requires the following SCINE modules to extract the chemical data from the exploration:
 
-* SCINE Chemoton, which is necessary to create a Pathfinder object for each exploration,
-the SCINE database wrapper, which is necessary to query the MongoDB to obtain reaction and energy data,
+* SCINE Chemoton, which is necessary to create a Pathfinder object for each exploration, the SCINE database wrapper, which is necessary to query the MongoDB to obtain reaction and energy data.
 * SCINE Utilities, which a library of common functionality used across all SCINE modules.
-Apart from the SCINE dependencies, VizChemoton also requires the amk-tools package to convert the data from the exploration into a single HTML file.
-These components do not need to be installed manually; rather, they are automatically installed when setting up VizChemoton.
+
+Apart from the SCINE dependencies, VizChemoton also requires the amk-tools package to convert the datafrom the exploration into a single HTML file. These components do not need to be installed manually; rather, they are automatically installed when setting up VizChemoton.
 
 **Current Features**
 
