@@ -50,6 +50,9 @@ setup_environment:
     - mongo:bionic
 
   before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+
     - apt-get update
     - apt-get install -y software-properties-common wget git build-essential
 
