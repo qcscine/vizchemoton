@@ -92,6 +92,81 @@ setup_environment:
       - chemoton/
       - amk_tools/
 
+
+setup_environment2:
+  stage: build
+  image: ubuntu:22.04
+
+  extends: .gcc
+
+  services:
+    - mongo:bionic
+
+  before_script:
+
+    # System set up
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+
+    - apt-get update
+    - apt-get install -y software-properties-common wget git build-essential
+
+    # Add Python 3.8 repository
+    - add-apt-repository ppa:deadsnakes/ppa -y
+    - apt-get update
+
+    # Install Python 3.8 + venv
+    - apt-get install -y python3.10 python3.10-venv python3.10-dev
+
+    # Create virtual environment
+    - python3.10 -m venv venv
+    - source venv/bin/activate
+
+    # Upgrade pip
+    - python -m pip install --upgrade pip setuptools wheel
+
+    # Clone and install Chemoton
+    - git clone https://github.com/qcscine/chemoton.git
+    - cd chemoton
+    - git checkout 3.1.0
+    - pip install -r requirements.txt
+    - pip install .
+    - cd ..
+
+    # Clone and install amk_tools
+    - git clone https://gitlab.com/dgarayr/amk_tools.git
+    - cd amk_tools
+    - pip install -e .
+    - cd ..
+
+    # Install vizchemoton
+    - export TEST_MONGO_DB_IP=mongo
+
+  script:
+    - source venv/bin/activate
+    - find . -name "test_*csv"
+    - pip install -r requirements-dev.txt
+    - python3 -m mypy --ignore-missing-imports -p vizchemoton
+    - pytest vizchemoton
+
+  artifacts:
+    paths:
+      - chemoton/
+      - amk_tools/
+
+sphinx:devel:
+  stage: build
+  extends: .gcc
+  except:
+    - master
+    - develop
+  script:
+    - *pipeline_setup
+    - python3 -m pip install .
+    - python3 -m pip install -r requirements-dev.txt
+    - make -C docs html
+    - mv docs/build/html html_docs/
+
 sphinx:devel:
   stage: build
   extends: .gcc
