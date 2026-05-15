@@ -16,8 +16,8 @@ import bokeh.plotting
 import bokeh.models as bkm
 import RXVisualizer as arxviz
 import networkx as nx
-from scikit-learn.cluster import KMeans
-from scikit-learn.metrics import silhouette_score
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 
 def cluster_nodes(descriptors, n_clusters="silhouettes", verbose=True):
