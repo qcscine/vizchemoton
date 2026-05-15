@@ -48,17 +48,15 @@ def main():
     compounds_file = config["files"]["compounds"]["path"]
     compounds_mode = config["files"]["compounds"]["mode"]
 
-    rdkitobj = config["cheminfo"]["rdkitobj"]
-    smiles_method = config["cheminfo"]["smiles_method"]
-    rdkitprop = config["cheminfo"]["rdkitprop"]
-    pubchem = config["cheminfo"]["pubchem"]
-    chembl = config["cheminfo"]["chembl"]
-    chemspider = config["cheminfo"]["chemspider"]
-    chebi = config["cheminfo"]["chebi"]
+    rdkitobj = config["cheminfo"]["rdkit"]["active"]
+    smiles_method = config["cheminfo"]["rdkit"]["method"]
+    rdkitprop = config["cheminfo"]["rdkit"]["props"]
+    pubchem = config["cheminfo"]["database"]["pubchem"]
+    chembl = config["cheminfo"]["database"]["chembl"]
+    chebi = config["cheminfo"]["database"]["chebi"]
     databases = {
         "pubchem": pubchem,
         "chembl": chembl,
-        "chemspider": chemspider,
         "chebi": chebi,
     }
 

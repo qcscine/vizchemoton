@@ -12,18 +12,19 @@ scine:
     program: "orca"
     vfilter: False
   pathfinder:
-    path: "/home/cds/petruse/crn_data/crn_tme_lcpbe.json"
+    path: "crn_tme_lcpbe.json"
     mode: "read"
   verbose: True
 
 cheminfo:
-  rdkitobj: True
-  smiles_method: "xyz2mol"
-  rdkitprop: ["MolLogP", "CalcTPSA", "MolWt"]
-  pubchem: False
-  chembl: False
-  chemspider: False
-  chebi: False
+  rdkit:
+      active: True
+      method: "hybrid"
+      props: ["MolLogP", "CalcTPSA", "MolWt"]
+  database:
+      pubchem: False
+      chembl: False
+      chebi: False
   verbose: False
 
 files:
@@ -37,8 +38,10 @@ files:
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "kamada_kawai" # for small networks
+  layout: "kamada_kawai" 
   map_field: "energy" 
   node_size: 25
   title: "Chemoton graph"
   path: "network_tme_dft.html"
+
+
