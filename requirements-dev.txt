@@ -13,3 +13,4 @@ sphinx_copybutton
 numpydoc
 types-PyYAML
 types-requests
+rdkit-stubs
