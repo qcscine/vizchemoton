@@ -1,5 +1,5 @@
 scine:
-  active: True
+  active: False
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
@@ -12,13 +12,13 @@ scine:
     program: "orca"
     vfilter: False
   pathfinder:
-    path: "crn_tme_lcpbe.json"
+    path: "./vizchemoton/resources/crn_tme_lcpbe.json"
     mode: "read"
   verbose: True
 
 cheminfo:
   rdkit:
-      active: True
+      active: False
       method: "hybrid"
       props: ["MolLogP", "CalcTPSA", "MolWt"]
   database:
@@ -29,11 +29,11 @@ cheminfo:
 
 files:
   reactions:
-    path: "reactions_tme_dft.csv"
-    mode: "write"
+    path: "./vizchemoton/resources/reactions_tme_dft.csv"
+    mode: "read"
   compounds:
-    path: "compounds_tme_dft.json"
-    mode: "write"
+    path: "./vizchemoton/resources/compounds_tme_dft.json"
+    mode: "read"
 
 html:
   dist_adduct: 3.0
