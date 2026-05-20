@@ -118,6 +118,9 @@ vi config.yaml
 # Run the code of this repository (at the /vizchemoton level) to obtain the JSON, CSV and HTML.
 python3 -m vizchemoton config.yaml 
 
+# Alternatively, it is also possible to pass the YAML as an argument
+python3 -m vizchemoton config_test_crn.yaml
+
 ```
 
 The code renders a .html file, with the path and name specified by the user, which contains the compounds and 

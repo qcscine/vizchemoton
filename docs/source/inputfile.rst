@@ -6,8 +6,7 @@ whether to connect to the MongoDB database, where Chemoton's exploration data is
 VizChemoton renders the final `.html` file without requiring a MongoDB connection 
 (`scine.active`: `False`), as the reactions and compounds data are already stored in the *resources* folder.
 However, if you wish to adapt VizChemoton to your own system, you need to configure the MongoDB
-connection (`scine`) and specify the computational methodology (`method`) that was used. Word of caution: the use of 
-database APIs can lead to issues if the API cannot be reached, or the URL has changed. 
+connection (`scine`) and specify the computational methodology (`method`) that was used. 
 
 
 .. code-block:: yaml
@@ -58,12 +57,16 @@ database APIs can lead to issues if the API cannot be reached, or the URL has ch
       title: "Chemoton graph"
       path: "network_tme_dft.html"
 
-Here we break down all the parameters that can be defined in the input file:
+.. warning::
+
+   Word of caution: the use of database APIs can lead to issues if the APIs cannot be reached, or the URLs have changed.
 
 ----
 
-1. SCINE 
---------------------
+Here we break down all the parameters that can be defined in the input file:
+
+1. scine 
+--------
 
 - **active** (``bool``): Enables (``True``) or disables (``False``) the use of the MongoDB. If it is
   disabled, then this section is omitted.  
@@ -82,8 +85,8 @@ Here we break down all the parameters that can be defined in the input file:
   it is set to ``read``, it will be necessary to have an active connection to the MongoDB.
 - **verbose** (``bool``): Print additional logs during running time.
 
-2. CHEMINFO
---------------------
+2. cheminfo
+-----------
 - **rdkit.active** (``bool``): Enables (``True``) or disables (``False``) the calculation of RDKit mol objects and
   their cheminformatic properties.
 - **rdkit.active** (``str``): Method of choice to calculate RDKit mol objects (``xyz2mol``, ``scinebos`` and ``hybrid``).
@@ -93,8 +96,8 @@ Here we break down all the parameters that can be defined in the input file:
 - **database.chebi** (``bool``): Query ChEBI API to determine which compounds are reported in this database.
 - **verbose** (``bool``): Print additional logs during running time.
 
-3. FILES
---------------------
+3. files
+--------
 - **reactions.path** (``str``): Path to the CSV file containing reaction data.
 - **reactions.mode** (``str``): Either read a preexisting file (``read``) or write a new file (``write``). If one
   sets it to ``read``, because there is a preexisting file, it is not necessary to have an active connection
@@ -104,8 +107,8 @@ Here we break down all the parameters that can be defined in the input file:
   sets it to ``read``, because there is a preexisting file, it is not necessary to have an active connection
   to the MongoDB.
 
-4. HTML
------------------------------
+4. html
+-------
 - **dist_adduct** (``float``): Distance threshold for adduct detection.
 - **size** (``list[int, int]``): Graph size in pixels (``[width, height]``).
 - **layout** (``str``): Graph layout algorithm (e.g., ``kamada_kawai``).

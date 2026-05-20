@@ -11,14 +11,10 @@ Second release of VizChemoton. This version expands and improves the functionali
 
 As a result of the expanded functionality, a considerable refactor of the codebase has been carried out to improve modularity and maintainability.
 
-* Refactored `vizchemoton_module` into four dedicated modules:
-  * `scine_module`
-  * `cheminfo_module`
-  * `html_module`
-  * `text_module`
-* Added `RDKit` as a required dependency for handling cheminformatics functionality.
-* Approved compatibility with Python 3.8.
-* Added unit tests covering the main functionalities of all four modules.
+* Refactored `vizchemoton_module` into four dedicated modules: `scine_module`, `cheminfo_module`, `html_module` and `text_module`.
+* Added RDKit as a required dependency for handling cheminformatics functionality.
+* Approved compatibility with Python 3.8 and 3.10.
+* Added unitary tests covering the main functionalities of all four modules.
 * Extended CSV outputs to include MongoDB IDs for elementary steps and reactions, facilitating traceability between VizChemoton outputs (HTML, JSON, and CSV) and the original MongoDB database.
 
 **New Features**
@@ -31,10 +27,7 @@ As a result of the expanded functionality, a considerable refactor of the codeba
 * Added a custom graph layout function for HTML visualization. This replaces the `kamada_kawai` layout from NetworkX, which becomes memory-intensive for large CRNs. The new implementation uses Cartesian geometric descriptors combined with K-Means clustering to determine node positions before graph rendering.
 * Added the `node_size` keyword argument to `build_dashboard()` to control node size in the HTML visualization.
 * Added node-coloring functionality in the HTML dashboard based on quantitative properties (e.g., energies) or qualitative annotations (e.g., PubChem matches).
-* Added queries to the Python APIs of three public chemical structure databases:
-  * PubChem
-  * ChEMBL
-  * ChEBI
+* Added queries to the Python APIs of three public chemical structure databases: PubChem, ChEMBL and ChEBI.
 * Added InChIKeys to the JSON and HTML outputs, enabling searches for specific target compounds.
 * Added an `Export current nodes` button to generate subsets of the reaction network and improve interpretability.
 
