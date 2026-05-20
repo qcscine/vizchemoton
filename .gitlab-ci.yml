@@ -31,14 +31,14 @@ check_flake8:
     - python3 -m pip install -r requirements-dev.txt
     - python3 -m flake8 vizchemoton
 
-setup_environment:
+test_with_python3.8:
   stage: build
   image: ubuntu:22.04
 
   extends: .gcc
 
   services:
-    - mongo:bionic
+    - mongo:7-jammy
 
   before_script:
     
@@ -94,14 +94,14 @@ setup_environment:
       - amk_tools/
 
 
-setup_environment2:
+test_with_python3.10:
   stage: build
   image: ubuntu:22.04
 
   extends: .gcc
 
   services:
-    - mongo:bionic
+    - mongo:7-jammy
 
   before_script:
 
@@ -155,19 +155,6 @@ setup_environment2:
     paths:
       - chemoton/
       - amk_tools/
-
-sphinx:devel:
-  stage: build
-  extends: .gcc
-  except:
-    - master
-    - develop
-  script:
-    - *pipeline_setup
-    - python3 -m pip install .
-    - python3 -m pip install -r requirements-dev.txt
-    - make -C docs html
-    - mv docs/build/html html_docs/
 
 sphinx:devel:
   stage: build
