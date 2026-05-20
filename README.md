@@ -78,7 +78,8 @@ Here we provide a short installation guide for VizChemoton based on using a Pyth
 
 ```bash
 # Initialize a Python environment
-python3.8 -m venv env4vizchemoton
+# Tested with Python 3.8 and 3.10
+python3 -m venv env4vizchemoton
 cd env4vizchemoton
 source bin/activate
 

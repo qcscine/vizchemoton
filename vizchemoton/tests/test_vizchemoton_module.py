@@ -17,7 +17,8 @@ from scine_database import test_database_setup as db_setup
 from bokeh.plotting import Figure
 
 # Local imports
-from vizchemoton.tests.resources import resources_root_path
+from vizchemoton.resources import resources_root_path
+from vizchemoton.tests.resources import resources_test_path
 from vizchemoton.scine_module import get_reactions_and_compounds
 from vizchemoton.cheminfo_module import convert_struct_to_smiles
 from vizchemoton.text_module import read_compound_reactions_files
@@ -64,7 +65,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         manager = db_setup.get_clean_db("chemoton_test_compound_creation")
         self.custom_setup(manager)
         # add structure data
-        rr = resources_root_path()
+        rr = resources_test_path()
         manager.init()
         lcentroids = []
         for ipath in test_molec:
@@ -143,7 +144,7 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
     def test_process_graph_and_build_dashboard(self):
         """
         Tests that the conversion to a NetworkX object is successfuly
-        -and consistently- done.
+        -and consistently- created.
         """
         rr = resources_root_path()
         compounds_file = "compounds_tme_dft.json"

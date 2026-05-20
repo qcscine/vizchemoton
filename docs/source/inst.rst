@@ -5,8 +5,9 @@ Here we provide a short installation guide for VizChemoton.
 
 .. code-block:: bash
 
-   # Initialize a Python environment
-   python3.8 -m venv env4vizchemoton
+   # Initialize a Python virtual environment
+   # Tested with Python 3.8 and 3.10
+   python3 -m venv env4vizchemoton
    cd env4vizchemoton
    source bin/activate
    

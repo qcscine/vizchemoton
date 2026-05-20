@@ -95,11 +95,11 @@ Here we break down all the parameters that can be defined in the input file:
 
 3. FILES
 --------------------
-- **reactions.path** (``str``): Path to the csv file containing reaction data.
+- **reactions.path** (``str``): Path to the CSV file containing reaction data.
 - **reactions.mode** (``str``): Either read a preexisting file (``read``) or write a new file (``write``). If one
   sets it to ``read``, because there is a preexisting file, it is not necessary to have an active connection
   to the MongoDB.
-- **compounds.path** (``str``): Path to the json file containing compound data.
+- **compounds.path** (``str``): Path to the JSON file containing compound data.
 - **compounds.mode** (``str``): Either read a preexisting file (``read``) or write a new file (``write``). If one
   sets it to ``read``, because there is a preexisting file, it is not necessary to have an active connection
   to the MongoDB.

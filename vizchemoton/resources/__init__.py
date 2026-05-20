@@ -8,7 +8,7 @@ Group. See LICENSE.txt for details.
 import pathlib
 
 
-def resources_test_path():
+def resources_root_path():
     """
     A small getter to abstract the position of this directory.
 

@@ -7,7 +7,7 @@ Release 2.0.0
 
 Second release of VizChemoton. This version expands and improves the functionalities of the three main output formats (JSON, CSV, and HTML), enabling the transition from prototype development to routine applications.
 
-### Technical Details
+**Technical Details**
 
 As a result of the expanded functionality, a considerable refactor of the codebase has been carried out to improve modularity and maintainability.
 
@@ -21,7 +21,7 @@ As a result of the expanded functionality, a considerable refactor of the codeba
 * Added unit tests covering the main functionalities of all four modules.
 * Extended CSV outputs to include MongoDB IDs for elementary steps and reactions, facilitating traceability between VizChemoton outputs (HTML, JSON, and CSV) and the original MongoDB database.
 
-### New Features
+**New Features**
 
 * Added SMILES search functionality to the HTML dashboard. Canonical SMILES are computed with RDKit and stored in the `compounds.json` dictionary. SMILES generation can be enabled or disabled through the configuration file.
 * Added a static HTML documentation folder.
