@@ -5,11 +5,6 @@ variables:
   GIT_DEPTH: 1
   PYTHON_ARTIFACT_DIR: "$CI_PROJECT_DIR/.cache"
   PIP_CACHE_DIR: "$PYTHON_ARTIFACT_DIR/pip"
-  CHEMOTON_REPO: "https://github.com/qcscine/chemoton.git"
-  CHEMOTON_VERSION: "3.1.0"
-  VIZCHEMOTON_REPO: "https://github.com/petrusen/vizchemoton.git"
-  VIZCHEMOTON_VERSION: "main"  # Replace with a tag or commit SHA
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 include:
   - project: 'scine/development-utils'
@@ -82,7 +77,6 @@ test_with_python3.8:
 
   script:
     - source venv/bin/activate
-    - find . -name "test_*csv"
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
     - python3 -m mypy --ignore-missing-imports -p vizchemoton
@@ -145,7 +139,6 @@ test_with_python3.10:
 
   script:
     - source venv/bin/activate
-    - find . -name "test_*csv"
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
     - python3 -m mypy --ignore-missing-imports -p vizchemoton
@@ -160,38 +153,23 @@ sphinx:devel:
   stage: build
   extends: .gcc
   except:
-    - master
+    - main
     - develop
+    - feature/smiles
   script:
     - *pipeline_setup
     - python3 -m pip install .
     - python3 -m pip install -r requirements-dev.txt
     - make -C docs html
     - mv docs/build/html html_docs/
-
-sphinx:production:
-  stage: build
-  extends: .gcc
-  only:
-    - master
-    - develop
-  script:
-    - *pipeline_setup
-    - python3 -m pip install .
-    - python3 -m pip install -r requirements-dev.txt
-    - make -C docs html
-    - mv docs/build/html html_docs/
-#  artifacts:
-#    expire_in: 1 day
-#    paths:
-#      - html_docs
 
 packaging:
   stage: package
   extends: .gcc
   only:
-    - master
+    - main
     - develop
+    - feature/smiles
   script:
     - python3 setup.py sdist --dist-dir .
   artifacts:

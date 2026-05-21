@@ -29,19 +29,19 @@ cheminfo:
 
 files:
   reactions:
-    path: "./vizchemoton/resources/reactions_tme_dft.csv"
+    path: "/home/cds/petruse/env4vizchemoton/data4eric/reactions_eth_xtb.csv"
     mode: "read"
   compounds:
-    path: "./vizchemoton/resources/compounds_tme_dft.json"
+    path: "/home/cds/petruse/env4vizchemoton/data4eric/compounds/compounds_eth_xtb_hybrid_260521.json"
     mode: "read"
 
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "kamada_kawai" 
-  map_field: "energy" 
-  node_size: 25
-  title: "Chemoton graph"
-  path: "network_tme_dft.html"
+  layout: "random" 
+  map_field: "pubchemRank" 
+  node_size: 10
+  title: "Chemoton reaction network"
+  path: "network_eth_xtb_hybrid.html"
 
 
