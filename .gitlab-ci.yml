@@ -12,7 +12,7 @@ include:
 
 stages:
   - quality
-  - build
+  - test
   - package
 
 .pipeline_setup: &pipeline_setup
@@ -27,7 +27,7 @@ check_flake8:
     - python3 -m flake8 vizchemoton
 
 test_with_python3.8:
-  stage: build
+  stage: test
   image: ubuntu:22.04
 
   extends: .gcc
@@ -89,7 +89,7 @@ test_with_python3.8:
 
 
 test_with_python3.10:
-  stage: build
+  stage: test
   image: ubuntu:22.04
 
   extends: .gcc
@@ -149,8 +149,8 @@ test_with_python3.10:
       - chemoton/
       - amk_tools/
 
-sphinx:devel:
-  stage: build
+docs:html:
+  stage: package
   extends: .gcc
   only:
     - main
@@ -162,8 +162,12 @@ sphinx:devel:
     - python3 -m pip install -r requirements-dev.txt
     - make -C docs html
     - mv docs/build/html html_docs/
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - html_docs/
 
-packaging:
+dist:sdist:
   stage: package
   extends: .gcc
   only:
@@ -176,4 +180,3 @@ packaging:
     expire_in: 1 day
     paths:
       - ./vizchemoton-*
-
