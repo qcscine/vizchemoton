@@ -360,8 +360,6 @@ def upgrade_compound_file(compounds_file, rdkitprop, databases, verbose=True):
         compounds = json.load(fcomp)
     # identify which compounds have errors
     for cnt, k1 in enumerate(compounds):
-        #if cnt > 5:
-        #    continue
         cmp = compounds[k1]
         if cmp == {}:  # empty dict - artifact of submethods
             continue
