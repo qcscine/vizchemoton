@@ -13,8 +13,7 @@ network.
 
    If you use VizChemoton, please cite the original article and the corresponding `Zenodo version <https://zenodo.org/records/14803803>`_:
    
-   Enric Petrus, Diego Garay-Ruiz, Thomas Weymuth, Markus Reiher, Thomas B. Hofstetter. VizChemoton 2.0.0, ChemRxiv (2026)  
-   DOI: `(not available yet) <https://doi.org>`_
+   Enric Petrus, Diego Garay-Ruiz, Thomas Weymuth, Markus Reiher, Thomas B. Hofstetter. ChemRxiv, 2026, `(DOI) <https://doi.org/10.26434/chemrxiv.15003772/v1>`_
 
 .. image:: ../example_crn_html.png
    :alt: Example Image

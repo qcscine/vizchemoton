@@ -150,7 +150,7 @@ The Title name of the searched structure will be the same as the one in the netw
 
 When publishing results generated with VizChemoton, we kindly request you to cite the original article and the corresponding release in [Zenodo](https://zenodo.org/records/14803803):
 
-> E. Petrus, D. Garay-Ruiz, T. Weymuth, M. Reiher, T. Hofstetter. *ChemRxiv*, **2026** [DOI]()
+> E. Petrus, D. Garay-Ruiz, T. Weymuth, M. Reiher, T. Hofstetter. *ChemRxiv*, **2026** [DOI](https://doi.org/10.26434/chemrxiv.15003772/v1)
 
 ## References
 
