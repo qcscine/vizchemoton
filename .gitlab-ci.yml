@@ -1,0 +1,174 @@
+---
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_DEPTH: 1
+  PYTHON_ARTIFACT_DIR: "$CI_PROJECT_DIR/.cache"
+  PIP_CACHE_DIR: "$PYTHON_ARTIFACT_DIR/pip"
+
+include:
+  - project: 'scine/development-utils'
+    file: '/ci/jobs.yml'
+
+stages:
+  - quality
+  - test
+  - package
+
+.pipeline_setup: &pipeline_setup
+  - !reference [.python_venv]
+
+check_flake8:
+  stage: quality
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - python3 -m pip install -r requirements-dev.txt
+    - python3 -m flake8 vizchemoton
+
+test_with_python3.8:
+  stage: test
+  image: ubuntu:22.04
+
+  extends: .gcc
+
+  services:
+    - mongo:7-jammy
+
+  before_script:
+    
+    # System set up
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+
+    - apt-get update
+    - apt-get install -y software-properties-common wget git build-essential
+
+    # Add Python 3.8 repository
+    - add-apt-repository ppa:deadsnakes/ppa -y
+    - apt-get update
+
+    # Install Python 3.8 + venv
+    - apt-get install -y python3.8 python3.8-venv python3.8-dev
+
+    # Create virtual environment
+    - python3.8 -m venv venv
+    - source venv/bin/activate
+
+    # Upgrade pip
+    - python -m pip install --upgrade pip setuptools wheel
+
+    # Clone and install Chemoton
+    - git clone https://github.com/qcscine/chemoton.git
+    - cd chemoton
+    - git checkout 3.1.0
+    - pip install -r requirements.txt
+    - pip install .
+    - cd ..
+
+    # Clone and install amk_tools
+    - git clone https://gitlab.com/dgarayr/amk_tools.git
+    - cd amk_tools
+    - pip install -e .
+    - cd ..
+
+    # Install vizchemoton
+    - export TEST_MONGO_DB_IP=mongo
+
+  script:
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
+    - python3 -m mypy --ignore-missing-imports -p vizchemoton
+    - pytest vizchemoton
+
+  artifacts:
+    paths:
+      - chemoton/
+      - amk_tools/
+
+
+test_with_python3.10:
+  stage: test
+  image: ubuntu:22.04
+
+  extends: .gcc
+
+  services:
+    - mongo:7-jammy
+
+  before_script:
+
+    # System set up
+    - export DEBIAN_FRONTEND=noninteractive
+    - export TZ=Etc/UTC
+
+    - apt-get update
+    - apt-get install -y software-properties-common wget git build-essential
+
+    # Add Python 3.8 repository
+    - add-apt-repository ppa:deadsnakes/ppa -y
+    - apt-get update
+
+    # Install Python 3.8 + venv
+    - apt-get install -y python3.10 python3.10-venv python3.10-dev
+
+    # Create virtual environment
+    - python3.10 -m venv venv
+    - source venv/bin/activate
+
+    # Upgrade pip
+    - python -m pip install --upgrade pip setuptools wheel
+
+    # Clone and install Chemoton
+    - git clone https://github.com/qcscine/chemoton.git
+    - cd chemoton
+    - git checkout 3.1.0
+    - pip install -r requirements.txt
+    - pip install .
+    - cd ..
+
+    # Clone and install amk_tools
+    - git clone https://gitlab.com/dgarayr/amk_tools.git
+    - cd amk_tools
+    - pip install -e .
+    - cd ..
+
+    # Install vizchemoton
+    - export TEST_MONGO_DB_IP=mongo
+
+  script:
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
+    - python3 -m mypy --ignore-missing-imports -p vizchemoton
+    - pytest vizchemoton
+
+  artifacts:
+    paths:
+      - chemoton/
+      - amk_tools/
+
+docs:html:
+  stage: package
+  extends: .gcc
+  script:
+    - *pipeline_setup
+    - python3 -m pip install .
+    - python3 -m pip install -r requirements-dev.txt
+    - make -C docs html
+    - mv docs/build/html html_docs/
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - html_docs/
+
+dist:sdist:
+  stage: package
+  extends: .gcc
+  script:
+    - python3 setup.py sdist --dist-dir .
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ./vizchemoton-*

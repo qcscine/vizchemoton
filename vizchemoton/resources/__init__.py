@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""This code is licensed under the 3-clause BSD license.
+Copyright ETH Zurich, Department of Chemistry and Applied Biosciences, Reiher
+Group. See LICENSE.txt for details.
+"""
+
+import pathlib
+
+
+def resources_root_path():
+    """
+    A small getter to abstract the position of this directory.
+
+    Returns
+    -------
+    result : str
+        The path to the root directory of the test resources.
+    """
+    return pathlib.Path(__file__).parent.absolute()

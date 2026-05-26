@@ -1,36 +1,47 @@
-db:
+scine:
   active: False
   name: "ozone_tme_lcpbe"
   ip: "localhost"
-  port: "8889"
-
-method:
-  method_family: "dft"
-  method: "lc-pbe"
-  basis_set: "def2-svp"
-  program: "orca"
-
-files:
+  port: "27017"
+  method:
+    method_family: "dft"
+    method: "lc-pbe"
+    basis_set: "def2-svp"
+    solvation: False
+    solvent: False
+    program: "orca"
+    vfilter: False
   pathfinder:
-    path: "./vizchemoton/resources/crn_pathfinder.json"
+    path: "./vizchemoton/resources/crn_tme_lcpbe.json"
     mode: "read"
-  reactions:
-    path: "./vizchemoton/resources/reactions.csv"
-    mode: "read"
-  compounds:
-    path: "./vizchemoton/resources/compounds.json"
-    mode: "read"
-
-output:
-  file: "network.html"
-  title: "Chemoton graph"
   verbose: True
 
-graph:
-  dist_adduct: 3.0
-  size: [1400, 800]
-  layout: "kamada_kawai"
-  map_field: "degree"
+cheminfo:
+  rdkit:
+      active: False
+      method: "hybrid"
+      props: ["MolLogP", "CalcTPSA", "MolWt"]
+  database:
+      pubchem: False
+      chembl: False
+      chebi: False
+  verbose: False
 
+files:
+  reactions:
+    path: "./vizchemoton/resources/reactions_tme_dft.csv"
+    mode: "read"
+  compounds:
+    path: "./vizchemoton/resources/compounds_tme_dft.json"
+    mode: "read"
+
+html:
+  dist_adduct: 3.0
+  size:  [1400, 800]
+  layout: "kamada_kawai"  # use random for huge networks
+  map_field: "pubchemRank" 
+  node_size: 25
+  title: "Chemoton reaction network"
+  path: "network_tme_dft.html"
 
 
