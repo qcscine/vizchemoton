@@ -38,8 +38,8 @@ files:
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "random" 
-  map_field: "energy" 
+  layout: "kamada_kawai"  # use random for huge networks
+  map_field: "pubchemRank" 
   node_size: 25
   title: "Chemoton reaction network"
   path: "network_tme_dft.html"
