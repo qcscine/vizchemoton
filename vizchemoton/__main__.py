@@ -23,8 +23,12 @@ from .cheminfo_module import db_node_check, compute_cheminf_props
 
 
 def main():
-
-    if len(sys.argv) == 2:
+    
+    if len(sys.argv) == 1:
+        # Take default config.yaml 
+        configfile = "config.yaml"
+    elif len(sys.argv) == 2:
+        # Take custom config.yaml
         configfile = sys.argv[1]
     else:
         print("Pass a valid YAML configuration file when running VizChemoton")
