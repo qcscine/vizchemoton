@@ -152,10 +152,6 @@ test_with_python3.10:
 docs:html:
   stage: package
   extends: .gcc
-  only:
-    - main
-    - develop
-    - feature/smiles
   script:
     - *pipeline_setup
     - python3 -m pip install .
@@ -170,10 +166,6 @@ docs:html:
 dist:sdist:
   stage: package
   extends: .gcc
-  only:
-    - main
-    - develop
-    - feature/smiles
   script:
     - python3 setup.py sdist --dist-dir .
   artifacts:
