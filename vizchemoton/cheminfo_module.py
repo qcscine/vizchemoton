@@ -633,7 +633,6 @@ def db_node_check(graph, compounds, db="pubchem"):
             - {db}Info: List of retrieved IDs as strings.
             - {db}InfoStr: A '//' delimited string of IDs for tooltip display.
     """
-    print("Processing nodes in %s" % db)
     db_mapping = {v["crn_id"]: v[db] for k, v in compounds.items()}
     for nd in graph.nodes(data=True):
         db_info = db_mapping.get(nd[0], None)
