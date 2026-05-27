@@ -38,8 +38,8 @@ files:
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "kamada_kawai"  # use random for huge networks
-  map_field: "pubchemRank" 
+  layout: "kamada_kawai"  # use "random" for huge networks
+  map_field: "pubchemRank" # value "energy" always available
   node_size: 25
   title: "Ozonation reaction network - PubChem color matching"
   path: "network_tme_dft.html"
