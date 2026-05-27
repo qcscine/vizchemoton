@@ -265,7 +265,7 @@ def review_compound_file(compounds_file, verbose=True, checkpoint_every=100):
                 flagcheckpoint = "A"
 
             with open(checkpoint_file, "w") as fcheckpoint:
-                print(compounds[k1][k2])
+                #print(compounds[k1][k2])
                 fcheckpoint.write(custom_json_dump(compounds, indent=2))
 
             if verbose:

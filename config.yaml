@@ -41,7 +41,7 @@ html:
   layout: "kamada_kawai"  # use random for huge networks
   map_field: "pubchemRank" 
   node_size: 25
-  title: "Chemoton reaction network"
+  title: "Ozonation reaction network - PubChem color matching"
   path: "network_tme_dft.html"
 
 

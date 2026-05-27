@@ -76,7 +76,7 @@ def get_crn_as_pathfinder(
     credentials = db.Credentials(ip, int(port), db_name)
     manager.set_credentials(credentials)
     if verbose:
-        print("## Connecting to the Mongo-DB")
+        print("## Connecting to the MongoDB")
     manager.connect()
     model1 = db.Model(
         dmethod["method_family"], dmethod["method"], dmethod["basis_set"]

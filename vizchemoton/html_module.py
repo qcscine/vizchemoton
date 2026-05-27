@@ -30,10 +30,6 @@ def cluster_nodes(descriptors, n_clusters="silhouettes", verbose=True):
         tolerance = 0.005
         window = 5
         for k in k_values:
-            print(type(X))
-            print(len(X))
-            print(type(X[0]))
-            print(len(X[0]))
             kmeans = KMeans(n_clusters=k, random_state=42, n_init=10).fit(X)
             score = silhouette_score(X, kmeans.labels_)
             silhouettes.append(score)
@@ -785,7 +781,6 @@ def aggregate_property(Gx, prop_name, agg_func="mean", na_value=0):
     flags = []
     for nd in Gx.nodes(data=True):
         prop = nd[1][prop_name]
-        print("PROP", prop_name, prop)
         flag = 0
         if isinstance(prop, float) or isinstance(prop, int):
             val = prop
