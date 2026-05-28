@@ -150,7 +150,6 @@ def main():
             reactions_file, compounds_file, verbose=verbose
         )
         compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
-
     graph = process_graph(reactions, compounds, dist_adduct)
     kwargs_dash = {
         "custom_hovers": [],

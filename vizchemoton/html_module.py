@@ -591,7 +591,7 @@ def build_graph_edges(reaction_list):
     """
     Build graph edges.
     """
-    return [(it[0], it[1], {"tsidx": it[2]}) for it in reaction_list[1:]]
+    return [(it[0], it[1], {"tsidx": it[2]}) for it in reaction_list]
 
 
 def get_node_name_and_geometry(comp, dist_adduct, bohr_to_ang):
