@@ -184,9 +184,10 @@ def read_compound_reactions_files(reaction_file, compounds_file, verbose=True):
             )
         )
     with open(reaction_file, "r") as freac:
-        reaction_tuples = [
-            line.strip().split(",") for line in freac.readlines()
-        ]
+        reaction_tuples = []
+        for line in freac.readlines():
+            if "reactant" not in line: # disregard first row (header) of CSV
+                reaction_tuples.append(line.strip().split(","))
     with open(compounds_file, "r") as fcomp:
         compounds = json.load(fcomp)
 
