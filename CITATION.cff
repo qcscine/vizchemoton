@@ -1,17 +1,17 @@
-cff-version: 1.0.0
+cff-version: 2.0.0
 message: "If you use this software, please cite it as follows:"
 authors:
   - name: "Enric Petrus"
   - name: "Diego Garay-Ruiz"
-  - name: "Carles Bo"
+  - name: "Thomas Weymuth"
   - name: "Markus Reiher"
   - name: "Thomas B. Hofstetter"
-title: "VizChemoton v1.0.0"
-version: "1.0.0"
-date-released: "2025-02-01"
+title: "VizChemoton v2.0.0"
+version: "2.0.0"
+date-released: "2025-XX-XX"
 publisher: "Zenodo"
-doi: "10.5281/zenodo.14803803"
-url: "https://doi.org/10.5281/zenodo.14803803"
+doi: "XX"
+url: "https://doi.org/XX"
 identifiers:
   - type: "swh"
     value: "swh:1:dir:16c89aa448c29db693c0c2b5ccb481184d35eb17;origin=https://doi.org/10.5281/zenodo.14803802;visit=swh:1:snp:cdcf4a556e5ead137e2a61f78a5e8f59bb72ea57;anchor=swh:1:rel:2e766921cb0c2cab8ada32276e6d4ecc6afa5e4a;path=petrusen-vizchemoton-1ec457d"

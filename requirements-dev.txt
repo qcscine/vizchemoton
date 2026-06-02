@@ -1,0 +1,16 @@
+pytest
+coverage
+pylint
+pylint-exit
+autopep8
+flake8
+mypy
+recommonmark
+sphinx
+sphinx_rtd_theme
+sphinx_autodoc_typehints
+sphinx_copybutton
+numpydoc
+types-PyYAML
+types-requests
+rdkit-stubs
