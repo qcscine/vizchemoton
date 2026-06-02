@@ -5,7 +5,7 @@ VizChemoton enables the visualization and interaction of chemical reaction netwo
 1️⃣ **Standalone HTML** for visualizing and interacting with reaction networks (see [example](https://enricpp.gitlab.io/crn_t_wsmiles.html))   
 2️⃣ Interoperable reaction data in **CSV (reactions)** and **JSON (compounds)** formats for downstream machine learning applications   
 3️⃣ Compound **search via SMILES and InChIKeys** within the reaction network and public databases (PubChem, ChEMBL, and ChEBI)   
-4️⃣ Interfaces to reaction data with **cheminformatics applications**  
+4️⃣ Interface reaction data with **cheminformatics applications**  
 
 ![Example Image](./docs/example_crn_html.png)
 
