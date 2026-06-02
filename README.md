@@ -108,7 +108,7 @@ with the data in the *./vizchemoton/resources* folder.
 
 ```bash
 
-# Activate conda environment 
+# Activate Python environment 
 cd <path-to-enviroment>/env4vizchemoton
 source ./bin/activate
 
@@ -116,7 +116,7 @@ source ./bin/activate
 vi config.yaml
 
 # Run the code of this repository (at the /vizchemoton level) to obtain the JSON, CSV and HTML.
-python3 -m vizchemoton config.yaml 
+python3 -m vizchemoton
 
 # Alternatively, it is also possible to pass the YAML as an argument
 python3 -m vizchemoton config_test_crn.yaml
