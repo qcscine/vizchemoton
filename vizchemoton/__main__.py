@@ -41,7 +41,7 @@ def main():
 
     compounds_file = config["files"]["compounds"]["path"]
     compounds_mode = config["files"]["compounds"]["mode"]
-    
+
     rdkitobj = config["cheminfo"]["rdkitobj"]
     smiles_method = config["cheminfo"]["smiles_method"]
     rdkitprop = config["cheminfo"]["rdkitprop"]
@@ -61,6 +61,7 @@ def main():
     output_file = config["html"]["path"]
     filter_file = config["html"].get("filter_file",None)
 
+    add_editor = config["html"].get("addEditor",True)
     # qualitative or quantitative palette selection -> should adapt later for flexibility
     if "Rank" in map_field:
         palette = ["#d01414","#f0ce0e","#12ba14"]
@@ -160,6 +161,7 @@ def main():
         layout_function=layout_function,
         map_field=map_field_name,
         node_size=node_size,
+        add_editor=add_editor,
         **kwargs_dash)
 
 

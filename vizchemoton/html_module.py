@@ -22,6 +22,47 @@ import networkx as nx
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
+# HTML definitions
+
+# SMILES editor full, minified iframe
+iframe_editor = """
+<iframe width="100%" height="1000px" frameBorder="0" srcdoc="<!DOCTYPE html><html lang=&quot;en&quot;><head><meta charset=&quot;UTF-8&quot;><meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;><title>2D structure ⇄ SMILES/InChIKey</title><link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.jsdelivr.net/npm/kekule/dist/themes/default/kekule.css&quot; /><script src=&quot;https://cdn.jsdelivr.net/npm/kekule/dist/kekule.min.js?modules=chemWidget,algorithm,io&quot;></script><script src=&quot;https://unpkg.com/@rdkit/rdkit/Dist/RDKit_minimal.js&quot;></script><style> body { font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; margin: 20px; background-color: #ffffff; } .container { max-width: 1000px; margin: 0 auto; } .page-title { text-align: center; color: #1f2937; margin-bottom: 25px; } .info-box { padding: 12px 15px; margin-bottom: 12px; border-radius: 4px; font-size: 0.95em; } .instructions-box { background-color: #f3f4f6; border-left: 4px solid #9ca3af; color: #374151; cursor: pointer; } .instructions-box summary { font-weight: bold; outline: none; user-select: none; } .instructions-box ul { margin: 10px 0 0 0; padding-left: 20px; } .privacy-note { background-color: #eff6ff; border-left: 4px solid #3b82f6; color: #1e3a8a; margin-bottom: 20px; } #composer { width: 100%; height: 380px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff; } .btn-container { margin-top: 25px; margin-bottom: 25px; display: flex; gap: 20px; justify-content: center; align-items: center; } .calc-btn { color: white; border: none; padding: 14px 20px; font-size: 1.1em; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); flex: 2; max-width: 320px; text-align: center; box-sizing: border-box; } .btn-clear { color: #4b5563; background-color: #ffffff; border: 2px solid #4b5563; padding: 12px 20px; font-size: 1.1em; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); flex: 1; max-width: 160px; text-align: center; box-sizing: border-box; white-space: nowrap; } .calc-btn:active, .btn-clear:active { transform: scale(0.98); } .btn-2d-smiles { background-color: #7c3aed; } .btn-2d-smiles:hover { background-color: #6d28d9; } .btn-smiles-2d { background-color: #ea580c; } .btn-smiles-2d:hover { background-color: #c2410c; } .btn-clear:hover { background-color: #f3f4f6; } .calc-btn:disabled, .btn-clear:disabled { background-color: #cccccc !important; color: #666666 !important; border-color: #cccccc !important; cursor: not-allowed; transform: none !important; box-shadow: none; } .status-message { text-align: center; font-weight: 600; font-size: 1.05em; min-height: 24px; margin-bottom: 0px; } .status-success { color: #16a34a; } .status-error { color: #dc2626; } .output-panel { padding: 5px 15px 15px 15px; background-color: #fff; border: 1px solid #ddd; border-radius: 4px; } .output-group { margin-bottom: 15px; } .output-group:last-child { margin-bottom: 5px; } .output-row { display: flex; gap: 10px; align-items: stretch; margin-top: 5px; } .key-display { font-family: monospace; background-color: #f1f1f1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 1.1em; word-break: break-all; min-height: 22px; flex: 1; display: flex; align-items: center; } textarea.key-display { resize: vertical; display: block; margin: 0; width: auto; } .copy-btn { background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 4px; padding: 0 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-width: 85px; user-select: none; } .copy-btn:hover { background-color: #e5e7eb; color: #1f2937; } .copy-btn.copied { background-color: #dcfce7; color: #16a34a; border-color: #bbf7d0; } .info-link { color: #007bff; text-decoration: none; } .info-link:hover { text-decoration: underline; } </style></head><body><div class=&quot;container&quot;><div id=&quot;composer&quot; data-widget=&quot;Kekule.Editor.Composer&quot; data-enable-style-toolbar=&quot;false&quot; data-common-tool-buttons=&quot;['undo', 'redo']&quot; data-chem-tool-buttons=&quot;['manipulate', 'erase', 'bond', 'atom', 'ring', 'charge']&quot;></div><div class=&quot;btn-container&quot;><button id=&quot;generate-btn&quot; class=&quot;calc-btn btn-2d-smiles&quot; disabled>Loading Core Engines...</button><button id=&quot;clear-btn&quot; class=&quot;btn-clear&quot; disabled>✕ Reset</button><button id=&quot;load-smiles-btn&quot; class=&quot;calc-btn btn-smiles-2d&quot; disabled>Loading Core Engines...</button></div><div id=&quot;status-msg&quot; class=&quot;status-message&quot;></div><div class=&quot;output-panel&quot;><div class=&quot;output-group&quot;><p style=&quot;margin: 10px 0 0 0;&quot;><strong>SMILES (Reference / Input):</strong></p><div class=&quot;output-row&quot;><textarea id=&quot;smiles-output&quot; class=&quot;key-display&quot; rows=&quot;2&quot; placeholder=&quot;Paste or generate SMILES here...&quot;></textarea><button class=&quot;copy-btn&quot; onclick=&quot;copyData('smiles-output', this)&quot;>📋 Copy</button></div></div><div class=&quot;output-group&quot;><p style=&quot;margin: 5px 0 0 0;&quot;><strong>InChIKey:</strong></p><div class=&quot;output-row&quot;><div id=&quot;inchikey-output&quot; class=&quot;key-display&quot;>Ready.</div><button class=&quot;copy-btn&quot; onclick=&quot;copyData('inchikey-output', this)&quot;>📋 Copy</button></div></div></div><hr style=&quot;border: 0; border-top: 1px solid #ddd; margin-top: 40px; margin-bottom: 20px;&quot;></div><script> let rdkitModule = null; let composerApp = null; const generateBtn = document.getElementById('generate-btn'); const loadSmilesBtn = document.getElementById('load-smiles-btn'); const clearBtn = document.getElementById('clear-btn'); const inchikeyOutput = document.getElementById('inchikey-output'); const smilesOutput = document.getElementById('smiles-output'); const statusMsg = document.getElementById('status-msg'); function showStatus(text, isSuccess) { statusMsg.innerText = text; statusMsg.className = &quot;status-message &quot; + (isSuccess ? &quot;status-success&quot; : &quot;status-error&quot;); } function copyData(elementId, buttonElement) { const target = document.getElementById(elementId); let textToCopy = target.tagName === &quot;TEXTAREA&quot; ? target.value : target.innerText; if (!textToCopy || textToCopy === &quot;Ready.&quot; || textToCopy.startsWith(&quot;Error:&quot;) || textToCopy.startsWith(&quot;Conversion failed:&quot;)) { return; } navigator.clipboard.writeText(textToCopy).then(() => { buttonElement.innerText = &quot;Copied! ✓&quot;; buttonElement.classList.add('copied'); setTimeout(() => { buttonElement.innerText = &quot;📋 Copy&quot;; buttonElement.classList.remove('copied'); }, 1500); }).catch(err => { console.error(&quot;Clipboard copy operation failed: &quot;, err); }); } function clearWholeApp() { if (composerApp) { composerApp.newDoc(); } inchikeyOutput.innerText = &quot;Ready.&quot;; smilesOutput.value = &quot;&quot;; statusMsg.innerText = &quot;&quot;; statusMsg.className = &quot;status-message&quot;; } window.initRDKitModule().then(function(instance) { rdkitModule = instance; checkInitializationComplete(); }).catch(err => { inchikeyOutput.innerText = &quot;Fatal Error: Unable to load RDKit WebAssembly core.&quot;; showStatus(&quot;Fatal Error: Unable to load RDKit core.&quot;, false); console.error(err); }); Kekule.X.domReady(() => { composerApp = Kekule.Widget.getWidgetById('composer'); checkInitializationComplete(); }); function checkInitializationComplete() { if (rdkitModule &amp;&amp; composerApp) { generateBtn.innerText = &quot;↓ SMILES&quot;; generateBtn.disabled = false; loadSmilesBtn.innerText = &quot;↑ 2D&quot;; loadSmilesBtn.disabled = false; clearBtn.disabled = false; generateBtn.addEventListener('click', processMoleculeAndGenerateKey); loadSmilesBtn.addEventListener('click', loadSmilesIntoComposer); clearBtn.addEventListener('click', clearWholeApp); } } function processMoleculeAndGenerateKey() { if (!rdkitModule || !composerApp) return; const chemObj = composerApp.getChemObj(); if (!chemObj || chemObj.isEmpty()) { inchikeyOutput.innerText = &quot;Error: Drawing board empty!&quot;; smilesOutput.value = &quot;&quot;; showStatus(&quot;Conversion failed: The drawing board is empty!&quot;, false); return; } try { const molfileData = Kekule.IO.saveFormatData(chemObj, 'mol'); if (!molfileData || molfileData.trim() === &quot;&quot;) { showStatus(&quot;Conversion failed: Structural generation error.&quot;, false); return; } const rdkitMol = rdkitModule.get_mol(molfileData); if (rdkitMol) { const canonicalSmiles = rdkitMol.get_smiles(); smilesOutput.value = canonicalSmiles; const inchi = rdkitMol.get_inchi(); if (inchi) { inchikeyOutput.innerText = rdkitModule.get_inchikey_for_inchi(inchi); showStatus(&quot;Success: 2D structure converted to identifiers!&quot;, true); } else { inchikeyOutput.innerText = &quot;Error: InChI failed.&quot;; showStatus(&quot;Partial conversion: InChI coordinates generation failed.&quot;, false); } rdkitMol.delete(); } else { inchikeyOutput.innerText = &quot;Error: Chemistry Validation Error.&quot;; showStatus(&quot;Conversion failed: Invalid chemical structure detected.&quot;, false); } } catch (error) { console.error(error); showStatus(&quot;Error: A critical parser exception occurred.&quot;, false); } } function loadSmilesIntoComposer() { if (!rdkitModule || !composerApp) return; const inputSmiles = smilesOutput.value.trim(); if (!inputSmiles || inputSmiles === &quot;Error: SMILES field is empty!&quot;) { showStatus(&quot;Conversion failed: Please enter a SMILES string.&quot;, false); return; } let rdkitMol = null; try { rdkitMol = rdkitModule.get_mol(inputSmiles); if (rdkitMol) { const molfile = rdkitMol.get_new_coords(); const chemObj = Kekule.IO.loadFormatData(molfile, 'mol'); if (chemObj) { composerApp.setChemObj(chemObj); const inchi = rdkitMol.get_inchi(); if (inchi) { inchiOutput.innerText = inchi; inchikeyOutput.innerText = rdkitModule.get_inchikey_for_inchi(inchi); } showStatus(&quot;Success: SMILES loaded to 2D canvas!&quot;, true); } else { showStatus(&quot;Conversion failed: Render engine error.&quot;, false); } rdkitMol.delete(); } else { showStatus(&quot;Conversion failed: Unparseable or invalid SMILES string.&quot;, false); } } catch (error) { console.error(error); showStatus(&quot;Error: A parser exception occurred handling the SMILES code.&quot;, false); if (rdkitMol) rdkitMol.delete(); } }</script></body></html>" title="2D Structure Tool"></iframe>
+"""
+
+# JS snippet for collapsible buttons
+collapsible_js = """
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = document.getElementsByClassName("inner")[0];
+        var nextContent = this.nextElementSibling;
+        console.log("search",content);
+        console.log("sibling",nextContent);
+        if (content.style.display === "block") {
+        content.style.display = "none";
+        } else {
+        content.style.display = "block";
+        }
+    });
+    }
+    </script>   
+"""
+
+# Full collapsible + div for the editor
+super_template = """{% block contents %}
+    <div class="content">
+
+    {{ super() }}
+    
+    <div class="divider"> </div>
+    <button type="button" class="collapsible">Molecule editor to get InChIKeys for Locate Molecule (drop-down)</button>
+    <div class="divider"> </div>
+    <div class="inner">
+    """ + iframe_editor + "</div> \n </div> \n" + collapsible_js + "{% endblock %}"
+
 def cluster_nodes(descriptors, n_clusters='silhouettes', verbose=True):
     node_ids = list(descriptors.keys())
     X = np.array([descriptors[n] for n in node_ids])
@@ -92,7 +133,8 @@ def complete_cluster(node_list,cluster_dict,cluster_idx):
     
 def build_dashboard(G, compounds, title,outfile,size=(1400,800), 
                     layout_function="kamada_kawai",  
-                    map_field="energy", verbose=True, **kwargs):
+                    map_field="energy", verbose=True, add_editor=True,
+                    **kwargs):
     """
     Wrapper function to generate HTML visualizations for a given network.
 
@@ -142,9 +184,40 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
     .bk-root .bk-clearfix{
         padding-bottom: 0.8vh;
     }
+    .collapsible {
+        background-color: #ffffff;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+    .active, .collapsible:hover {
+        background-color: #cccccc;
+        color: black;
+        height: 50%;
+    }
+    .inner {
+        padding: 0 18px;
+        display: none;
+        overflow: hidden;
+        background-color: white;
+    }
+    .divider {
+        height: 3px;
+        width: 100%;
+        background: #000000;
+        cursor: col-resize;
+    }
     </style>
     {% endblock %}
     """
+
+    if add_editor:
+        style_template += super_template 
+
     if layout_function == 'KMeans':  # custom clustering of nodes
         # this should be modifiable later
         cluster_property = "xyzdes"
