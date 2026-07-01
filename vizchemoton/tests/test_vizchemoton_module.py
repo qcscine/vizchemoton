@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" This code is licensed under the 3-clause BSD license.
+"""This code is licensed under the 3-clause BSD license.
 Copyright ETH Zurich, Department of Chemistry and Applied Biosciences, Reiher
 Group. See LICENSE.txt for details.
 """
@@ -17,11 +17,12 @@ from scine_database import test_database_setup as db_setup
 from bokeh.plotting import Figure
 
 # Local imports
-from vizchemoton.tests.resources import resources_root_path
+from vizchemoton.resources import resources_root_path
+from vizchemoton.tests.resources import resources_test_path
 from vizchemoton.scine_module import get_reactions_and_compounds
 from vizchemoton.cheminfo_module import convert_struct_to_smiles
 from vizchemoton.text_module import read_compound_reactions_files
-from vizchemoton.html_module import (process_graph, build_dashboard)
+from vizchemoton.html_module import process_graph, build_dashboard
 
 
 class VizChemotonTests(unittest.TestCase, HoldsCollections):
@@ -34,13 +35,14 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         Initializes a custom database.
         """
         self._required_collections = [
-           "manager",
-           "elementary_steps",
-           "structures",
-           "reactions",
-           "compounds",
-           "flasks",
-           "properties"]
+            "manager",
+            "elementary_steps",
+            "structures",
+            "reactions",
+            "compounds",
+            "flasks",
+            "properties",
+        ]
         self.initialize_collections(manager)
 
     def test_convert_struct_to_smiles(self):
@@ -48,20 +50,22 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         Test that convert_struct_to_smiles() behaves properly, converting
         simple cartesian files into SMILES.
         """
-        test_molec = ["test_carbondioxide.xyz",
-                      "test_h2o2.xyz",
-                      "test_hoocohcl.xyz",
-                      "test_ozonide.xyz",
-                      "test_ozone.xyz",
-                      "test_flask.xyz",
-                      "test_flask_3h2o.xyz",
-                      "test_ts.xyz",
-                      "test_h6.xyz"]
+        test_molec = [
+            "test_carbondioxide.xyz",
+            "test_h2o2.xyz",
+            "test_hoocohcl.xyz",
+            "test_ozonide.xyz",
+            "test_ozone.xyz",
+            "test_flask.xyz",
+            "test_flask_3h2o.xyz",
+            "test_ts.xyz",
+            "test_h6.xyz",
+        ]
         # connect to test DB
         manager = db_setup.get_clean_db("chemoton_test_compound_creation")
         self.custom_setup(manager)
         # add structure data
-        rr = resources_root_path()
+        rr = resources_test_path()
         manager.init()
         lcentroids = []
         for ipath in test_molec:
@@ -71,20 +75,20 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             lcentroids.append(structure)
         dsmiles = {}
         for ipath, icentr in zip(test_molec, lcentroids):
-            dsmiles[ipath] = convert_struct_to_smiles(icentr, None, "test", 
-                                                      1, smilesmode='xyz2mol')
-            #dsmiles[ipath] = convert_struct_to_smile(icentr)
+            dsmiles[ipath] = convert_struct_to_smiles(
+                icentr, None, "test", 1, smilesmode="xyz2mol"
+            )
+            # dsmiles[ipath] = convert_struct_to_smile(icentr)
         # check five typical ozonation products
-        assert dsmiles["test_carbondioxide.xyz"]['smiles'] == 'O=C=O'
-        assert dsmiles["test_h2o2.xyz"]['smiles'] == 'OO'
-        assert dsmiles["test_hoocohcl.xyz"]['smiles'] == 'OO[C@H](O)Cl'
-        assert dsmiles["test_ozonide.xyz"]['smiles'] == 'C1COOO1'
-        assert dsmiles["test_ozone.xyz"]['smiles'] == 'O=[O+][O-]'
+        assert dsmiles["test_carbondioxide.xyz"]["smiles"] == "O=C=O"
+        assert dsmiles["test_h2o2.xyz"]["smiles"] == "OO"
+        assert dsmiles["test_hoocohcl.xyz"]["smiles"] == "OOC(O)Cl"
+        assert dsmiles["test_ozonide.xyz"]["smiles"] == "C1COOO1"
+        assert dsmiles["test_ozone.xyz"]["smiles"] == "O=[O+][O-]"
         # test two flask examples - tricky for smiles generation
-        assert dsmiles["test_flask.xyz"]['smiles'] == 'Cl.O.[C-]#[O+]'
-        assert dsmiles["test_flask_3h2o.xyz"]['smiles'] == 'O.O.O'
-        assert dsmiles["test_ts.xyz"]['smiles'] == 'Cl.[O-]/[O+]=C\\O'
-        assert dsmiles["test_h6.xyz"]["smiles"] == None
+        assert dsmiles["test_flask.xyz"]["smiles"] == "Cl.O.[C-]#[O+]"
+        assert dsmiles["test_flask_3h2o.xyz"]["smiles"] == "O.O.O"
+        assert dsmiles["test_h6.xyz"]["smiles"] is None
 
     def test_get_reactions_and_compounds(self):
         """
@@ -115,12 +119,12 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
             "program": "FA-KE",
             "vfilter": None,
             "solvent": False,
-            "solvation": False}
+            "solvation": False,
+        }
         # pylint: disable=no-member
         model1 = db.Model(
-            dmethod["method_family"],
-            dmethod["method"],
-            dmethod["basis_set"])
+            dmethod["method_family"], dmethod["method"], dmethod["basis_set"]
+        )
         # construct arbitrary pathfinder object
         pathfinder = pf(manager)
         pathfinder.options.model = model1
@@ -130,7 +134,8 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
         pathfinder.build_graph()
         # test the get_reactions_and_compounds()
         reactions, compounds = get_reactions_and_compounds(
-            manager, pathfinder, dmethod, (False, None), [], [], verbose=True)
+            manager, pathfinder, dmethod, (False, None), [], [], verbose=True
+        )
         assert len(reactions) != 0
         assert isinstance(reactions, list)
         assert len(compounds.keys()) != 0
@@ -139,24 +144,32 @@ class VizChemotonTests(unittest.TestCase, HoldsCollections):
     def test_process_graph_and_build_dashboard(self):
         """
         Tests that the conversion to a NetworkX object is successfuly
-        -and consistently- done.
+        -and consistently- created.
         """
         rr = resources_root_path()
         compounds_file = "compounds_tme_dft.json"
         reaction_file = "reactions_tme_dft.csv"
-        rfile, cfile = os.path.join(
-            rr, reaction_file), os.path.join(
-            rr, compounds_file)
+        rfile, cfile = os.path.join(rr, reaction_file), os.path.join(
+            rr, compounds_file
+        )
         reactions, compounds = read_compound_reactions_files(
-            rfile, cfile, verbose=True)
+            rfile, cfile, verbose=True
+        )
         graph = process_graph(reactions, compounds, dist_adduct=3.0)
         assert len(graph.edges) == 477
         assert len(graph.nodes) == 435
-        outfile, title = os.path.join(rr, "test_network.html"), 'test_network'
-        # qualitative or quantitative palette selection 
+        outfile, title = os.path.join(rr, "test_network.html"), "test_network"
+        # qualitative or quantitative palette selection
         palette = "Viridis256"
         qual_map = {}
-        kwargs_dash =  {"custom_hovers":[],"palette":palette,"qual_mapping":qual_map}
-        bokehobj = build_dashboard(graph, compounds, title, outfile, **kwargs_dash)
-        assert any(isinstance(x, Figure)
-                   for x in bokehobj), "No Figure in build_dashboard output"
+        kwargs_dash = {
+            "custom_hovers": [],
+            "palette": palette,
+            "qual_mapping": qual_map,
+        }
+        bokehobj = build_dashboard(
+            graph, compounds, title, outfile, **kwargs_dash
+        )
+        assert any(
+            isinstance(x, Figure) for x in bokehobj
+        ), "No Figure in build_dashboard output"

@@ -5,14 +5,15 @@ VizChemoton
 
 VizChemoton allows the **visualization of chemical reaction networks (CRNs)** constructed by `Chemoton <https://github.com/qcscine/chemoton>`_
 through the generation of standalone HTML files with `amk-tools <https://github.com/dgarayr/amk_tools>`_, allowing the user to easily interact
-with the network **just via browser**.
+with the network **just via browser**. Furthermore, the reaction network data is interoperable as two plain text files: a JSON file containing
+all compounds and their cheminformatics properties, and a CSV file containing all the elementary steps, reactions and transition states in the
+network.
 
 .. note::
 
-   If you use VizChemoton, please cite it as follows:
+   If you use VizChemoton, please cite the original article and the corresponding `Zenodo version <https://zenodo.org/records/14803803>`_:
    
-   Enric Petrus, Diego Garay-Ruiz, Carles Bo, Markus Reiher, Thomas B. Hofstetter. VizChemoton 1.0.0, Zenodo (2025)  
-   DOI: `10.5281/zenodo.14803803 <https://doi.org/10.5281/zenodo.14803803>`_
+   Enric Petrus, Diego Garay-Ruiz, Thomas Weymuth, Markus Reiher, Thomas B. Hofstetter. ChemRxiv, 2026, `(DOI) <https://doi.org/10.26434/chemrxiv.15003772/v1>`_
 
 .. image:: ../example_crn_html.png
    :alt: Example Image

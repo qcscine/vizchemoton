@@ -7,21 +7,17 @@ Release 2.0.0
 
 Second release of VizChemoton. This version expands and improves the functionalities of the three main output formats (JSON, CSV, and HTML), enabling the transition from prototype development to routine applications.
 
-### Technical Details
+**Technical Details**
 
 As a result of the expanded functionality, a considerable refactor of the codebase has been carried out to improve modularity and maintainability.
 
-* Refactored `vizchemoton_module` into four dedicated modules:
-  * `scine_module`
-  * `cheminfo_module`
-  * `html_module`
-  * `text_module`
-* Added `RDKit` as a required dependency for handling cheminformatics functionality.
-* Approved compatibility with Python 3.8.
-* Added unit tests covering the main functionalities of all four modules.
+* Refactored `vizchemoton_module` into four dedicated modules: `scine_module`, `cheminfo_module`, `html_module` and `text_module`.
+* Added RDKit as a required dependency for handling cheminformatics functionality.
+* Approved compatibility with Python 3.8 and 3.10.
+* Added unitary tests covering the main functionalities of all four modules.
 * Extended CSV outputs to include MongoDB IDs for elementary steps and reactions, facilitating traceability between VizChemoton outputs (HTML, JSON, and CSV) and the original MongoDB database.
 
-### New Features
+**New Features**
 
 * Added SMILES search functionality to the HTML dashboard. Canonical SMILES are computed with RDKit and stored in the `compounds.json` dictionary. SMILES generation can be enabled or disabled through the configuration file.
 * Added a static HTML documentation folder.
@@ -31,10 +27,7 @@ As a result of the expanded functionality, a considerable refactor of the codeba
 * Added a custom graph layout function for HTML visualization. This replaces the `kamada_kawai` layout from NetworkX, which becomes memory-intensive for large CRNs. The new implementation uses Cartesian geometric descriptors combined with K-Means clustering to determine node positions before graph rendering.
 * Added the `node_size` keyword argument to `build_dashboard()` to control node size in the HTML visualization.
 * Added node-coloring functionality in the HTML dashboard based on quantitative properties (e.g., energies) or qualitative annotations (e.g., PubChem matches).
-* Added queries to the Python APIs of three public chemical structure databases:
-  * PubChem
-  * ChEMBL
-  * ChEBI
+* Added queries to the Python APIs of three public chemical structure databases: PubChem, ChEMBL and ChEBI.
 * Added InChIKeys to the JSON and HTML outputs, enabling searches for specific target compounds.
 * Added an `Export current nodes` button to generate subsets of the reaction network and improve interpretability.
 
@@ -47,11 +40,10 @@ First implementation of VizChemoton. The package is a light-weight alternative t
 
 VizChemoton is implemented in Python and JavaScript, and it can be installed via PIP. To generate the HTML file of the reaction network, it requires the following SCINE modules to extract the chemical data from the exploration:
 
-* SCINE Chemoton, which is necessary to create a Pathfinder object for each exploration,
-the SCINE database wrapper, which is necessary to query the MongoDB to obtain reaction and energy data,
+* SCINE Chemoton, which is necessary to create a Pathfinder object for each exploration, the SCINE database wrapper, which is necessary to query the MongoDB to obtain reaction and energy data.
 * SCINE Utilities, which a library of common functionality used across all SCINE modules.
-Apart from the SCINE dependencies, VizChemoton also requires the amk-tools package to convert the data from the exploration into a single HTML file.
-These components do not need to be installed manually; rather, they are automatically installed when setting up VizChemoton.
+
+Apart from the SCINE dependencies, VizChemoton also requires the amk-tools package to convert the datafrom the exploration into a single HTML file. These components do not need to be installed manually; rather, they are automatically installed when setting up VizChemoton.
 
 **Current Features**
 
