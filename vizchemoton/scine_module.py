@@ -35,8 +35,8 @@ def get_crn_as_pathfinder(
     port,
     db_name,
     dmethod,
-    read_pathfinder=False,
-    write_pathfinder=False,
+    pf_graph_new,
+    pf_costs_new,
     verbose=False,
 ):
     """
@@ -56,12 +56,9 @@ def get_crn_as_pathfinder(
         Name of the database containing the reaction network.
     dmethod : str
         Database access method or backend identifier.
-    read_pathfinder : bool, optional
-        If True, load an existing Pathfinder object from storage
-        instead of regenerating it from the database (default: False).
-    write_pathfinder : bool, optional
-        If True, write the generated Pathfinder object to storage
-        for later reuse (default: False).
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!TO-DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     verbose : bool, optional
         If True, enable verbose logging output (default: False).
 
@@ -89,20 +86,44 @@ def get_crn_as_pathfinder(
 
     # Load Pathfinder and assign NetworkX Digraph
     pathfinder = pf(manager)
+    
+    pf_graph_mode, pf_graph_file = pf_graph_new
+    pf_costs_mode, pf_costs_file, pf_costs_init = pf_costs_new
 
-    if isinstance(read_pathfinder, str):
+    if pf_graph_mode == "read":
+        if pf_mode_costs is False:  # do not consider compound costs
+            if verbose:
+                print("## Reading pathfinder object with name " + pf_graph_file)
+            pathfinder.load_graph(pf_graph_file)
+        elif pf_costs_mode == "read":  # import previous compound costs
+            if verbose:
+                tmpstr = pf_graph_file + " " + pf_costs_file
+                print("## Reading pathfinder objects with names " + tmpstr)
+            pathfinder.load_graph(pf_graph_file, pf_costs_file)
+        elif pf_costs_mode == "write":  # calculate compounds costs
+            if verbose:
+                print("## Reading pathfinder object with name " + pf_graph_file)
+                print("## Writing pathfinder object with name " + pf_costs_file)
+            pathfinder.set_start_conditions(pf_costs_init)
+            pathfinder.calculate_compound_costs()
+            pathfinder.export_compound_costs()
+            pathfinder.export_graph(pf_costs_file)
+
+    elif pf_graph_mode == "write":
         if verbose:
-            print("## Reading pathfinder object with name " + read_pathfinder)
-        pathfinder.load_graph(read_pathfinder)
-    elif isinstance(write_pathfinder, str):
-        if verbose:
-            print("## Writing pathfinder object with name " + write_pathfinder)
+            print("## Writing pathfinder object with name " + pf_graph_file)
         pathfinder.options.model = model1
         pathfinder.options.graph_handler = "barrier"
         pathfinder.options.use_structure_model = True
         pathfinder.options.structure_model = model1
         pathfinder.build_graph()
-        pathfinder.export_graph(write_pathfinder)
+        if pf_costs_mode == "write":
+            if verbose:
+                print("## Writing pathfinder object with name " + pf_costs_file)
+            pathfinder.set_start_conditions(pf_costs_init)
+            pathfinder.calculate_compound_costs()
+            pathfinder.export_compound_costs()
+            pathfinder.export_graph(pf_costs_file)
 
     return manager, pathfinder
 

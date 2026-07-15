@@ -1,5 +1,5 @@
 scine:
-  active: False
+  active: True
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
@@ -12,8 +12,11 @@ scine:
     program: "orca"
     vfilter: False
   pathfinder:
-    path: "./vizchemoton/resources/crn_tme_lcpbe.json"
-    mode: "read"
+    path_graph: "./vizchemoton/resources/crn_tme_lcpbe.json"
+    mode_graph: "read"
+    path_costs: ""
+    mode_costs: ""
+    init_costs: {}
   verbose: True
 
 cheminfo:
@@ -41,7 +44,8 @@ html:
   layout: "kamada_kawai"  # use "random" for huge networks
   map_field: "pubchemRank" # value "energy" always available
   node_size: 25
-  title: "Ozonation reaction network - PubChem color matching"
+  addEditor: True
+  title: "Ozonation of Tetramethylethene with Chemoton"
   path: "network_tme_dft.html"
 
 

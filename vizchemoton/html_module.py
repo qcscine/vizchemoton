@@ -172,22 +172,22 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         "https://cdn.jsdelivr.net/gh/dgarayr/"
         "jsmol_to_bokeh/jsmol_to_bokeh.min.js"
     )
-    style_template = f"""
-    {{% block postamble %}}
-    <script type="text/javascript" src="{jsmol_script}"></script>
+    style_template = """
+    {% block postamble %}
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/dgarayr/jsmol_to_bokeh/jsmol_to_bokeh.min.js"></script>
     <style>
-    .bk-root .bk-btn-default {{
+    .bk-root .bk-btn-default {
         font-size: 1.2vh;
-    }}
-    .bk-root .bk-input {{
+    }
+    .bk-root .bk-input {
         font-size: 1.2vh;
         padding-bottom: 5px;
         padding-top: 5px;
-    }}
-    .bk-root .bk {{
+    }
+    .bk-root .bk {
         font-size: 1.2vh;
-    }}
-    .bk-root .bk-clearfix{{
+    }
+    .bk-root .bk-clearfix{
         padding-bottom: 0.8vh;
     }
     .collapsible {
@@ -218,8 +218,9 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         cursor: col-resize;
     }
     </style>
-    {{% endblock %}}
+    {% endblock %}
     """
+
 
     if add_editor:
         style_template += super_template 

@@ -23,7 +23,8 @@ from .cheminfo_module import db_node_check, compute_cheminf_props
 
 
 def main():
-
+    
+    # Read Command Line Interface arguments 
     if len(sys.argv) == 1:
         # Take default config.yaml
         configfile = "config.yaml"
@@ -34,10 +35,11 @@ def main():
         print("Pass a valid YAML configuration file when running VizChemoton")
         print("python -m vizchemoton [config.yaml]")
         raise ValueError
+    
     # Load configuration
     config = load_config(configfile)
 
-    # Parameters from config
+    # Mongo-DB settings and quantum chemistry model
     db_active = config["scine"]["active"]
     db_name = config["scine"]["name"]
     ip = config["scine"]["ip"]
@@ -45,13 +47,14 @@ def main():
     dict_method = config["scine"]["method"]
     verbose = config["scine"]["verbose"]
 
-    pathfinder_file = config["scine"]["pathfinder"]["path"]
-    pathfinder_mode = config["scine"]["pathfinder"]["mode"]
-    reactions_file = config["files"]["reactions"]["path"]
-    reactions_mode = config["files"]["reactions"]["mode"]
-    compounds_file = config["files"]["compounds"]["path"]
-    compounds_mode = config["files"]["compounds"]["mode"]
-
+    # Pathfinder object properties
+    pf_graph_file = config["scine"]["pathfinder"]["path_graph"]
+    pf_graph_mode = config["scine"]["pathfinder"]["mode_graph"]
+    pf_costs_file = config["scine"]["pathfinder"]["path_costs"]
+    pf_costs_mode = config["scine"]["pathfinder"]["mode_costs"]
+    pf_costs_init = config["scine"]["pathfinder"]["init_costs"]
+    
+    # Cheminformatics properties
     rdkitobj = config["cheminfo"]["rdkit"]["active"]
     smiles_method = config["cheminfo"]["rdkit"]["method"]
     rdkitprop = config["cheminfo"]["rdkit"]["props"]
@@ -64,6 +67,13 @@ def main():
         "chebi": chebi,
     }
 
+    # Output text files
+    reactions_file = config["files"]["reactions"]["path"]
+    reactions_mode = config["files"]["reactions"]["mode"]
+    compounds_file = config["files"]["compounds"]["path"]
+    compounds_mode = config["files"]["compounds"]["mode"]
+
+    # Graphical user interface (HTML) generation
     dist_adduct = config["html"]["dist_adduct"]
     size = tuple(config["html"]["size"])
     layout_function = config["html"]["layout"]
@@ -73,7 +83,7 @@ def main():
     output_file = config["html"]["path"]
     filter_file = config["html"].get("filter_file", None)
     add_editor = config["html"].get("addEditor",True)
-    # qualitative or quantitative palette selection
+    ## qualitative or quantitative palette selection
     if "Rank" in map_field:
         palette = ["#d01414", "#f0ce0e", "#12ba14"]
         qual_map = dict(zip([0, 1, 2], palette))
@@ -81,50 +91,29 @@ def main():
         palette = "Viridis256"
         qual_map = {}
 
-    # start of Vizchemoton
+    # Start of Vizchemoton
     vizchemoton_header()
     if db_active:  # the Mongo-DB is reachable
         # read the pathfinder object (to speed-up the process)
         reactions, compounds = [], {}
-        if pathfinder_mode == "read":
-            manager, pathfinder = get_crn_as_pathfinder(
-                ip,
-                int(port),
-                db_name,
-                dict_method,
-                write_pathfinder=False,
-                read_pathfinder=pathfinder_file,
-                verbose=verbose,
-            )
-            reactions, compounds = get_reactions_and_compounds(
-                manager,
-                pathfinder,
-                dict_method,
-                (rdkitobj, smiles_method),
-                rdkitprop,
-                databases=databases,
-                verbose=verbose,
-            )
-
-        elif pathfinder_mode == "write":  # write the pathfinder object
-            manager, pathfinder = get_crn_as_pathfinder(
-                ip,
-                int(port),
-                db_name,
-                dict_method,
-                write_pathfinder=pathfinder_file,
-                read_pathfinder=False,
-                verbose=verbose,
-            )
-            reactions, compounds = get_reactions_and_compounds(
-                manager,
-                pathfinder,
-                dict_method,
-                (rdkitobj, smiles_method),
-                rdkitprop,
-                databases,
-                verbose=verbose,
-            )
+        manager, pathfinder = get_crn_as_pathfinder(
+            ip,
+            int(port),
+            db_name,
+            dict_method,
+            pf_graph_new=(pf_graph_mode, pf_graph_file),
+            pf_costs_new=(pf_costs_mode, pf_costs_file, pf_costs_init),
+            verbose=verbose,
+        )
+        reactions, compounds = get_reactions_and_compounds(
+            manager,
+            pathfinder,
+            dict_method,
+            (rdkitobj, smiles_method),
+            rdkitprop,
+            databases=databases,
+            verbose=verbose,
+        )
 
         # write the reactions and compounds
         if reactions_mode == "write" and compounds_mode == "write":
@@ -163,7 +152,7 @@ def main():
             (f"{db_name}Ids", f"@{db_name}InfoStr")
         ]
 
-    # adapting collision of modifications
+    # Adapting collision of modifications
     if rdkitprop:
         compute_cheminf_props(graph, rdkitprop)
         property_hovers = [(prop, f"@{prop}Str") for prop in rdkitprop]
