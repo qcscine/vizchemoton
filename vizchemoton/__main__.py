@@ -88,7 +88,7 @@ def main():
         palette = ["#d01414", "#f0ce0e", "#12ba14"]
         qual_map = dict(zip([0, 1, 2], palette))
     else:
-        palette = "Viridis256"
+        palette = "RdYlGn11" #"Viridis256"
         qual_map = {}
 
     # Start of Vizchemoton

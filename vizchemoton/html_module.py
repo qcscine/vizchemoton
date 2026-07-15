@@ -717,6 +717,7 @@ def add_node_attributes(
         nd[1]["smiles"] = str(comp.get("smiles", "None")).split("//")
         nd[1]["inchikey"] = str(comp.get("inchikey", "None")).split("//")
         nd[1]["xyzdes"] = comp["xyzdes"]
+        nd[1]["pfcost"] = comp["pfcost"]
 
 
 def add_edge_attributes(graph, compounds):

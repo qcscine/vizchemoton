@@ -91,7 +91,7 @@ def get_crn_as_pathfinder(
     pf_costs_mode, pf_costs_file, pf_costs_init = pf_costs_new
 
     if pf_graph_mode == "read":
-        if pf_mode_costs is False:  # do not consider compound costs
+        if pf_costs_mode is False:  # do not consider compound costs
             if verbose:
                 print("## Reading pathfinder object with name " + pf_graph_file)
             pathfinder.load_graph(pf_graph_file)
@@ -117,13 +117,13 @@ def get_crn_as_pathfinder(
         pathfinder.options.use_structure_model = True
         pathfinder.options.structure_model = model1
         pathfinder.build_graph()
+        pathfinder.export_graph(pf_graph_file)
         if pf_costs_mode == "write":
             if verbose:
                 print("## Writing pathfinder object with name " + pf_costs_file)
             pathfinder.set_start_conditions(pf_costs_init)
             pathfinder.calculate_compound_costs()
-            pathfinder.export_compound_costs()
-            pathfinder.export_graph(pf_costs_file)
+            pathfinder.export_compound_costs(pf_costs_file)
 
     return manager, pathfinder
 
@@ -609,6 +609,7 @@ def _init_list_fields(rdkitprop):
             "program",
             "solvent",
             "solvation",
+            "pfcost",
             "smiles",
             "inchikey",
             "xyzdes",
@@ -909,6 +910,7 @@ def _get_html_compound_dict(
                 compound, crn_id = _get_compound_and_crnid(
                     pathfinder, cmp_dict, _ids, compounds, flasks
                 )
+                tmpcost = pathfinder.compound_costs[_ids]
                 structure = compound.get_centroid()
                 structure_obj = db.Structure(structure, structures)
                 struct_data = _extract_structure_data(
@@ -923,6 +925,7 @@ def _get_html_compound_dict(
                 )
                 html_compounds[compound_key]["crn_id"].append(crn_id)
                 html_compounds[compound_key]["mongodb_id"].append(_ids)
+                html_compounds[compound_key]["pfcost"].append(tmpcost)
                 for k, v in struct_data.items():
                     html_compounds[compound_key][k].append(v)
             for s, k in [
@@ -940,8 +943,10 @@ def _get_html_compound_dict(
                 map(list, zip(*html_compounds[compound_key]["xyzdes"]))
             )
             tmpchemsim = [np.mean(s) for s in transposed]
-            assert len(tmpchemsim) == 4
             html_compounds[compound_key]["xyzdes"] = tmpchemsim
+            tmpcost = np.mean(html_compounds[compound_key]["pfcost"])
+            html_compounds[compound_key]["pfcost"] = tmpcost
+
 
         elif ";" in compound_id:  # transition state structure
             # get structure and rxn ids
@@ -988,6 +993,7 @@ def _get_html_compound_dict(
                 **struct_data,
                 "crn_id": crn_id,
                 "mongodb_id": compound_id,
+                "pfcost": pathfinder.compound_costs[compound_id],
             }
         # Sort keys in alphabetical order
         tmpdict = html_compounds[compound_key].copy()
