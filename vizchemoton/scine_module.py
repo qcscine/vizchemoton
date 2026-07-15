@@ -106,23 +106,32 @@ def get_crn_as_pathfinder(
                 print("## Writing pathfinder object with name " + pf_costs_file)
             pathfinder.set_start_conditions(pf_costs_init)
             pathfinder.calculate_compound_costs()
+            #pathfinder.update_graph_compound_costs()
             pathfinder.export_compound_costs()
             pathfinder.export_graph(pf_costs_file)
 
     elif pf_graph_mode == "write":
         if verbose:
             print("## Writing pathfinder object with name " + pf_graph_file)
-        pathfinder.options.model = model1
         pathfinder.options.graph_handler = "barrier"
-        pathfinder.options.use_structure_model = True
-        pathfinder.options.structure_model = model1
+        pathfinder.options.model = model1
+        #pathfinder.options.filter_negative_barriers = True
+        #pathfinder.options.use_structure_model = True
+        #model2 = db.Model("dft", "lc-pbe", "def2-svp")
+        #model2.program = "orca"
+        #model2.solvent = "water"
+        #model2.solvation = "CPCM"
+        #model2.spin_mode = "any"
+        #pathfinder.options.structure_model = model2
         pathfinder.build_graph()
+        
         pathfinder.export_graph(pf_graph_file)
         if pf_costs_mode == "write":
             if verbose:
                 print("## Writing pathfinder object with name " + pf_costs_file)
             pathfinder.set_start_conditions(pf_costs_init)
             pathfinder.calculate_compound_costs()
+            pathfinder.update_graph_compound_costs()
             pathfinder.export_compound_costs(pf_costs_file)
 
     return manager, pathfinder
@@ -910,7 +919,7 @@ def _get_html_compound_dict(
                 compound, crn_id = _get_compound_and_crnid(
                     pathfinder, cmp_dict, _ids, compounds, flasks
                 )
-                tmpcost = pathfinder.compound_costs[_ids]
+                tmpcost = _get_rescaled_pfcost(pathfinder, _ids)
                 structure = compound.get_centroid()
                 structure_obj = db.Structure(structure, structures)
                 struct_data = _extract_structure_data(
@@ -945,7 +954,7 @@ def _get_html_compound_dict(
             tmpchemsim = [np.mean(s) for s in transposed]
             html_compounds[compound_key]["xyzdes"] = tmpchemsim
             tmpcost = np.mean(html_compounds[compound_key]["pfcost"])
-            html_compounds[compound_key]["pfcost"] = tmpcost
+            html_compounds[compound_key]["pfcost"] = round(tmpcost, 0)
 
 
         elif ";" in compound_id:  # transition state structure
@@ -971,6 +980,7 @@ def _get_html_compound_dict(
                 **struct_data,
                 "crn_id": crn_id,
                 "mongodb_id": rxn_id[:-3],
+                "pfcost": 0,
             }
 
         else:  # unimolecular reaction side
@@ -989,17 +999,27 @@ def _get_html_compound_dict(
                 databases,
                 timestmp,
             )
+            tmpcost = _get_rescaled_pfcost(pathfinder, compound_id)
             html_compounds[compound_key] = {
                 **struct_data,
                 "crn_id": crn_id,
                 "mongodb_id": compound_id,
-                "pfcost": pathfinder.compound_costs[compound_id],
+                "pfcost": tmpcost,
             }
         # Sort keys in alphabetical order
         tmpdict = html_compounds[compound_key].copy()
         html_compounds[compound_key] = _sort_dict_keys(tmpdict)
     return html_compounds
 
+def _get_rescaled_pfcost(pathfinder, compound_id, threshold=4):
+    """
+    Return the pathfinder cost value normalized. Because Pathfinder uses a 
+    sentinel value of 1e+13. (TO-DO)
+    """
+    tmpcost = round(np.log10(pathfinder.compound_costs[compound_id]), 0)
+    if tmpcost > threshold:
+        tmpcost = threshold
+    return tmpcost
 
 def _sort_dict_keys(d):
     """

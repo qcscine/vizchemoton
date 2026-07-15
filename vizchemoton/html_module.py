@@ -283,7 +283,7 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         if (tsname.includes('TSb')){
             hover.tooltips = [["tag","@name"]]
         } else {
-            hover.tooltips = [["tag","@name"],["charge","@chargeStr"],
+            hover.tooltips = [["tag","@name"],["charge","@chargeStr"], ["pfcost", "@pfcostStr"],
                                 ["multiplicity","@multiplicityStr"],["formula","@formulaStr"],
                                 [label1,"@deltaE1"],[label2,"@deltaE2"]]
         }
@@ -462,6 +462,7 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         ("multiplicity", "@multiplicityStr"),
         ("formula", "@formulaStr"),
         ("smiles", "@smilesStr"),
+        ("pfcost", "@pfcostStr"),
     ]
     tooltips += kwargs.get("custom_hovers", [])
 
@@ -642,7 +643,7 @@ def preprocess_compounds(compounds):
     """
     Helper function to process compounds properties.
     """
-    tgt_vars = ["energy", "charge", "multiplicity"]
+    tgt_vars = ["energy", "charge", "multiplicity", "pfcost"]
     for comp in compounds.values():
         for vv in tgt_vars:
             if not isinstance(comp[vv], list):
@@ -766,7 +767,7 @@ def format_string_attributes(graph):
     Processes node & edge attributes that are shown as strings in the
     final dashboard
     """
-    node_attrs = ["charge", "multiplicity", "formula", "smiles"]
+    node_attrs = ["charge", "multiplicity", "formula", "smiles", "pfcost"]
     edge_attrs = ["charge", "multiplicity", "formula"]
     for nd in graph.nodes(data=True):
         for tgt in node_attrs:
