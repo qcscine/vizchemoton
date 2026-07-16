@@ -1,8 +1,9 @@
 scine:
-  active: False
+  active: True
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
+  verbose: True
   method:
     method_family: "dft"
     method: "lc-pbe"
@@ -13,15 +14,15 @@ scine:
     vfilter: False
   pathfinder:
     mode_graph: "read"
-    path_graph: "./vizchemoton/resources/pathfinder_costs_tme_dft.json"
+    path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft.json"
     mode_costs: "read"
     path_costs: "./vizchemoton/resources/pathfinder_costs_tme_dft.json"
     init_costs: {"660d49de86b7e52a0c3bc06c": 100, # ozone
                  "660d4a1086b7e52a0c3bc070": 1,   # tme
                  "6649c98d86b7e5495e6e44ac": 100} # water   
-  verbose: True
 
 cheminfo:
+  verbose: True
   rdkit:
       active: False
       method: "hybrid"
@@ -30,24 +31,19 @@ cheminfo:
       pubchem: False
       chembl: False
       chebi: False
-  verbose: False
 
 files:
-  reactions:
-    path: "./vizchemoton/resources/reactions_tme_dft.csv"
-    mode: "read"
-  compounds:
-    path: "./vizchemoton/resources/compounds_tme_dft.json"
-    mode: "read"
+  mode_reactions: "read"
+  path_reactions: "./vizchemoton/resources/reactions_tme_dft.csv"
+  mode_compounds: "read"
+  path_compounds: "./vizchemoton/resources/compounds_tme_dft.json"
 
 html:
   dist_adduct: 3.0
   size:  [1400, 800]
-  layout: "kamada_kawai"  # use "random" for huge networks
-  map_field: "pfcost" # value "energy" always available
+  layout: "kamada_kawai" 
+  map_field: "pfcost"
   node_size: 25
   addEditor: True
   title: "Ozonation of Tetramethylethene with Chemoton"
-  path: "./vizchemoton/resources/network_tme_dft.html"
-
-
+  path_network: "./vizchemoton/resources/network_tme_dft.html"

@@ -68,10 +68,10 @@ def main():
     }
 
     # Output text files
-    reactions_file = config["files"]["reactions"]["path"]
-    reactions_mode = config["files"]["reactions"]["mode"]
-    compounds_file = config["files"]["compounds"]["path"]
-    compounds_mode = config["files"]["compounds"]["mode"]
+    reactions_file = config["files"]["path_reactions"]
+    reactions_mode = config["files"]["mode_reactions"]
+    compounds_file = config["files"]["path_compounds"]
+    compounds_mode = config["files"]["mode_compounds"]
 
     # Graphical user interface (HTML) generation
     dist_adduct = config["html"]["dist_adduct"]
@@ -80,7 +80,7 @@ def main():
     map_field = config["html"]["map_field"]
     node_size = float(config["html"]["node_size"])
     title_html = config["html"]["title"]
-    output_file = config["html"]["path"]
+    output_file = config["html"]["path_network"]
     filter_file = config["html"].get("filter_file", None)
     add_editor = config["html"].get("addEditor",True)
     ## qualitative or quantitative palette selection

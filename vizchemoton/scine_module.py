@@ -1016,7 +1016,8 @@ def _get_rescaled_pfcost(pathfinder, compound_id, threshold=5):
     Return the pathfinder cost value normalized. Because Pathfinder uses a 
     sentinel value of 1e+13. (TO-DO)
     """
-    tmpcost = round(np.log10(pathfinder.compound_costs[compound_id]), 0)
+    #tmpcost = round(np.log10(pathfinder.compound_costs[compound_id]), 0)
+    tmpcost = round(np.log10(pathfinder.compound_costs[compound_id]), 4)
     if tmpcost > threshold:
         tmpcost = threshold
     return tmpcost
