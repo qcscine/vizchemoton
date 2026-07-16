@@ -48,6 +48,6 @@ html:
   node_size: 25
   addEditor: True
   title: "Ozonation of Tetramethylethene with Chemoton"
-  path: "network_tme_dft.html"
+  path: "./vizchemoton/resources/network_tme_dft.html"
 
 
