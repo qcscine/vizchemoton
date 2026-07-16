@@ -88,7 +88,7 @@ def main():
         palette = ["#d01414", "#f0ce0e", "#12ba14"]
         qual_map = dict(zip([0, 1, 2], palette))
     else:
-        palette = "RdYlGn5" #"Viridis256"
+        palette = "RdYlGn4" #"Viridis256"
         #palette = ["#1a9850", "#e6f598", "#fee08b", "#d73027"]
         qual_map = {}
 

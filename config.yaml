@@ -16,10 +16,10 @@ scine:
     path_graph: "./crn_tme_lcpbe_graph.json"
     mode_costs: "write"
     path_costs: "./crn_tme_lcpbe_costs.json"
-    init_costs: {"660d49de86b7e52a0c3bc06c": 1,
+    init_costs: {"660d49de86b7e52a0c3bc06c": 10,
                  "660d4a1086b7e52a0c3bc070": 1,
-                 "6649c98d86b7e5495e6e447a": 1,
-                 "6649c98d86b7e5495e6e44ac": 55.5}  
+                   # "6649c98d86b7e5495e6e447a": 1,
+                 "6649c98d86b7e5495e6e44ac": 100}  
     verbose: True
 
 cheminfo:
