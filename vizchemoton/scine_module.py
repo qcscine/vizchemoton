@@ -1011,7 +1011,7 @@ def _get_html_compound_dict(
         html_compounds[compound_key] = _sort_dict_keys(tmpdict)
     return html_compounds
 
-def _get_rescaled_pfcost(pathfinder, compound_id, threshold=4):
+def _get_rescaled_pfcost(pathfinder, compound_id, threshold=5):
     """
     Return the pathfinder cost value normalized. Because Pathfinder uses a 
     sentinel value of 1e+13. (TO-DO)
