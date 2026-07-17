@@ -820,6 +820,36 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
 
     return graph
 
+def property_list_flatter(prop_dict,sep="//"):
+    """For a list of node/edge properties, collapse lists into strings (if no propertyStr property exists yet)
+    (and stringify None)"""
+    to_add = {}
+    to_remove = []
+    for k,v in prop_dict.items():
+        if v is None:
+            prop_dict[k] = "None"
+            continue 
+        if not(isinstance(v,list)):
+            continue 
+        if f"{k}Str" not in prop_dict.keys():
+            to_add[f"{k}Str"] = sep.join([str(val) for val in v])
+        to_remove.append(k)
+    for k in to_remove:   
+        del prop_dict[k]
+    prop_dict.update(to_add)
+    return prop_dict
+            
+def save_graph(graph,filename):
+    """
+    Wrapper function to save the graph to GraphML format (Gephi-compatible). Must collapse lists into strings.
+    """
+    gwork = graph.copy()
+    for nd in gwork.nodes(data=True):
+        property_list_flatter(nd[1]) 
+    for ed in gwork.edges(data=True):
+        property_list_flatter(ed[2])
+    nx.write_graphml(gwork,path=filename)
+    return None
 
 def format_value_list(val_list, fmt="%.4f", sep="//"):
     """

@@ -18,7 +18,7 @@ from .text_module import (
     read_filter_file,
 )
 from .scine_module import get_crn_as_pathfinder, get_reactions_and_compounds
-from .html_module import process_graph, build_dashboard, aggregate_property
+from .html_module import process_graph, build_dashboard, aggregate_property, save_graph
 from .cheminfo_module import db_node_check, compute_cheminf_props
 
 
@@ -72,6 +72,8 @@ def main():
     reactions_mode = config["files"]["mode_reactions"]
     compounds_file = config["files"]["path_compounds"]
     compounds_mode = config["files"]["mode_compounds"]
+
+    output_graph_file = config["files"].get("output_graph_file",None)
 
     # Graphical user interface (HTML) generation
     dist_adduct = config["html"]["dist_adduct"]
@@ -141,6 +143,8 @@ def main():
         )
         compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
     graph = process_graph(reactions, compounds, dist_adduct)
+    if output_graph_file and output_graph_file != "None":
+        save_graph(graph,output_graph_file)
     kwargs_dash = {
         "custom_hovers": [],
         "palette": palette,
