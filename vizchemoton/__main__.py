@@ -6,8 +6,13 @@ amk-tools and grrm-tools, generating interactive HTML dashboards to
 visualize GRRM-generated reaction networks.
 """
 
+# Standard library imports
 import sys
+
+# Third-party library imports
 import networkx as nx
+
+# Project-specific SCINE imports
 from .text_module import (
     vizchemoton_header,
     write_compound_reactions_files,

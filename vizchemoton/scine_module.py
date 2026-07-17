@@ -6,14 +6,14 @@ amk-tools and grrm-tools, generating interactive
 HTML dashboards to visualize GRRM-generated reaction networks.
 """
 
-# Standard Library Imports
+# Standard library imports
 from datetime import datetime
 
-# Third-Party Library Imports
+# Third-party library imports
 import numpy as np
 from typing import Any, Dict
 
-# Project-Specific SCINE imports
+# Project-specific SCINE imports
 import scine_utilities as utils
 import scine_database as db
 from scine_chemoton.gears.pathfinder import Pathfinder as pf

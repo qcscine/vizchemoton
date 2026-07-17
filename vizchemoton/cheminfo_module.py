@@ -2,17 +2,13 @@
 Enric Petrus, August 2025. Cheminformatics helper functions.
 """
 
-# Standard Library Imports
-import scine_molassembler as masm
-import scine_database as db
-import scine_utilities as su
-from vizchemoton.html_module import format_value_list
+# Standard library imports
 from collections import Counter, defaultdict
 import json
 import time
 import requests
 
-# Third-Party Library Imports
+# Third-party library imports
 import numpy as np
 from xyz2mol import xyz2mol
 from rdkit.Chem import (
@@ -26,11 +22,13 @@ from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
 from rdkit.Chem import inchi
 from rdkit import RDLogger
-
-# Disable all RDKit warnings/errors/info messages
 RDLogger.DisableLog("rdApp.*")  # type: ignore[attr-defined]
 
-# Local Imports
+# Project-specific SCINE imports
+import scine_molassembler as masm
+import scine_database as db
+import scine_utilities as su
+from vizchemoton.html_module import format_value_list
 
 
 def get_cartesian_descriptors(xyz):

@@ -6,11 +6,11 @@ amk-tools and grrm-tools, generating interactive
 HTML dashboards to visualize GRRM-generated reaction networks.
 """
 
-# Standard Library Imports
+# Standard library imports
 from collections import Counter
 import copy
 
-# Third-Party Library Imports
+# Third-party library imports
 import numpy as np
 import bokeh.plotting
 import bokeh.models as bkm

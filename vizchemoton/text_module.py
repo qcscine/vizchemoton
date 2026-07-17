@@ -6,15 +6,15 @@ amk-tools and grrm-tools, generating interactive
 HTML dashboards to visualize GRRM-generated reaction networks.
 """
 
-# Standard Library Imports
+# Standard library imports
 import json
 import time
 
-# Third-Party Library Imports
+# Third-Party library imports
 import yaml
 import numpy as np
 
-# Local Imports
+# Project-Specific SCINE imports
 from .cheminfo_module import (
     get_public_database_id,
     get_rdkit_properties,
