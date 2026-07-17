@@ -21,9 +21,16 @@ from .scine_module import get_crn_as_pathfinder, get_reactions_and_compounds
 from .html_module import process_graph, build_dashboard, aggregate_property, save_graph
 from .cheminfo_module import db_node_check, compute_cheminf_props
 
+def fill_keys_config(config_dict,test_keys,arg={}):
+    """Checks if subsections are defined in a dictionary (from config file): if not,
+    adds a blank element (dict) to them"""
+    for k in test_keys:
+        if k not in config_dict.keys():
+            config_dict[k] = arg 
+    return None
+
 
 def main():
-    
     # Read Command Line Interface arguments 
     if len(sys.argv) == 1:
         # Take default config.yaml
@@ -38,29 +45,33 @@ def main():
     
     # Load configuration
     config = load_config(configfile)
-
     # Mongo-DB settings and quantum chemistry model
-    db_active = config["scine"]["active"]
-    db_name = config["scine"]["name"]
-    ip = config["scine"]["ip"]
-    port = config["scine"]["port"]
-    dict_method = config["scine"]["method"]
-    verbose = config["scine"]["verbose"]
-
-    # Pathfinder object properties
-    pf_graph_file = config["scine"]["pathfinder"]["path_graph"]
-    pf_graph_mode = config["scine"]["pathfinder"]["mode_graph"]
-    pf_costs_file = config["scine"]["pathfinder"]["path_costs"]
-    pf_costs_mode = config["scine"]["pathfinder"]["mode_costs"]
-    pf_costs_init = config["scine"]["pathfinder"]["init_costs"]
+    scine_conf = config.get("scine",{})
+    db_active = scine_conf.get("active",False)
+    db_name = scine_conf.get("name",None)
+    ip = scine_conf.get("ip",None)
+    port = scine_conf.get("ip",None)
+    dict_method = scine_conf.get("method",{})
+    verbose = scine_conf.get("verbose",False)
+    pathfinder_conf = scine_conf.get("pathfinder",{})
     
+    # Pathfinder object properties
+    pf_graph_file = pathfinder_conf.get("path_graph",None)
+    pf_graph_mode = pathfinder_conf.get("mode_graph","read")
+    pf_costs_file = pathfinder_conf.get("path_costs",None)
+    pf_costs_mode = pathfinder_conf.get("mode_costs","read")
+    pf_costs_init = pathfinder_conf.get("init_costs",{})
+
     # Cheminformatics properties
-    rdkitobj = config["cheminfo"]["rdkit"]["active"]
-    smiles_method = config["cheminfo"]["rdkit"]["method"]
-    rdkitprop = config["cheminfo"]["rdkit"]["props"]
-    pubchem = config["cheminfo"]["database"]["pubchem"]
-    chembl = config["cheminfo"]["database"]["chembl"]
-    chebi = config["cheminfo"]["database"]["chebi"]
+    cheminfo = config.get("cheminfo",{})
+    fill_keys_config(cheminfo,["rdkit","database"])
+    
+    rdkitobj = cheminfo["rdkit"].get("active",False)
+    smiles_method = cheminfo["rdkit"].get("method","hybrid")
+    rdkitprop = cheminfo["rdkit"].get("props",None)
+    pubchem = cheminfo["database"].get("pubchem",False)
+    chembl = cheminfo["database"].get("chembl",False)
+    chebi = cheminfo["database"].get("chebi",False)
     databases = {
         "pubchem": pubchem,
         "chembl": chembl,
@@ -76,22 +87,22 @@ def main():
     output_graph_file = config["files"].get("output_graph_file",None)
 
     # Graphical user interface (HTML) generation
-    dist_adduct = config["html"]["dist_adduct"]
-    size = tuple(config["html"]["size"])
-    layout_function = config["html"]["layout"]
-    map_field = config["html"]["map_field"]
-    node_size = float(config["html"]["node_size"])
-    title_html = config["html"]["title"]
-    output_file = config["html"]["path_network"]
-    filter_file = config["html"].get("filter_file", None)
-    add_editor = config["html"].get("addEditor",True)
+    html_info = config.get("html",{})
+    dist_adduct = html_info.get("dist_adduct",3.0)
+    size = tuple(html_info.get("size",[1400,800]))
+    layout_function = html_info.get("layout","spring")
+    map_field = html_info.get("map_field","energy")
+    node_size = float(html_info.get("node_size",25))
+    title_html = html_info.get("title","VizChemoton graph")
+    output_file = html_info.get("path_network","network_html")
+    filter_file = html_info.get("filter_file", None)
+    add_editor = html_info.get("addEditor",True)
     ## qualitative or quantitative palette selection
     if "Rank" in map_field:
         palette = ["#d01414", "#f0ce0e", "#12ba14"]
         qual_map = dict(zip([0, 1, 2], palette))
     else:
-        palette = "RdYlGn4" #"Viridis256"
-        #palette = ["#1a9850", "#e6f598", "#fee08b", "#d73027"]
+        palette = html_info.get("color_palette","Viridis256")
         qual_map = {}
 
     # Start of Vizchemoton
@@ -145,6 +156,7 @@ def main():
     graph = process_graph(reactions, compounds, dist_adduct)
     if output_graph_file and output_graph_file != "None":
         save_graph(graph,output_graph_file)
+    
     kwargs_dash = {
         "custom_hovers": [],
         "palette": palette,
