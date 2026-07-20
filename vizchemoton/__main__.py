@@ -53,13 +53,15 @@ def main():
     # Mongo-DB settings and quantum chemistry model
     scine_conf = config.get("scine",{})
     db_active = scine_conf.get("active",False)
-    db_name = scine_conf.get("name",None)
-    ip = scine_conf.get("ip",None)
-    port = scine_conf.get("ip",None)
-    dict_method = scine_conf.get("method",{})
+    db_name = scine_conf.get("name","default")
+    ip = scine_conf.get("ip","localhost")
+    port = scine_conf.get("port","27017")
+    dict_method = scine_conf.get("method",{"gfn2", "gfn2", ""})
     verbose = scine_conf.get("verbose",False)
     pathfinder_conf = scine_conf.get("pathfinder",{})
     
+    #print(scine_conf, db_active, db_name, ip, port, dict_method, pathfinder_conf)
+
     # Pathfinder object properties
     pf_graph_file = pathfinder_conf.get("path_graph",None)
     pf_graph_mode = pathfinder_conf.get("mode_graph","read")
@@ -89,13 +91,13 @@ def main():
     compounds_file = config["files"]["path_compounds"]
     compounds_mode = config["files"]["mode_compounds"]
 
-    output_graph_file = config["files"].get("output_graph_file",None)
+    output_graph_file = config["files"].get("path_graphml",None)
 
     # Graphical user interface (HTML) generation
     html_info = config.get("html",{})
     dist_adduct = html_info.get("dist_adduct",3.0)
     size = tuple(html_info.get("size",[1400,800]))
-    layout_function = html_info.get("layout","spring")
+    layout_function = html_info.get("layout","random")
     map_field = html_info.get("map_field","energy")
     node_size = float(html_info.get("node_size",25))
     title_html = html_info.get("title","VizChemoton graph")

@@ -8,10 +8,7 @@ scine:
     method_family: "dft"
     method: "lc-pbe"
     basis_set: "def2-svp"
-    solvation: False
-    solvent: False
     program: "orca"
-    vfilter: False
   pathfinder:
     mode_graph: "read"
     path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft.json"
@@ -24,7 +21,7 @@ scine:
 cheminfo:
   verbose: True
   rdkit:
-      active: False
+      active: True
       method: "hybrid"
       props: ["MolLogP", "CalcTPSA", "MolWt"]
   database:
@@ -33,17 +30,19 @@ cheminfo:
       chebi: False
 
 files:
-  mode_reactions: "read"
+  mode_reactions: "write"
   path_reactions: "./vizchemoton/resources/reactions_tme_dft.csv"
-  mode_compounds: "read"
+  mode_compounds: "write"
   path_compounds: "./vizchemoton/resources/compounds_tme_dft.json"
+  path_graphml: "./vizchemoton/resources/network_tme_dft.graphml"
 
 html:
   dist_adduct: 3.0
-  size:  [1400, 800]
   layout: "kamada_kawai" 
   map_field: "pfcost"
-  node_size: 25
-  addEditor: True
   title: "Ozonation of Tetramethylethene with Chemoton"
   path_network: "./vizchemoton/resources/network_tme_dft.html"
+
+
+
+

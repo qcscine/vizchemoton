@@ -115,8 +115,8 @@ def get_crn_as_pathfinder(
             print("## Writing pathfinder object with name " + pf_graph_file)
         pathfinder.options.graph_handler = "barrier"
         pathfinder.options.model = model1
-        #pathfinder.options.filter_negative_barriers = True
-        #pathfinder.options.use_structure_model = True
+        pathfinder.options.use_structure_model = True
+        pathfinder.options.structure_model = model1
         #model2 = db.Model("dft", "lc-pbe", "def2-svp")
         #model2.program = "orca"
         #model2.solvent = "water"
@@ -124,7 +124,6 @@ def get_crn_as_pathfinder(
         #model2.spin_mode = "any"
         #pathfinder.options.structure_model = model2
         pathfinder.build_graph()
-        
         pathfinder.export_graph(pf_graph_file)
         if pf_costs_mode == "write":
             if verbose:

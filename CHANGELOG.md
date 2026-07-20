@@ -8,6 +8,8 @@ Release 2.1.0
 * Added an static and independent javascript code (uses Kekule.js and RDKit.js) to the HTML output so that the dashboard enables the possiblity of deducing the SMILES and InChIKey from a 2D structure (and viceversa). This is meant to enhance the user experience while looking for specific compounds in the reaction network. 
 * Added the pathfinder compound cost value as a new entry (pfcost) in the .JSON file. It can be displayed in the HTML nodes as a measure of how likely each given node is going to form under specific experimental conditions (i.e., initial concentrations, temperature and pressure).
 * Extended config.yaml to read and write a new file regarding the pathfinder compound costs `pathfinder_costs_tme_dft.json`. For consistency, the previous pathfinder reaction graph file has been renamed to `pathfinder_graph_tme_dft.json`.
+* Added defaults to the config.yaml to minimize errors when using slightly different input files.
+* Added the option to export the chemical reaction network graph in Gephi format.
 
 
 Release 2.0.0

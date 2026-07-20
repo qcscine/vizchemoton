@@ -198,7 +198,10 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
 
 def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
     """
-    TO-DO
+    Returns SMILES using the experimental.emit_smiles method in the Molassembler 
+    object. However, we have found that for some cases it leads to segmentation
+    errors from the C++ bindings, which makes it complicated to use in the current
+    workflow. 
     """
     atomcollection = centroid.get_atoms()
     if not centroid.has_property("bond_orders"):
@@ -276,7 +279,7 @@ def convert_struct_to_smiles(
         [2] Bull. Korean Chem. Soc. 2015, 36, 1769-1777.
         [3] Forthcoming: ChemRxiv 2026 (Internal hybrid refinement).
     """
-    dsmiles = {"smiles": None}
+    dsmiles = {"smiles": None, "inchikey": None}
     tmpfile = "tmp" + timestmp + ".mol"
     if smilesmode == "scine":
         dsmiles = _convert_scine_bo_to_smiles(
