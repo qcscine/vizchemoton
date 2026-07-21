@@ -75,14 +75,14 @@ def get_crn_as_pathfinder(
     if verbose:
         print("## Connecting to the MongoDB")
     manager.connect()
-    model1 = db.Model(
+    model = db.Model(
         dmethod["method_family"], dmethod["method"], dmethod["basis_set"]
     )
-    model1.program = dmethod["program"]
+    model.program = dmethod["program"]
     if dmethod["solvent"] is not False:
-        model1.solvent = dmethod["solvent"]
+        model.solvent = dmethod["solvent"]
     if dmethod["solvation"] is not False:
-        model1.solvation = dmethod["solvation"]
+        model.solvation = dmethod["solvation"]
 
     # Load Pathfinder and assign NetworkX Digraph
     pathfinder = pf(manager)
@@ -100,9 +100,9 @@ def get_crn_as_pathfinder(
         # tested and merged to the main version. 
         if verbose:
             print("## (exp!) Expanding pathfinder object with name " + pf_graph_file)
-        pathfinder.options.model = model1
+        pathfinder.options.model = model
         pathfinder.options.use_structure_model = True
-        pathfinder.options.structure_model = model1
+        pathfinder.options.structure_model = model
         pathfinder.load_and_expand_graph(pf_graph_file)
         print(pf_graph_file, pf_graph_file[:-5])
         pathfinder.export_graph(pf_graph_file[:-5]+"_expanded.json")
@@ -110,9 +110,9 @@ def get_crn_as_pathfinder(
         if verbose:
             print("## Writing pathfinder object with name " + pf_graph_file)
         pathfinder.options.graph_handler = "barrier"
-        pathfinder.options.model = model1
+        pathfinder.options.model = model
         pathfinder.options.use_structure_model = True
-        pathfinder.options.structure_model = model1
+        pathfinder.options.structure_model = model
         pathfinder.build_graph()
         pathfinder.export_graph(pf_graph_file)
     
@@ -124,20 +124,20 @@ def get_crn_as_pathfinder(
         pathfinder.load_graph(pf_graph_file, pf_costs_file)
     elif pf_costs_mode == "write":  # calculate compounds costs
         if verbose:
-            print("## Reading pathfinder object with name " + pf_graph_file)
             print("## Writing pathfinder object with name " + pf_costs_file)
         pathfinder.set_start_conditions(pf_costs_init)
         pathfinder.calculate_compound_costs()
         pathfinder.update_graph_compound_costs()
         pathfinder.export_compound_costs()
         pathfinder.export_graph(pf_costs_file)
-    elif pf_costs_mode == "ignore":
+    elif pf_costs_mode == "ignore":  # ignore costs - add dummy values
+        if verbose:
+            print("## Ignoring the calculation of compound costs")
         for ni in pathfinder.graph_handler.graph.nodes:
             if ";" not in ni:  # not a rxn node
                 pathfinder.compound_costs[ni] = 1
-        #pathfinder.update_graph_compound_costs()
 
-    return manager, pathfinder
+    return manager, pathfinder, model
 
 
 def _calculate_weight(
@@ -261,7 +261,7 @@ def get_energy_and_barriers(
     energy_type,
     es_id,
     elementary_steps,
-    model1,
+    model,
     structures,
     properties,
     es_from_graph,
@@ -275,7 +275,7 @@ def get_energy_and_barriers(
       'electronic_energy' or 'gibbs_free_energy'
       - es_id (str): id of the elementary_step
       - elementary_steps (db.Collection): the elementary step collection
-      - model1 (dict): dictionary with the method_family, method, basis_set
+      - model (dict): dictionary with the method_family, method, basis_set
       and program keys.
       - structures (db.Collection): the structures collection
       - properties (db.Collection): the properties step collection
@@ -290,12 +290,12 @@ def get_energy_and_barriers(
     energy = get_energy_change(
         db.ElementaryStep(es_id, elementary_steps),
         energy_type,
-        model1,
+        model,
         structures,
         properties,
     )
     barriers = get_barriers_for_elementary_step_by_type(
-        es_from_graph, energy_type, model1, structures, properties
+        es_from_graph, energy_type, model, structures, properties
     )
 
     if None in barriers:
@@ -309,7 +309,7 @@ def get_energy_and_barriers(
 def get_reactions_and_compounds(
     manager,
     pathfinder,
-    dmethod,
+    model,
     calcsmiles,
     rdkitprop,
     databases,
@@ -338,14 +338,6 @@ def get_reactions_and_compounds(
       relevant information (charge, spin, xyz ...)
     """
     # Get the SCINE collections
-    model1 = db.Model(
-        dmethod["method_family"], dmethod["method"], dmethod["basis_set"]
-    )
-    model1.program = dmethod["program"]
-    if dmethod["solvent"] is not False:
-        model1.solvent = dmethod["solvent"]
-    if dmethod["solvation"] is not False:
-        model1.solvation = dmethod["solvation"]
     structures = manager.get_collection("structures")
     reactions = manager.get_collection("reactions")
     flasks = manager.get_collection("flasks")
@@ -381,19 +373,7 @@ def get_reactions_and_compounds(
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
         lhs, rhs = reactants
         s_lhs, s_rhs = len(lhs), len(rhs)
-        if dmethod["vfilter"]:
-            vfilter = check_natoms(
-                reactants,
-                reactants_type,
-                compounds,
-                flasks,
-                structures,
-                dmethod["vfilter"],
-            )
-        else:
-            vfilter = True
-
-        if s_lhs < 3 and s_rhs < 3 and vfilter:
+        if s_lhs < 3 and s_rhs < 3:
             # Get reactant indexes
             cmp_dict_keys = cmp_dict.keys()
             if len(reactants[0]) == 1:
@@ -444,7 +424,7 @@ def get_reactions_and_compounds(
                     "electronic_energy",
                     es_id,
                     elementary_steps,
-                    model1,
+                    model,
                     structures,
                     properties,
                     es_from_graph,
@@ -480,7 +460,7 @@ def get_reactions_and_compounds(
                         ]
                     )
 
-        elif s_lhs == 3 or s_rhs == 3 and vfilter:
+        elif s_lhs == 3 or s_rhs == 3:
             # Get reactant indexes
             cmp_dict_keys = cmp_dict.keys()
             if len(reactants[0]) == 1:
@@ -531,7 +511,7 @@ def get_reactions_and_compounds(
                     "electronic_energy",
                     es_id,
                     elementary_steps,
-                    model1,
+                    model,
                     structures,
                     properties,
                     es_from_graph,
@@ -570,7 +550,7 @@ def get_reactions_and_compounds(
     # Create a dictionary for the compounds and their properties
     html_compounds = _get_html_compound_dict(
         pathfinder,
-        model1,
+        model,
         cmp_dict,
         structures,
         compounds,
@@ -821,7 +801,7 @@ def _get_compound_and_crnid(pathfinder, cmp_dict, mongoid, compounds, flasks):
 
 def _get_html_compound_dict(
     pathfinder,
-    model1,
+    model,
     cmp_dict,
     structures,
     compounds,
@@ -855,7 +835,7 @@ def _get_html_compound_dict(
     ----------
     pathfinder : object
         Pathfinder instance containing the CRN graph and chemical network data.
-    model1 : object
+    model : object
         Quantum model containing method, basis set, program, version, solvent,
         and solvation attributes.
     cmp_dict : dict
@@ -927,7 +907,7 @@ def _get_html_compound_dict(
                 structure_obj = db.Structure(structure, structures)
                 struct_data = _extract_structure_data(
                     structure_obj,
-                    model1,
+                    model,
                     structures,
                     properties,
                     calcsmiles,
@@ -969,7 +949,7 @@ def _get_html_compound_dict(
             _calcsmiles = (False, "placeholder")  # TSs do not need SMILES
             struct_data = _extract_structure_data(
                 structure_obj,
-                model1,
+                model,
                 structures,
                 properties,
                 _calcsmiles,
@@ -994,7 +974,7 @@ def _get_html_compound_dict(
             structure_obj = db.Structure(structure, structures)
             struct_data = _extract_structure_data(
                 structure_obj,
-                model1,
+                model,
                 structures,
                 properties,
                 calcsmiles,
@@ -1050,3 +1030,61 @@ def _sort_dict_keys(d):
     - The ordering is determined by Python's default string comparison.
     """
     return {k: d[k] for k in sorted(d)}
+
+
+def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder, 
+        manager, npaths=15):
+    """
+    TO-DO
+    """
+    reactions = manager.get_collection("reactions")
+    elemsteps = manager.get_collection("elementary_steps")
+    structures = manager.get_collection("structures")
+    properties = manager.get_collection("properties")
+    unique_paths = pathfinder.find_unique_paths(source, target, npaths)
+    reaction_dict = {}
+    for count, path in enumerate(unique_paths):
+        labels, energies = list(), list()
+        count_ts, count_int = 1, 1
+        current_energy = 0
+        labels.append("Reactants")
+        energies.append(0)
+    
+        el_path_str = pathfinder.get_elementary_step_sequence(path[0])
+        overall_rxn = pathfinder.get_overall_reaction_equation(path[0])
+        print("Elementary Steps for PATH {a} with a cost of {b}:\n".format(a=count+1, b=str(round(path[1],1))), el_path_str)
+        #print("Overall Reaction:", overall_rxn)
+        
+        for node in [node for node in path[0] if ";" in node]:
+    
+            reaction = db.Reaction(db.ID(node[:-3]))  # the final part '0;0' is deleted
+            reaction.link(reactions)
+            es_id = reaction.get_elementary_steps()[0]
+            side = int(node[-2])
+            #barrier = get_barriers_for_elementary_step_by_type(db.ElementaryStep(es_id, steps), 'electronic_energy',
+            #                                                   refine_model, ss, pp)[side]
+    
+            #es_id = db.ID(finder.graph_handler.graph.nodes(data=True)[rxn_id]["elementary_step_id"])
+            es_from_graph = db.ElementaryStep(es_id, elemsteps)
+            _energy, barrier, not_None = get_energy_and_barriers('electronic_energy', es_id, elemsteps, model, structures, properties, es_from_graph)
+            #barrier = [o* utils.KCALPERMOL_PER_HARTREE for o in _barrier]
+            if not_None:
+                energy = _energy * utils.KJPERMOL_PER_HARTREE
+                #energy = get_energy_change(db.ElementaryStep(es_id, steps), 'electronic_energy',
+                #                           refine_model, ss, pp) * utils.KCALPERMOL_PER_HARTREE
+    
+                if db.ElementaryStep(es_id, elemsteps).get_type() != db.ElementaryStepType.BARRIERLESS:
+                    labels.append("TS" + str(count_ts))
+                    energies.append(current_energy + barrier[side])
+                    count_ts += 1
+                
+                current_energy += energy
+                #print(current_energy)
+                labels.append("Int" + str(count_int))
+                energies.append(current_energy)
+                count_int += 1
+    
+        reaction_dict[count] = [labels, energies]
+        print(reaction_dict)
+    
+    

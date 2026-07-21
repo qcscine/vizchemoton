@@ -22,9 +22,16 @@ from .text_module import (
     upgrade_compound_file,
     read_filter_file,
 )
-from .scine_module import get_crn_as_pathfinder, get_reactions_and_compounds
-from .html_module import process_graph, build_dashboard, aggregate_property, save_graph
-from .cheminfo_module import db_node_check, compute_cheminf_props
+from .scine_module import (get_crn_as_pathfinder, 
+                           get_reactions_and_compounds,
+                           get_reaction_mechanism_from_A_to_B)
+from .html_module import (process_graph, 
+                          build_dashboard, 
+                          aggregate_property, 
+                          save_graph)
+from .cheminfo_module import (db_node_check, 
+                              compute_cheminf_props)
+
 
 def fill_keys_config(config_dict,test_keys,arg={}):
     """Checks if subsections are defined in a dictionary (from config file): if not,
@@ -76,8 +83,6 @@ def main():
     verbose = scine_conf.get("verbose",False)
     pathfinder_conf = scine_conf.get("pathfinder",{})
     
-    #print(scine_conf, db_active, db_name, ip, port, dict_method, pathfinder_conf)
-
     # Pathfinder object properties
     pf_graph_file = pathfinder_conf.get("path_graph",None)
     pf_graph_mode = pathfinder_conf.get("mode_graph","read")
@@ -106,7 +111,6 @@ def main():
     reactions_mode = config["files"]["mode_reactions"]
     compounds_file = config["files"]["path_compounds"]
     compounds_mode = config["files"]["mode_compounds"]
-
     output_graph_file = config["files"].get("path_graphml",None)
 
     # Graphical user interface (HTML) generation
@@ -127,13 +131,17 @@ def main():
     else:
         palette = html_info.get("color_palette","Viridis256")
         qual_map = {}
-
-    # Start of Vizchemoton
+    plot_mechanism = html_info.get("plot_mechanism", {})
+    source = plot_mechanism.get("source", "")
+    target = plot_mechanism.get("target", "")
+    npaths = plot_mechanism.get("npaths", 0)
+    
+    # Extract reaction network data
     vizchemoton_header()
     if db_active:  # the Mongo-DB is reachable
         # read the pathfinder object (to speed-up the process)
         reactions, compounds = [], {}
-        manager, pathfinder = get_crn_as_pathfinder(
+        manager, pathfinder, model = get_crn_as_pathfinder(
             ip,
             int(port),
             db_name,
@@ -145,7 +153,7 @@ def main():
         reactions, compounds = get_reactions_and_compounds(
             manager,
             pathfinder,
-            dict_method,
+            model,
             (rdkitobj, smiles_method),
             rdkitprop,
             databases=databases,
@@ -176,6 +184,14 @@ def main():
             reactions_file, compounds_file, verbose=verbose
         )
         compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
+    
+    # Save reaction mechanisms
+    if source != "" and target != "" and db_active:
+        get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
+                                           manager, npaths=npaths)
+
+
+    # Preparing HTML GUI
     graph = process_graph(reactions, compounds, dist_adduct)
     if output_graph_file and output_graph_file != "None":
         save_graph(graph,output_graph_file)
