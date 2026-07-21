@@ -97,7 +97,7 @@ def get_crn_as_pathfinder(
     elif pf_graph_mode == "experimental.expand":
         # Experimental option which relies for the time being in a side branch of 
         # pathfinder containing the load_and_expand_graph() method. Needs to be 
-        # tested and merged to the main version. 
+        # tested and merged to the main Chemoton version. 
         if verbose:
             print("## (exp!) Expanding pathfinder object with name " + pf_graph_file)
         pathfinder.options.model = model
@@ -187,76 +187,6 @@ def _calculate_weight(
     return molec_dict
 
 
-def check_natoms(
-    reactants, reactants_type, compounds, flasks, structures, dstoich
-):
-    """
-    Filter reactions based on atom count consistency.
-
-    This function applies an atom-balance filter to a set of reactants
-    and removes reactions that do not satisfy predefined atom count
-    criteria. It is primarily used to exclude chemically invalid or
-    unbalanced reactions from the final HTML output.
-
-    Parameters
-    ----------
-    reactants : list
-        List of reactant identifiers involved in the reaction.
-    reactants_type : list
-        List describing the type of each reactant (e.g., compound, flask).
-        Must correspond positionally to `reactants`.
-    compounds : db.Collection
-        Collection containing compound objects.
-    flasks : db.Collection
-        Collection containing flask objects.
-    structures : db.Collection
-        Collection containing structure objects used to retrieve
-        atom count information.
-    dstoich : dict
-        Dictionary containing stoichiometric coefficients for the
-        reaction participants.
-
-    Returns
-    -------
-    bool
-        True if the reaction passes the atom-count filter and should be
-        included in the final output, False otherwise.
-    """
-    lhs, rhs = reactants
-    lhst, rhst = reactants_type
-    condlist = []
-    for lhsi, lhsti in zip(lhs, lhst):
-        compound_id = lhsi.string()
-        if lhsti.name == db.CompoundOrFlask.COMPOUND.name:
-            compound = db.Compound(db.ID(compound_id), compounds)
-        else:
-            compound = db.Flask(db.ID(compound_id), flasks)
-        structure = compound.get_centroid()
-        molec_dict = _calculate_weight(
-            db.Structure(structure), structures, dstoich
-        )
-        dstoich_i = molec_dict["stoich"]
-        for d in dstoich.keys():
-            condlist.append(dstoich_i[d] < dstoich[d])
-    for rhsi, rhsti in zip(rhs, rhst):
-        compound_id = rhsi.string()
-        if rhsti.name == db.CompoundOrFlask.COMPOUND.name:
-            compound = db.Compound(db.ID(compound_id), compounds)
-        else:
-            compound = db.Flask(db.ID(compound_id), flasks)
-        structure = compound.get_centroid()
-        molec_dict = _calculate_weight(
-            db.Structure(structure), structures, dstoich
-        )
-        dstoich_j = molec_dict["stoich"]
-        for d in dstoich.keys():
-            condlist.append(dstoich_j[d] < dstoich[d])
-    if all(condlist):
-        return True
-    else:
-        return False
-
-
 def get_energy_and_barriers(
     energy_type,
     es_id,
@@ -321,9 +251,7 @@ def get_reactions_and_compounds(
     Mongo-DB where the exploration with Chemoton was run.
 
     Input:
-      - db_name (str): name of the database
-      - ip (str): internet protocol to the database
-      - port (int): port number to the database
+      - (TO-DO)
       - read_pathfinder (bool, str, optional): either False if no file to
       read, or string with the path to the file
       - write_pathfinder (bool, str, optional): either False if no file to
@@ -373,179 +301,91 @@ def get_reactions_and_compounds(
         reactants_type = rxn.get_reactant_types(db.Side.BOTH)
         lhs, rhs = reactants
         s_lhs, s_rhs = len(lhs), len(rhs)
-        if s_lhs < 3 and s_rhs < 3:
-            # Get reactant indexes
-            cmp_dict_keys = cmp_dict.keys()
-            if len(reactants[0]) == 1:
-                node_x = reactants[0][0].string()
-                if node_x not in cmp_dict_keys:
-                    cmp_dict[node_x] = cmp_idx
+        # Get reactant indexes
+        cmp_dict_keys = cmp_dict.keys()
+        if len(reactants[0]) == 1:
+            node_x = reactants[0][0].string()
+            if node_x not in cmp_dict_keys:
+                cmp_dict[node_x] = cmp_idx
+                cmp_idx = cmp_idx + 1
+        elif len(reactants[0]) >= 2:
+            for node_i in [o.string() for o in reactants[0]]:
+                if node_i not in cmp_dict_keys:
+                    cmp_dict[node_i] = cmp_idx
                     cmp_idx = cmp_idx + 1
-            elif len(reactants[0]) == 2:
-                for node_i in [o.string() for o in reactants[0]]:
-                    if node_i not in cmp_dict_keys:
-                        cmp_dict[node_i] = cmp_idx
-                        cmp_idx = cmp_idx + 1
-                # flasks (i.e., adducts) are depicted with //
-                node_x = "//".join(sorted([o.string() for o in reactants[0]]))
-                if node_x not in cmp_dict_keys:
-                    cmp_dict[node_x] = cmp_idx
-                    cmp_idx = cmp_idx + 1
+            # flasks (i.e., adducts) are depicted with //
+            node_x = "//".join(sorted([o.string() for o in reactants[0]]))
+            if node_x not in cmp_dict_keys:
+                cmp_dict[node_x] = cmp_idx
+                cmp_idx = cmp_idx + 1
 
-            # Get product indexes
-            if len(reactants[1]) == 1:
-                node_y = reactants[1][0].string()
-                if node_y not in cmp_dict_keys:
-                    cmp_dict[node_y] = cmp_idx
+        # Get product indexes
+        if len(reactants[1]) == 1:
+            node_y = reactants[1][0].string()
+            if node_y not in cmp_dict_keys:
+                cmp_dict[node_y] = cmp_idx
+                cmp_idx = cmp_idx + 1
+        elif len(reactants[1]) >= 2:
+            for node_i in [o.string() for o in reactants[1]]:
+                if node_i not in cmp_dict_keys:
+                    cmp_dict[node_i] = cmp_idx
                     cmp_idx = cmp_idx + 1
-            elif len(reactants[1]) == 2:
-                for node_i in [o.string() for o in reactants[1]]:
-                    if node_i not in cmp_dict_keys:
-                        cmp_dict[node_i] = cmp_idx
-                        cmp_idx = cmp_idx + 1
-                # flasks (i.e., adducts) are depicted with //
-                node_y = "//".join(sorted([o.string() for o in reactants[1]]))
-                if node_y not in cmp_dict_keys:
-                    cmp_dict[node_y] = cmp_idx
-                    cmp_idx = cmp_idx + 1
+            # flasks (i.e., adducts) are depicted with //
+            node_y = "//".join(sorted([o.string() for o in reactants[1]]))
+            if node_y not in cmp_dict_keys:
+                cmp_dict[node_y] = cmp_idx
+                cmp_idx = cmp_idx + 1
 
-            # Get elementary steps and energies
-            if (
-                "elementary_step_id"
-                in pathfinder.graph_handler.graph.nodes(data=True)[rxn_id]
-            ):
-                es_id = db.ID(
-                    pathfinder.graph_handler.graph.nodes(data=True)[rxn_id][
-                        "elementary_step_id"
+        # Get elementary steps and energies
+        if (
+            "elementary_step_id"
+            in pathfinder.graph_handler.graph.nodes(data=True)[rxn_id]
+        ):
+            es_id = db.ID(
+                pathfinder.graph_handler.graph.nodes(data=True)[rxn_id][
+                    "elementary_step_id"
+                ]
+            )
+            es_from_graph = db.ElementaryStep(es_id, elementary_steps)
+            _energy, _, not_none = get_energy_and_barriers(
+                "electronic_energy",
+                es_id,
+                elementary_steps,
+                model,
+                structures,
+                properties,
+                es_from_graph,
+            )
+
+            step_type = es_from_graph.get_type()
+            is_barrierless = step_type == db.ElementaryStepType.BARRIERLESS
+            if is_barrierless and not_none and _energy is not None:
+                html_reactions.append(
+                    [
+                        cmp_dict[node_x],
+                        cmp_dict[node_y],
+                        None,
+                        rxn_id[:-3],
+                        es_id.string(),
                     ]
                 )
-                es_from_graph = db.ElementaryStep(es_id, elementary_steps)
-                _energy, _, not_none = get_energy_and_barriers(
-                    "electronic_energy",
-                    es_id,
-                    elementary_steps,
-                    model,
-                    structures,
-                    properties,
-                    es_from_graph,
+            elif not_none:
+                str_id = (
+                    es_from_graph.get_transition_state().string() + ";"
                 )
-
-                step_type = es_from_graph.get_type()
-                is_barrierless = step_type == db.ElementaryStepType.BARRIERLESS
-                if is_barrierless and not_none and _energy is not None:
-                    html_reactions.append(
-                        [
-                            cmp_dict[node_x],
-                            cmp_dict[node_y],
-                            None,
-                            rxn_id[:-3],
-                            es_id.string(),
-                        ]
-                    )
-                elif not_none:
-                    str_id = (
-                        es_from_graph.get_transition_state().string() + ";"
-                    )
-                    node_ts = str_id + "_" + rxn_id
-                    if node_ts not in cmp_dict.keys():
-                        cmp_dict[node_ts] = cmp_idx
-                        cmp_idx = cmp_idx + 1
-                    html_reactions.append(
-                        [
-                            cmp_dict[node_x],
-                            cmp_dict[node_y],
-                            cmp_dict[node_ts],
-                            rxn_id[:-3],
-                            es_id.string(),
-                        ]
-                    )
-
-        elif s_lhs == 3 or s_rhs == 3:
-            # Get reactant indexes
-            cmp_dict_keys = cmp_dict.keys()
-            if len(reactants[0]) == 1:
-                node_x = reactants[0][0].string()
-                if node_x not in cmp_dict_keys:
-                    cmp_dict[node_x] = cmp_idx
+                node_ts = str_id + "_" + rxn_id
+                if node_ts not in cmp_dict.keys():
+                    cmp_dict[node_ts] = cmp_idx
                     cmp_idx = cmp_idx + 1
-            elif len(reactants[0]) == 3:
-                for node_i in [o.string() for o in reactants[0]]:
-                    if node_i not in cmp_dict_keys:
-                        cmp_dict[node_i] = cmp_idx
-                        cmp_idx = cmp_idx + 1
-                # flasks (i.e., adducts) are depicted with //
-                node_x = "//".join(sorted([o.string() for o in reactants[0]]))
-                if node_x not in cmp_dict_keys:
-                    cmp_dict[node_x] = cmp_idx
-                    cmp_idx = cmp_idx + 1
-
-            # Get product indexes
-            if len(reactants[1]) == 1:
-                node_y = reactants[1][0].string()
-                if node_y not in cmp_dict_keys:
-                    cmp_dict[node_y] = cmp_idx
-                    cmp_idx = cmp_idx + 1
-            elif len(reactants[1]) == 3:
-                for node_i in [o.string() for o in reactants[1]]:
-                    if node_i not in cmp_dict_keys:
-                        cmp_dict[node_i] = cmp_idx
-                        cmp_idx = cmp_idx + 1
-                # flasks (i.e., adducts) are depicted with //
-                node_y = "//".join(sorted([o.string() for o in reactants[1]]))
-                if node_y not in cmp_dict_keys:
-                    cmp_dict[node_y] = cmp_idx
-                    cmp_idx = cmp_idx + 1
-
-            # Get elementary steps and energies
-            if (
-                "elementary_step_id"
-                in pathfinder.graph_handler.graph.nodes(data=True)[rxn_id]
-            ):
-                es_id = db.ID(
-                    pathfinder.graph_handler.graph.nodes(data=True)[rxn_id][
-                        "elementary_step_id"
+                html_reactions.append(
+                    [
+                        cmp_dict[node_x],
+                        cmp_dict[node_y],
+                        cmp_dict[node_ts],
+                        rxn_id[:-3],
+                        es_id.string(),
                     ]
                 )
-                es_from_graph = db.ElementaryStep(es_id, elementary_steps)
-                _energy, _, not_none = get_energy_and_barriers(
-                    "electronic_energy",
-                    es_id,
-                    elementary_steps,
-                    model,
-                    structures,
-                    properties,
-                    es_from_graph,
-                )
-
-                step_type = es_from_graph.get_type()
-                is_barrierless = step_type == db.ElementaryStepType.BARRIERLESS
-                if is_barrierless and not_none and _energy is not None:
-                    html_reactions.append(
-                        [
-                            cmp_dict[node_x],
-                            cmp_dict[node_y],
-                            None,
-                            rxn_id[:-3],
-                            es_id.string(),
-                        ]
-                    )
-                elif not_none:
-                    str_id = (
-                        es_from_graph.get_transition_state().string() + ";"
-                    )
-                    node_ts = str_id + "_" + rxn_id
-                    if node_ts not in cmp_dict.keys():
-                        cmp_dict[node_ts] = cmp_idx
-                        cmp_idx = cmp_idx + 1
-                    html_reactions.append(
-                        [
-                            cmp_dict[node_x],
-                            cmp_dict[node_y],
-                            cmp_dict[node_ts],
-                            rxn_id[:-3],
-                            es_id.string(),
-                        ]
-                    )
 
     # Create a dictionary for the compounds and their properties
     html_compounds = _get_html_compound_dict(
@@ -693,7 +533,6 @@ def _extract_structure_data(
         "pubchem": False,
         "chembl": False,
         "chebi": False,
-        "chemspi": False,
     }
     xyz = [
         (str(o.element), tuple(o.position)) for o in structure_obj.get_atoms()
@@ -1035,7 +874,11 @@ def _sort_dict_keys(d):
 def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder, 
         manager, npaths=15):
     """
-    TO-DO
+    Determines the most likely reaction mechanisms between a selected source and 
+    target compounds. Selection of the most likely mechanisms is done by minimizing
+    the overall compound cost.[1]
+
+    [1] Paul L. Tuertscher and Markus Reiher, J. Chem. Inf. Model. 2023, 63, 1, 147-160
     """
     reactions = manager.get_collection("reactions")
     elemsteps = manager.get_collection("elementary_steps")
