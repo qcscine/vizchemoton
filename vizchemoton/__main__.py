@@ -56,7 +56,23 @@ def main():
     db_name = scine_conf.get("name","default")
     ip = scine_conf.get("ip","localhost")
     port = scine_conf.get("port","27017")
-    dict_method = scine_conf.get("method",{"gfn2", "gfn2", ""})
+    method_conf = scine_conf.get("method", {})
+    method_family = method_conf.get("method_family", "gfn2")
+    method = method_conf.get("method", "gfn2")
+    basis_set = method_conf.get("basis_set", "")
+    program = method_conf.get("program", "xtb")
+    solvent = method_conf.get("solvent", "")
+    solvation = method_conf.get("solvation", "")
+    vfilter = method_conf.get("vfilter", "")
+    dict_method = {
+        "method_family": method_family,
+        "method": method,
+        "basis_set": basis_set,
+        "program": program,
+        "solvent": solvent,
+        "solvation": solvation,
+        "vfilter": vfilter,
+    }
     verbose = scine_conf.get("verbose",False)
     pathfinder_conf = scine_conf.get("pathfinder",{})
     

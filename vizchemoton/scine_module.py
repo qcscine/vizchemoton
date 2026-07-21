@@ -86,30 +86,26 @@ def get_crn_as_pathfinder(
 
     # Load Pathfinder and assign NetworkX Digraph
     pathfinder = pf(manager)
-    
     pf_graph_mode, pf_graph_file = pf_graph_new
     pf_costs_mode, pf_costs_file, pf_costs_init = pf_costs_new
-
+    
+    ## Load Pathfinder Graph
     if pf_graph_mode == "read":
-        if pf_costs_mode is False:  # do not consider compound costs
-            if verbose:
-                print("## Reading pathfinder object with name " + pf_graph_file)
-            pathfinder.load_graph(pf_graph_file)
-        elif pf_costs_mode == "read":  # import previous compound costs
-            if verbose:
-                tmpstr = pf_graph_file + " " + pf_costs_file
-                print("## Reading pathfinder objects with names " + tmpstr)
-            pathfinder.load_graph(pf_graph_file, pf_costs_file)
-        elif pf_costs_mode == "write":  # calculate compounds costs
-            if verbose:
-                print("## Reading pathfinder object with name " + pf_graph_file)
-                print("## Writing pathfinder object with name " + pf_costs_file)
-            pathfinder.set_start_conditions(pf_costs_init)
-            pathfinder.calculate_compound_costs()
-            #pathfinder.update_graph_compound_costs()
-            pathfinder.export_compound_costs()
-            pathfinder.export_graph(pf_costs_file)
-
+         if verbose:
+            print("## Reading pathfinder object with name " + pf_graph_file)
+         pathfinder.load_graph(pf_graph_file)
+    elif pf_graph_mode == "experimental.expand":
+        # Experimental option which relies for the time being in a side branch of 
+        # pathfinder containing the load_and_expand_graph() method. Needs to be 
+        # tested and merged to the main version. 
+        if verbose:
+            print("## (exp!) Expanding pathfinder object with name " + pf_graph_file)
+        pathfinder.options.model = model1
+        pathfinder.options.use_structure_model = True
+        pathfinder.options.structure_model = model1
+        pathfinder.load_and_expand_graph(pf_graph_file)
+        print(pf_graph_file, pf_graph_file[:-5])
+        pathfinder.export_graph(pf_graph_file[:-5]+"_expanded.json")
     elif pf_graph_mode == "write":
         if verbose:
             print("## Writing pathfinder object with name " + pf_graph_file)
@@ -117,21 +113,29 @@ def get_crn_as_pathfinder(
         pathfinder.options.model = model1
         pathfinder.options.use_structure_model = True
         pathfinder.options.structure_model = model1
-        #model2 = db.Model("dft", "lc-pbe", "def2-svp")
-        #model2.program = "orca"
-        #model2.solvent = "water"
-        #model2.solvation = "CPCM"
-        #model2.spin_mode = "any"
-        #pathfinder.options.structure_model = model2
         pathfinder.build_graph()
         pathfinder.export_graph(pf_graph_file)
-        if pf_costs_mode == "write":
-            if verbose:
-                print("## Writing pathfinder object with name " + pf_costs_file)
-            pathfinder.set_start_conditions(pf_costs_init)
-            pathfinder.calculate_compound_costs()
-            pathfinder.update_graph_compound_costs()
-            pathfinder.export_compound_costs(pf_costs_file)
+    
+    ## Load Pathfinder Costs
+    if pf_costs_mode == "read":  # import previous compound costs
+        if verbose:
+            tmpstr = pf_graph_file + " " + pf_costs_file
+            print("## Reading pathfinder objects with names " + tmpstr)
+        pathfinder.load_graph(pf_graph_file, pf_costs_file)
+    elif pf_costs_mode == "write":  # calculate compounds costs
+        if verbose:
+            print("## Reading pathfinder object with name " + pf_graph_file)
+            print("## Writing pathfinder object with name " + pf_costs_file)
+        pathfinder.set_start_conditions(pf_costs_init)
+        pathfinder.calculate_compound_costs()
+        pathfinder.update_graph_compound_costs()
+        pathfinder.export_compound_costs()
+        pathfinder.export_graph(pf_costs_file)
+    elif pf_costs_mode == "ignore":
+        for ni in pathfinder.graph_handler.graph.nodes:
+            if ";" not in ni:  # not a rxn node
+                pathfinder.compound_costs[ni] = 1
+        #pathfinder.update_graph_compound_costs()
 
     return manager, pathfinder
 
