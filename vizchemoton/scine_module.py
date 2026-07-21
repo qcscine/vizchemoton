@@ -1049,42 +1049,34 @@ def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
         current_energy = 0
         labels.append("Reactants")
         energies.append(0)
-    
         el_path_str = pathfinder.get_elementary_step_sequence(path[0])
         overall_rxn = pathfinder.get_overall_reaction_equation(path[0])
-        print("Elementary Steps for PATH {a} with a cost of {b}:\n".format(a=count+1, b=str(round(path[1],1))), el_path_str)
-        #print("Overall Reaction:", overall_rxn)
-        
+        cost = round(path[1],1)
         for node in [node for node in path[0] if ";" in node]:
-    
             reaction = db.Reaction(db.ID(node[:-3]))  # the final part '0;0' is deleted
             reaction.link(reactions)
-            es_id = reaction.get_elementary_steps()[0]
+            tmppf = pathfinder.graph_handler.graph.nodes(data=True)
+            es_id = db.ID(tmppf[node]["elementary_step_id"])
             side = int(node[-2])
-            #barrier = get_barriers_for_elementary_step_by_type(db.ElementaryStep(es_id, steps), 'electronic_energy',
-            #                                                   refine_model, ss, pp)[side]
-    
-            #es_id = db.ID(finder.graph_handler.graph.nodes(data=True)[rxn_id]["elementary_step_id"])
             es_from_graph = db.ElementaryStep(es_id, elemsteps)
-            _energy, barrier, not_None = get_energy_and_barriers('electronic_energy', es_id, elemsteps, model, structures, properties, es_from_graph)
-            #barrier = [o* utils.KCALPERMOL_PER_HARTREE for o in _barrier]
+            tmpobj = get_energy_and_barriers('electronic_energy', es_id, elemsteps, 
+                                             model, structures, properties, es_from_graph)
+            _energy, barrier, not_None = tmpobj
             if not_None:
                 energy = _energy * utils.KJPERMOL_PER_HARTREE
-                #energy = get_energy_change(db.ElementaryStep(es_id, steps), 'electronic_energy',
-                #                           refine_model, ss, pp) * utils.KCALPERMOL_PER_HARTREE
-    
-                if db.ElementaryStep(es_id, elemsteps).get_type() != db.ElementaryStepType.BARRIERLESS:
+                elemstepi = db.ElementaryStep(es_id, elemsteps)
+                if elemstepi.get_type() != db.ElementaryStepType.BARRIERLESS:
                     labels.append("TS" + str(count_ts))
                     energies.append(current_energy + barrier[side])
                     count_ts += 1
-                
                 current_energy += energy
-                #print(current_energy)
                 labels.append("Int" + str(count_int))
                 energies.append(current_energy)
                 count_int += 1
-    
-        reaction_dict[count] = [labels, energies]
+        
+        mongodb_ids = [node for node in path[0] if ";" not in node]
+        reaction_dict[count] = [labels, energies, mongodb_ids]
         print(reaction_dict)
+        print(len(labels), len(energies), len(mongodb_ids))
     
     
