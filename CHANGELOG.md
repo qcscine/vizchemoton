@@ -10,6 +10,7 @@ Release 2.1.0
 * Extended config.yaml to read and write a new file regarding the pathfinder compound costs `pathfinder_costs_tme_dft.json`. For consistency, the previous pathfinder reaction graph file has been renamed to `pathfinder_graph_tme_dft.json`.
 * Added defaults to the config.yaml to minimize errors when using slightly different input files.
 * Added the option to export the chemical reaction network graph in Gephi format.
+* Added reaction pathways to the HTML output so that the user can examine the most likely mechanism between a source and a target compound. Reaction pathways are precomputed and injected into the HTML dashboard, that is, no dynamic generation of the pathways is possible once the HTML is generated. Nonetheless, reaction pathways are deduced from the JSON and CSV interoperable files, therefore, the user can regenerate a new HTML dashboard with the new alternative reaction pathways (no connection to the MongoDB is needed at this stage).
 
 
 Release 2.0.0

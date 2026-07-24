@@ -1,5 +1,5 @@
 scine:
-  active: False
+  active: True
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
@@ -10,9 +10,9 @@ scine:
     basis_set: "def2-svp"
     program: "orca"
   pathfinder:
-    mode_graph: "read"
+    mode_graph: "write"
     path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft_deleteme.json"
-    mode_costs: "read"
+    mode_costs: "write"
     path_costs: "./vizchemoton/resources/pathfinder_costs_tme_dft.json"
     init_costs: {"660d49de86b7e52a0c3bc06c": 100, # ozone
                  "660d4a1086b7e52a0c3bc070": 1,   # tme
@@ -30,9 +30,9 @@ cheminfo:
       chebi: False
 
 files:
-  mode_reactions: "read"
+  mode_reactions: "write"
   path_reactions: "./vizchemoton/resources/reactions_tme_dft.csv"
-  mode_compounds: "read"
+  mode_compounds: "write"
   path_compounds: "./vizchemoton/resources/compounds_tme_dft.json"
   path_graphml: "./vizchemoton/resources/network_tme_dft.graphml"
 
@@ -48,6 +48,8 @@ html:
   map_field: "pfcost"
   title: "Ozonation of Tetramethylethene with Chemoton"
   path_network: "./vizchemoton/resources/network_tme_dft.html"
+
+
    
 
 
