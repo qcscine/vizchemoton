@@ -1,5 +1,5 @@
 scine:
-  active: True
+  active: False
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
@@ -19,7 +19,7 @@ scine:
                  "6649c98d86b7e5495e6e44ac": 100} # water   
 
 cheminfo:
-  verbose: True
+  verbose: False
   rdkit:
       active: False
       method: "hybrid"
@@ -39,7 +39,7 @@ files:
 html:
   pathsearch:
     use_costs: True 
-    Npaths: 25
+    Npaths: 5
     max_length: 6
     source: "c1" 
     target: "c48"
