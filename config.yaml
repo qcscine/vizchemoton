@@ -11,7 +11,7 @@ scine:
     program: "orca"
   pathfinder:
     mode_graph: "write"
-    path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft_deleteme.json"
+    path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft.json"
     mode_costs: "write"
     path_costs: "./vizchemoton/resources/pathfinder_costs_tme_dft.json"
     init_costs: {"660d49de86b7e52a0c3bc06c": 100, # ozone
