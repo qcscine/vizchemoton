@@ -37,10 +37,12 @@ files:
   path_graphml: "./vizchemoton/resources/network_tme_dft.graphml"
 
 html:
-  plot_mechanism:
-      source: "660d49de86b7e52a0c3bc06c"
-      target: "6649c98d86b7e5495e6e449a"
-      npaths: 25
+  pathsearch:
+    use_costs: True 
+    Npaths: 25
+    max_length: 6
+    source: "c1" 
+    target: "c48"
   dist_adduct: 3.0
   layout: "kamada_kawai" 
   map_field: "pfcost"
