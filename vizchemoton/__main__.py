@@ -28,7 +28,9 @@ from .scine_module import (get_crn_as_pathfinder,
 from .html_module import (process_graph, 
                           build_dashboard, 
                           aggregate_property, 
-                          save_graph)
+                          save_graph,
+                          generate_paths,
+                          get_energy_ref)
 from .cheminfo_module import (db_node_check, 
                               compute_cheminf_props)
 
@@ -131,11 +133,18 @@ def main():
     else:
         palette = html_info.get("color_palette","Viridis256")
         qual_map = {}
-    plot_mechanism = html_info.get("plot_mechanism", {})
-    source = plot_mechanism.get("source", "")
-    target = plot_mechanism.get("target", "")
-    npaths = plot_mechanism.get("npaths", 0)
-    
+
+
+    ### Exploration of paths
+    path_search = html_info.get("pathsearch",{})
+    if path_search:
+        source = path_search["source"]
+        target = path_search["target"]
+        max_length = path_search.get("max_length",6)
+        Npaths = path_search.get("Npaths",25)
+        use_costs = path_search.get("use_costs",False)
+
+
     # Extract reaction network data
     vizchemoton_header()
     if db_active:  # the Mongo-DB is reachable
@@ -185,17 +194,11 @@ def main():
         )
         compounds = upgrade_compound_file(compounds_file, rdkitprop, databases)
     
-    # Save reaction mechanisms
-    if source != "" and target != "" and db_active:
-        get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
-                                           manager, npaths=npaths)
-
-
     # Preparing HTML GUI
     graph = process_graph(reactions, compounds, dist_adduct)
     if output_graph_file and output_graph_file != "None":
         save_graph(graph,output_graph_file)
-    
+
     kwargs_dash = {
         "custom_hovers": [],
         "palette": palette,
@@ -238,6 +241,14 @@ def main():
                     out_nodes.append(nd)
             graph_work.remove_nodes_from(out_nodes)
             graph = graph_work
+
+    # Management of path info 
+    if path_search:
+        path_list = generate_paths(graph,source,target,max_length=max_length,
+                                   Npaths_filt=Npaths,check_costs=use_costs)
+        graph.graph["pathList"] = path_list
+        nd_ref,e_ref = get_energy_ref(graph,path_list)
+        kwargs_dash["alt_ref_energy"] = e_ref
 
     build_dashboard(
         graph,

@@ -8,6 +8,7 @@ HTML dashboards to visualize GRRM-generated reaction networks.
 
 # Standard library imports
 from collections import Counter
+from operator import itemgetter
 import copy
 
 # Third-party library imports
@@ -15,6 +16,7 @@ import numpy as np
 import bokeh.plotting
 import bokeh.models as bkm
 import RXVisualizer as arxviz
+import RXReader as arx
 import networkx as nx
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
@@ -510,7 +512,8 @@ def build_dashboard(G, compounds, title,outfile,size=(1400,800),
         code=hide_barrlessJS,
     )
 
-    lay = arxviz.full_view_layout(bk_fig, bk_graph, sizing_dict=sizing_dict)
+    alt_ref_e = kwargs.get("alt_ref_energy",0.0)
+    lay = arxviz.full_view_layout(bk_fig, bk_graph, G=G, sizing_dict=sizing_dict,alt_ref_energy=alt_ref_e)
 
     # add a button to the layout
     b_highlight = bkm.Button(
@@ -897,3 +900,90 @@ def aggregate_property(Gx, prop_name, agg_func="mean", na_value=0):
         agg_values.append(val)
         flags.append(flag)
     return agg_values, flags
+
+
+### Path management functions - July 2026
+def identify_balanced_node(graph,node,neighbor):
+    """Convenience function to locate a suitable balanced (A+B) node in a graph, 
+    given one of the involved compounds (A or B) and a neighboring node"""
+    if "ts" in neighbor.lower():
+        # Locate by name
+        pair = [ed[0:2] for ed in graph.edges(data="name") if ed[2] == neighbor][0]
+        onode = [item for item in pair if item != neighbor][0]
+    else:
+        # Get all neighbors of the neighbor and filter by name
+        sel = [nd for nd in graph[neighbor] if node in nd]
+        onode = sel[0]
+    return onode
+
+def path_adjuster(graph,path_list_raw):
+    """Processes existing paths (e.g. from pathfinder) to make them compliant with amk-tools considerations: balanced nodes 
+    (for start and end) and uppercase TS labels"""
+    out_path_list = []
+    for path in path_list_raw:
+        fmt_path = [entry.replace("ts","TS") if "ts" in entry else entry for entry in path[1:-1]]
+        # processing first and last entries
+        source = path[0]
+        target = path[-1]
+    
+        # if they are a node, proceed
+        if source in graph.nodes():
+            fmt_path = [source] + fmt_path
+        else:
+            neigh = path[1]
+            onode = identify_balanced_node(graph,source,neigh)
+            fmt_path = [onode] + fmt_path
+            
+        if target in graph.nodes():
+            fmt_path += [target]
+        else:
+            neigh = path[-2]
+            onode = identify_balanced_node(graph,target,neigh)
+            fmt_path += [onode]
+
+        out_path_list.append(fmt_path)
+    return out_path_list
+
+def prepare_extrema(graph,node):
+    """For a given string defining an entity in the CRN, retrieves the corresponding node (if existing)
+    or the collection of all the nodes where that entity participates (e.g. A -> A+B, A+C, D+A...)"""
+    if node not in graph.nodes():
+        nodeset = [nd for nd in graph.nodes if node in nd.split("+")]
+    else:
+        nodeset = [node]
+    return nodeset
+
+def check_pfcosts_in_path(graph,path,limit_value=9999):
+    """For a given path composed of valid nodes through the graph, returns a list with all
+    the node costs through the path."""
+    path_nodes = [item for item in path if "ts" not in item.lower()]
+    costs = [sum(graph.nodes[nd].get('pfcost',[limit_value])) for nd in path_nodes]
+    return costs
+
+def generate_paths(graph,source,target,max_length=6,check_costs=False,Npaths_filt=10):
+    """Wrapper function to generate valid paths for a given graph, using a maximum cutoff length (longer paths
+    will not be considered to limit path search cost). Source and target are automatically checked for node 
+    validity, finding combinations through prepare_extrema. The pfcost property of nodes can be used to 
+    accumulate the cost of each path and rank them"""
+    src_nodes = prepare_extrema(graph,source)
+    end_nodes = prepare_extrema(graph,target)
+    found_paths = arx.add_paths(graph,src_nodes,end_nodes,cutoff=max_length)
+    found_paths_cln = path_adjuster(graph,found_paths)
+
+    if check_costs:
+        all_costs = [(idx,sum(check_pfcosts_in_path(graph,path))) for idx,path in enumerate(found_paths_cln)]
+        srt_costs = sorted(all_costs,key=itemgetter(1))
+        Np = min(len(found_paths_cln),Npaths_filt)
+        sel_paths = [found_paths_cln[idx] for idx,cost in srt_costs[0:Np]] 
+    else:
+        sel_paths = found_paths_cln 
+
+    return sel_paths
+
+def get_energy_ref(graph,path_list):
+    """Gets the energy of all starting nodes involved in the path list and returns the lowest-energy one to
+    be used as reference for relative energies"""
+    start_nodes = [path[0] for path in path_list]
+    all_energies = [graph.nodes[nd]["energy"] for nd in start_nodes]
+    idx = np.argmin(all_energies)
+    return (start_nodes[idx],all_energies[idx])
