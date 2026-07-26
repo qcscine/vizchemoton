@@ -10,10 +10,10 @@ scine:
     basis_set: "def2-svp"
     program: "orca"
   pathfinder:
-    mode_graph: "write"
-    path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft_deleteme.json"
+    mode_graph: "read"
+    path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft.json"
     mode_costs: "write"
-    path_costs: "./vizchemoton/resources/pathfinder_costs_tme_dft.json"
+    path_costs: "./vizchemoton/resources/pathfinder_costs_tme_dft2.json"
     init_costs: {"660d49de86b7e52a0c3bc06c": 100, # ozone
                  "660d4a1086b7e52a0c3bc070": 1,   # tme
                  "6649c98d86b7e5495e6e44ac": 100} # water   
@@ -21,7 +21,7 @@ scine:
 cheminfo:
   verbose: False
   rdkit:
-      active: False
+      active: True
       method: "hybrid"
       props: ["MolLogP", "CalcTPSA", "MolWt"]
   database:

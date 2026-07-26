@@ -91,6 +91,7 @@ def main():
     pf_costs_file = pathfinder_conf.get("path_costs",None)
     pf_costs_mode = pathfinder_conf.get("mode_costs","read")
     pf_costs_init = pathfinder_conf.get("init_costs",{})
+    pf_costs_recu = pathfinder_conf.get("recu_costs",True)
 
     # Cheminformatics properties
     cheminfo = config.get("cheminfo",{})
@@ -157,6 +158,7 @@ def main():
             dict_method,
             pf_graph_new=(pf_graph_mode, pf_graph_file),
             pf_costs_new=(pf_costs_mode, pf_costs_file, pf_costs_init),
+            recursive_cost=pf_costs_recu,
             verbose=verbose,
         )
         reactions, compounds = get_reactions_and_compounds(

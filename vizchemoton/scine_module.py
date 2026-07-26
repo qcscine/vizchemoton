@@ -37,6 +37,7 @@ def get_crn_as_pathfinder(
     dmethod,
     pf_graph_new,
     pf_costs_new,
+    recursive_cost=True,
     verbose=False,
 ):
     """
@@ -104,7 +105,6 @@ def get_crn_as_pathfinder(
         pathfinder.options.use_structure_model = True
         pathfinder.options.structure_model = model
         pathfinder.load_and_expand_graph(pf_graph_file)
-        print(pf_graph_file, pf_graph_file[:-5])
         pathfinder.export_graph(pf_graph_file[:-5]+"_expanded.json")
     elif pf_graph_mode == "write":
         if verbose:
@@ -126,10 +126,9 @@ def get_crn_as_pathfinder(
         if verbose:
             print("## Writing pathfinder object with name " + pf_costs_file)
         pathfinder.set_start_conditions(pf_costs_init)
-        pathfinder.calculate_compound_costs()
+        pathfinder.calculate_compound_costs(recursive=recursive_cost)
         pathfinder.update_graph_compound_costs()
-        pathfinder.export_compound_costs()
-        pathfinder.export_graph(pf_costs_file)
+        pathfinder.export_compound_costs(pf_costs_file)
     elif pf_costs_mode == "ignore":  # ignore costs - add dummy values
         if verbose:
             print("## Ignoring the calculation of compound costs")

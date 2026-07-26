@@ -33,6 +33,7 @@ connection (`scine`) and specify the computational methodology (`method`) that w
         init_costs: {"660d49de86b7e52a0c3bc06c": 1, # ozone
                      "660d4a1086b7e52a0c3bc070": 1,   # tme
                      "6649c98d86b7e5495e6e44ac": 1} # water   
+        recu_costs: True
     
     cheminfo:
       verbose: True
@@ -53,6 +54,12 @@ connection (`scine`) and specify the computational methodology (`method`) that w
       path_graphml: "./vizchemoton/resources/network_tme_dft.graphml"
 
     html:
+      pathsearch:
+        use_costs: True
+        Npaths: 5
+        max_length: 6
+        source: "c1"
+        target: "c48"
       dist_adduct: 3.0
       size:  [1400, 800]
       layout: "kamada_kawai"
@@ -93,6 +100,7 @@ Here we break down all the parameters that can be defined in the input file:
 - **pathfinder.path_costs** (``str``): Path to the pathfinder costs file.
 - **pathfinder.init_costs** (``dict``): Dictionary containing the compound or flasks IDs as keys (``str``) and the custom initial concentrations
 as values (``float``).
+- **pathfinder.recu_costs** (``bool``): Updates recursively the compound costs (``True``) or it only updates the compound costs once (``False``). Beware that for large reaction networks, updating recursively the compound costs might become a computational bottleneck.
 - **verbose** (``bool``): Print additional logs during running time.
 
 2. cheminfo
@@ -120,6 +128,11 @@ as values (``float``).
 
 4. html
 -------
+- **pathsearch.use_costs** (``bool``): Whether to filter out the most likely reaction pathways based on the previously calculated compound costs (``True``) or not (``False``).
+- **pathsearch.Npaths** (``int``)`: Number of paths to be calculated between the source and target compounds.
+- **pathsearch.max_length** (``int``)`: Maximum length of the reaction pathways between the source and target compounds.   
+- **pathsearch.source** (``str``)`: Selected source compound based on its crn_id.
+- **pathsearch.target** (``str``)`: Selected target compound based on its crn_id.
 - **dist_adduct** (``float``): Distance threshold for adduct detection.
 - **size** (``list[int, int]``): Graph size in pixels (``[width, height]``).
 - **layout** (``str``): Graph layout algorithm (e.g., ``kamada_kawai``, ``random``).
