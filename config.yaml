@@ -10,9 +10,9 @@ scine:
     basis_set: "def2-svp"
     program: "orca"
   pathfinder:
-    mode_graph: "read"
+    mode_graph: "write"
     path_graph: "./vizchemoton/resources/pathfinder_graph_tme_dft.json"
-    mode_costs: "read"
+    mode_costs: "write"
     path_costs: "./vizchemoton/resources/pathfinder_costs_tme_dft.json"
     init_costs: {"660d49de86b7e52a0c3bc06c": 100, # ozone
                  "660d4a1086b7e52a0c3bc070": 1,   # tme
@@ -21,7 +21,7 @@ scine:
 cheminfo:
   verbose: False
   rdkit:
-      active: True
+      active: False
       method: "hybrid"
       props: ["MolLogP", "CalcTPSA", "MolWt"]
   database:
@@ -34,20 +34,19 @@ files:
   path_reactions: "./vizchemoton/resources/reactions_tme_dft.csv"
   mode_compounds: "read"
   path_compounds: "./vizchemoton/resources/compounds_tme_dft.json"
-  path_graphml: "./vizchemoton/resources/network_tme_dft.graphml"
 
 html:
   pathsearch:
-    use_costs: True 
-    Npaths: 5
-    max_length: 6
+    use_costs: True
+    Npaths: 10
+    max_length: 10
     source: "c1" 
-    target: "c48"
-  dist_adduct: 3.0
-  layout: "kamada_kawai" 
-  map_field: "pfcost"
+    target: "c318"
+  dist_adduct: 10.0
+  layout: "random" 
+  map_field: "energy"
   title: "Ozonation of Tetramethylethene with Chemoton"
-  path_network: "./vizchemoton/resources/network_tme_dft.html"
+  path_network: "./vizchemoton/resources/etwork_tme_dft.html"
 
 
    

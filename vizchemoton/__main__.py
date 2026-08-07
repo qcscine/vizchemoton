@@ -161,6 +161,7 @@ def main():
             recursive_cost=pf_costs_recu,
             verbose=verbose,
         )
+    if reactions_mode == "write" and compounds_mode == "write":
         reactions, compounds = get_reactions_and_compounds(
             manager,
             pathfinder,
@@ -170,23 +171,19 @@ def main():
             databases=databases,
             verbose=verbose,
         )
-
-        # write the reactions and compounds
-        if reactions_mode == "write" and compounds_mode == "write":
-            write_compound_reactions_files(
-                reactions,
-                compounds,
-                reactions_file,
-                compounds_file,
-                verbose=verbose,
-            )
-
-    if compounds_mode == "review":
+        write_compound_reactions_files(
+               reactions,
+               compounds,
+               reactions_file,
+               compounds_file,
+               verbose=verbose,
+           )
+    elif compounds_mode == "review":
         reactions, compounds = read_compound_reactions_files(
             reactions_file, compounds_file, verbose=verbose
         )
         compounds = review_compound_file(compounds_file)
-    elif compounds_mode == "read":
+    elif compounds_mode == "read" and reactions_mode == "read":
         reactions, compounds = read_compound_reactions_files(
             reactions_file, compounds_file, verbose=verbose
         )

@@ -986,4 +986,5 @@ def get_energy_ref(graph,path_list):
     start_nodes = [path[0] for path in path_list]
     all_energies = [graph.nodes[nd]["energy"] for nd in start_nodes]
     idx = np.argmin(all_energies)
+    print("output",start_nodes[idx],all_energies[idx])
     return (start_nodes[idx],all_energies[idx])
