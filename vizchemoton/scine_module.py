@@ -896,9 +896,9 @@ def _get_crn_id_from_rxn(manager, rxn):
 def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder, 
         manager, compjson, npaths=1):
     """
-    Determines the most likely reaction mechanisms between a selected source and 
-    target compounds. Selection of the most likely mechanisms is done by minimizing
-    the overall compound cost.[1]
+    (Not fully implemented yet) Determines the most likely reaction mechanisms between
+    a selected source and target compounds. Selection of the most likely mechanisms is
+    done by minimizing the overall compound cost.[1]
 
     [1] Paul L. Tuertscher and Markus Reiher, J. Chem. Inf. Model. 2023, 63, 1, 147-160
     """

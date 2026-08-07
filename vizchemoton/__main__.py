@@ -161,6 +161,7 @@ def main():
             recursive_cost=pf_costs_recu,
             verbose=verbose,
         )
+<<<<<<< HEAD
     #    reactions, compounds = get_reactions_and_compounds(
     #        manager,
     #        pathfinder,
@@ -173,6 +174,9 @@ def main():
 
     # create reactions and compounds
     if reactions_mode == "write" and compounds_mode == "write" and db_active:
+=======
+    if reactions_mode == "write" and compounds_mode == "write":
+>>>>>>> 35d8407dbda28332eaec5dc9229ebcc6ebf301a2
         reactions, compounds = get_reactions_and_compounds(
             manager,
             pathfinder,
@@ -183,6 +187,7 @@ def main():
             verbose=verbose,
         )
         write_compound_reactions_files(
+<<<<<<< HEAD
             reactions,
             compounds,
             reactions_file,
@@ -193,11 +198,26 @@ def main():
         reactions, compounds = read_compound_reactions_files(
             reactions_file, compounds_file, verbose=verbose
         )
+=======
+               reactions,
+               compounds,
+               reactions_file,
+               compounds_file,
+               verbose=verbose,
+           )
+>>>>>>> 35d8407dbda28332eaec5dc9229ebcc6ebf301a2
     elif compounds_mode == "review":
         reactions, compounds = read_compound_reactions_files(
             reactions_file, compounds_file, verbose=verbose
         )
         compounds = review_compound_file(compounds_file)
+<<<<<<< HEAD
+=======
+    elif compounds_mode == "read" and reactions_mode == "read":
+        reactions, compounds = read_compound_reactions_files(
+            reactions_file, compounds_file, verbose=verbose
+        )
+>>>>>>> 35d8407dbda28332eaec5dc9229ebcc6ebf301a2
     elif compounds_mode == "upgrade":
         reactions, compounds = read_compound_reactions_files(
             reactions_file, compounds_file, verbose=verbose
