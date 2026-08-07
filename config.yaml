@@ -1,5 +1,5 @@
 scine:
-  active: True
+  active: False
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
@@ -10,9 +10,9 @@ scine:
     basis_set: "def2-svp"
     program: "orca"
   pathfinder:
-    mode_graph: "write"
+    mode_graph: "read"
     path_graph: "pathfinder_graph_tme_dft.json"
-    mode_costs: "write"
+    mode_costs: "read"
     path_costs: "pathfinder_costs_tme_dft.json"
     init_costs: {"660d49de86b7e52a0c3bc06c": 100, # ozone
                  "660d4a1086b7e52a0c3bc070": 1,   # tme
@@ -21,7 +21,7 @@ scine:
 cheminfo:
   verbose: False
   rdkit:
-      active: True
+      active: False
       method: "hybrid"
       props: ["MolLogP", "CalcTPSA", "MolWt"]
   database:
@@ -30,9 +30,9 @@ cheminfo:
       chebi: False
 
 files:
-  mode_reactions: "write"
+  mode_reactions: "read"
   path_reactions: "reactions_tme_dft.csv"
-  mode_compounds: "write"
+  mode_compounds: "read"
   path_compounds: "compounds_tme_dft.json"
 
 html:
