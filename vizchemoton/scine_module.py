@@ -869,9 +869,33 @@ def _sort_dict_keys(d):
     """
     return {k: d[k] for k in sorted(d)}
 
+#[['c1+c2', 'TSb_0000', 'f4', 'TS269', 'c22', 'TS24', 'c23'], ['c1+c14', 'TSb_0011', 'f4', 'TS269', 'c22', 'TS24', 'c23']]
+
+def _get_crn_id_from_rxn(manager, rxn):
+    """
+    Wrapper function to deduce the JSON crn_id field from the reaction MongoDB.
+    """
+    reactants = rxn.get_reactants(db.Side.BOTH)
+    reactants_type = rxn.get_reactant_types(db.Side.BOTH)
+    lhs, rhs = reactants
+    s_lhs, s_rhs = len(lhs), len(rhs)
+    # Get reactant indexes
+    if len(reactants[0]) == 1:
+        node_x = reactants[0][0].string()
+    elif len(reactants[0]) >= 2:
+        # flasks (i.e., adducts) are depicted with //
+        node_x = "//".join(sorted([o.string() for o in reactants[0]]))
+    # Get product indexes
+    if len(reactants[1]) == 1:
+        node_y = reactants[1][0].string()
+    elif len(reactants[1]) >= 2:
+        # flasks (i.e., adducts) are depicted with //
+        node_y = "//".join(sorted([o.string() for o in reactants[1]]))
+
+    return node_x, node_y
 
 def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder, 
-        manager, npaths=15):
+        manager, compjson, npaths=1):
     """
     Determines the most likely reaction mechanisms between a selected source and 
     target compounds. Selection of the most likely mechanisms is done by minimizing
@@ -885,6 +909,8 @@ def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
     properties = manager.get_collection("properties")
     unique_paths = pathfinder.find_unique_paths(source, target, npaths)
     reaction_dict = {}
+    compmod = {v["mongodb_id"]: v for v in compjson.values()}
+    sel_paths = [[] for _ in range(npaths)]
     for count, path in enumerate(unique_paths):
         labels, energies, mongodb_ids = [], [], []
         count_ts, count_int = 1, 1
@@ -917,9 +943,25 @@ def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
                     labels.append("Int" + str(count_int))
                     energies.append(current_energy)
                     count_int += 1
-            else:  # compound node
+                
+                # imitating html_module functionality
                 mongodb_ids.append(node)
-        assert len(labels) == len(energies) == len(mongodb_ids)
+                node_x, node_y = _get_crn_id_from_rxn(manager, reaction)
+                if len(sel_paths[count]) > 0 and compmod[node_x]["crn_id"] == sel_paths[count][-1]:
+                    # avoid repeating final product and initial reactant
+                    pass
+                else:
+                    sel_paths[count].append(compmod[node_x]["crn_id"])
+                node_ts = reaction.get_id().string()
+                if node_ts in compmod.keys():
+                    sel_paths[count].append("TS"+compmod[node_ts]["crn_id"][2:])
+                else:
+                    sel_paths[count].append('TSb_0000')
+                sel_paths[count].append(compmod[node_y]["crn_id"])
+                print(node, compmod[node_x]["crn_id"], compmod[node_y]["crn_id"], barrier, _energy)
+        print(sel_paths, energies)
+ 
+        #assert len(labels) == len(energies) == len(mongodb_ids)
         reaction_dict[count] = {"labels":labels, "energies":energies, 
                                 "mongodb_ids": mongodb_ids, "cost": cost}
-        return reaction_dict
+    return sel_paths

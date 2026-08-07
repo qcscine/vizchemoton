@@ -1,5 +1,5 @@
 scine:
-  active: False
+  active: True
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
@@ -21,7 +21,7 @@ scine:
 cheminfo:
   verbose: False
   rdkit:
-      active: True
+      active: False
       method: "hybrid"
       props: ["MolLogP", "CalcTPSA", "MolWt"]
   database:
@@ -34,15 +34,14 @@ files:
   path_reactions: "./vizchemoton/resources/reactions_tme_dft.csv"
   mode_compounds: "read"
   path_compounds: "./vizchemoton/resources/compounds_tme_dft.json"
-  path_graphml: "./vizchemoton/resources/network_tme_dft.graphml"
 
 html:
   pathsearch:
     use_costs: True 
-    Npaths: 5
+    Npaths: 1
     max_length: 6
-    source: "c1" 
-    target: "c48"
+    source: "660d49de86b7e52a0c3bc06c"
+    target: "6649c98d86b7e5495e6e449a"
   dist_adduct: 3.0
   layout: "kamada_kawai" 
   map_field: "pfcost"

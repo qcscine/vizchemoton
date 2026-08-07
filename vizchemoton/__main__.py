@@ -142,7 +142,7 @@ def main():
         source = path_search["source"]
         target = path_search["target"]
         max_length = path_search.get("max_length",6)
-        Npaths = path_search.get("Npaths",25)
+        Npaths = path_search.get("Npaths",1)
         use_costs = path_search.get("use_costs",False)
 
 
@@ -161,6 +161,18 @@ def main():
             recursive_cost=pf_costs_recu,
             verbose=verbose,
         )
+    #    reactions, compounds = get_reactions_and_compounds(
+    #        manager,
+    #        pathfinder,
+    #        model,
+    #        (rdkitobj, smiles_method),
+    #        rdkitprop,
+    #        databases=databases,
+    #        verbose=verbose,
+    #    )
+
+    # create reactions and compounds
+    if reactions_mode == "write" and compounds_mode == "write" and db_active:
         reactions, compounds = get_reactions_and_compounds(
             manager,
             pathfinder,
@@ -170,26 +182,22 @@ def main():
             databases=databases,
             verbose=verbose,
         )
-
-        # write the reactions and compounds
-        if reactions_mode == "write" and compounds_mode == "write":
-            write_compound_reactions_files(
-                reactions,
-                compounds,
-                reactions_file,
-                compounds_file,
-                verbose=verbose,
-            )
-
-    if compounds_mode == "review":
+        write_compound_reactions_files(
+            reactions,
+            compounds,
+            reactions_file,
+            compounds_file,
+            verbose=verbose,
+        )
+    elif compounds_mode == "read" and reactions_mode == "read":
+        reactions, compounds = read_compound_reactions_files(
+            reactions_file, compounds_file, verbose=verbose
+        )
+    elif compounds_mode == "review":
         reactions, compounds = read_compound_reactions_files(
             reactions_file, compounds_file, verbose=verbose
         )
         compounds = review_compound_file(compounds_file)
-    elif compounds_mode == "read":
-        reactions, compounds = read_compound_reactions_files(
-            reactions_file, compounds_file, verbose=verbose
-        )
     elif compounds_mode == "upgrade":
         reactions, compounds = read_compound_reactions_files(
             reactions_file, compounds_file, verbose=verbose
@@ -246,8 +254,10 @@ def main():
 
     # Management of path info 
     if path_search:
-        path_list = generate_paths(graph,source,target,max_length=max_length,
-                                   Npaths_filt=Npaths,check_costs=use_costs)
+        #path_list = generate_paths(graph,source,target,max_length=max_length,
+        #                           Npaths_filt=Npaths,check_costs=use_costs)
+        path_list = get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
+        manager, compounds, npaths=Npaths)
         graph.graph["pathList"] = path_list
         nd_ref,e_ref = get_energy_ref(graph,path_list)
         kwargs_dash["alt_ref_energy"] = e_ref
