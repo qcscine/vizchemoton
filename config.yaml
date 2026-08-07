@@ -44,7 +44,7 @@ html:
     target: "6649c98d86b7e5495e6e449a"
   dist_adduct: 3.0
   layout: "kamada_kawai" 
-  map_field: "pfcost"
+  map_field: "energy"
   title: "Ozonation of Tetramethylethene with Chemoton"
   path_network: "./vizchemoton/resources/network_tme_dft.html"
 

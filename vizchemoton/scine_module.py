@@ -869,7 +869,6 @@ def _sort_dict_keys(d):
     """
     return {k: d[k] for k in sorted(d)}
 
-#[['c1+c2', 'TSb_0000', 'f4', 'TS269', 'c22', 'TS24', 'c23'], ['c1+c14', 'TSb_0011', 'f4', 'TS269', 'c22', 'TS24', 'c23']]
 
 def _get_crn_id_from_rxn(manager, rxn):
     """
@@ -958,8 +957,6 @@ def get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
                 else:
                     sel_paths[count].append('TSb_0000')
                 sel_paths[count].append(compmod[node_y]["crn_id"])
-                print(node, compmod[node_x]["crn_id"], compmod[node_y]["crn_id"], barrier, _energy)
-        print(sel_paths, energies)
  
         #assert len(labels) == len(energies) == len(mongodb_ids)
         reaction_dict[count] = {"labels":labels, "energies":energies, 

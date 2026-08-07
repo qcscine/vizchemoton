@@ -646,7 +646,7 @@ def preprocess_compounds(compounds):
     """
     Helper function to process compounds properties.
     """
-    tgt_vars = ["energy", "charge", "multiplicity", "pfcost"]
+    tgt_vars = ["energy", "charge", "multiplicity"] #, "pfcost"]
     for comp in compounds.values():
         for vv in tgt_vars:
             if not isinstance(comp[vv], list):
@@ -721,7 +721,7 @@ def add_node_attributes(
         nd[1]["smiles"] = str(comp.get("smiles", "None")).split("//")
         nd[1]["inchikey"] = str(comp.get("inchikey", "None")).split("//")
         nd[1]["xyzdes"] = comp["xyzdes"]
-        nd[1]["pfcost"] = comp["pfcost"]
+        #nd[1]["pfcost"] = comp["pfcost"]
 
 
 def add_edge_attributes(graph, compounds):
@@ -770,7 +770,7 @@ def format_string_attributes(graph):
     Processes node & edge attributes that are shown as strings in the
     final dashboard
     """
-    node_attrs = ["charge", "multiplicity", "formula", "smiles", "pfcost"]
+    node_attrs = ["charge", "multiplicity", "formula", "smiles"] #, "pfcost"]
     edge_attrs = ["charge", "multiplicity", "formula"]
     for nd in graph.nodes(data=True):
         for tgt in node_attrs:

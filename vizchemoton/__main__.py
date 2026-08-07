@@ -254,10 +254,10 @@ def main():
 
     # Management of path info 
     if path_search:
-        #path_list = generate_paths(graph,source,target,max_length=max_length,
-        #                           Npaths_filt=Npaths,check_costs=use_costs)
-        path_list = get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
-        manager, compounds, npaths=Npaths)
+        path_list = generate_paths(graph,source,target,max_length=max_length,
+                                   Npaths_filt=Npaths,check_costs=use_costs)
+        #path_list = get_reaction_mechanism_from_A_to_B(source, target, model, pathfinder,
+        #manager, compounds, npaths=Npaths)
         graph.graph["pathList"] = path_list
         nd_ref,e_ref = get_energy_ref(graph,path_list)
         kwargs_dash["alt_ref_energy"] = e_ref
