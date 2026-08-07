@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Release 2.1.0
+-------------
+
+**New Features**
+* Added an static and independent javascript code (uses Kekule.js and RDKit.js) to the HTML output so that the dashboard enables the possiblity of deducing the SMILES and InChIKey from a 2D structure (and viceversa). This is meant to enhance the user experience while looking for specific compounds in the reaction network. 
+* Added the pathfinder compound cost value as a new entry (pfcost) in the .JSON file. It can be displayed in the HTML nodes as a measure of how likely each given node is going to form under specific experimental conditions (i.e., initial concentrations, temperature and pressure).
+* Extended config.yaml to read and write a new file regarding the pathfinder compound costs `pathfinder_costs_tme_dft.json`. For consistency, the previous pathfinder reaction graph file has been renamed to `pathfinder_graph_tme_dft.json`.
+* Added defaults to the config.yaml to minimize errors when using slightly different input files.
+* Added the option to export the chemical reaction network graph in Gephi format.
+* Added reaction pathways to the HTML output so that the user can examine the most likely mechanism between a source and a target compound. Reaction pathways are precomputed and injected into the HTML dashboard, that is, no dynamic generation of the pathways is possible once the HTML is generated. Nonetheless, reaction pathways are deduced from the JSON and CSV interoperable files, therefore, the user can regenerate a new HTML dashboard with the new alternative reaction pathways (no connection to the MongoDB is needed at this stage).
+* Added custom script in `vizchemoton/resources/search_substructure_in_crn.py` to perform substructure search from the command line interface. Future versions will evaluate the integration of substructure search in the HTML. 
 
 Release 2.0.0
 -------------

@@ -6,19 +6,60 @@ amk-tools and grrm-tools, generating interactive
 HTML dashboards to visualize GRRM-generated reaction networks.
 """
 
-# Standard Library Imports
+# Standard library imports
 from collections import Counter
+from operator import itemgetter
 import copy
 
-# Third-Party Library Imports
+# Third-party library imports
 import numpy as np
 import bokeh.plotting
 import bokeh.models as bkm
 import RXVisualizer as arxviz
+import RXReader as arx
 import networkx as nx
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
+# HTML definitions
+
+# SMILES editor full, minified iframe
+iframe_editor = """<iframe width="100%" height="1000px" frameBorder="0" srcdoc="<!DOCTYPE html><html lang=&quot;en&quot;><head><meta charset=&quot;UTF-8&quot;><meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;><title>2D structure ⇄ SMILES/InChIKey</title><link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.jsdelivr.net/npm/kekule/dist/themes/default/kekule.css&quot; /><script src=&quot;https://cdn.jsdelivr.net/npm/kekule/dist/kekule.min.js?modules=chemWidget,algorithm,io&quot;></script><script src=&quot;https://unpkg.com/@rdkit/rdkit/Dist/RDKit_minimal.js&quot;></script><style> body { font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; margin: 20px; background-color: #ffffff; } .container { max-width: 1000px; margin: 0 auto; } .page-title { text-align: center; color: #1f2937; margin-bottom: 25px; } .info-box { padding: 12px 15px; margin-bottom: 12px; border-radius: 4px; font-size: 0.95em; } .instructions-box { background-color: #f3f4f6; border-left: 4px solid #9ca3af; color: #374151; cursor: pointer; } .instructions-box summary { font-weight: bold; outline: none; user-select: none; } .instructions-box ul { margin: 10px 0 0 0; padding-left: 20px; } .privacy-note { background-color: #eff6ff; border-left: 4px solid #3b82f6; color: #1e3a8a; margin-bottom: 20px; } #composer { width: 100%; height: 380px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff; } .btn-container { margin-top: 25px; margin-bottom: 25px; display: flex; gap: 20px; justify-content: center; align-items: center; } .calc-btn { color: white; border: none; padding: 14px 20px; font-size: 1.1em; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); flex: 2; max-width: 320px; text-align: center; box-sizing: border-box; } .btn-clear { color: #4b5563; background-color: #ffffff; border: 2px solid #4b5563; padding: 12px 20px; font-size: 1.1em; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); flex: 1; max-width: 160px; text-align: center; box-sizing: border-box; white-space: nowrap; } .calc-btn:active, .btn-clear:active { transform: scale(0.98); } .btn-2d-smiles { background-color: #7c3aed; } .btn-2d-smiles:hover { background-color: #6d28d9; } .btn-smiles-2d { background-color: #ea580c; } .btn-smiles-2d:hover { background-color: #c2410c; } .btn-clear:hover { background-color: #f3f4f6; } .calc-btn:disabled, .btn-clear:disabled { background-color: #cccccc !important; color: #666666 !important; border-color: #cccccc !important; cursor: not-allowed; transform: none !important; box-shadow: none; } .status-message { text-align: center; font-weight: 600; font-size: 1.05em; min-height: 24px; margin-bottom: 0px; } .status-success { color: #16a34a; } .status-error { color: #dc2626; } .output-panel { padding: 5px 15px 15px 15px; background-color: #fff; border: 1px solid #ddd; border-radius: 4px; } .output-group { margin-bottom: 15px; } .output-group:last-child { margin-bottom: 5px; } .output-row { display: flex; gap: 10px; align-items: stretch; margin-top: 5px; } .key-display { font-family: monospace; background-color: #f1f1f1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 1.1em; word-break: break-all; min-height: 22px; flex: 1; display: flex; align-items: center; } textarea.key-display { resize: vertical; display: block; margin: 0; width: auto; } .copy-btn { background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 4px; padding: 0 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-width: 85px; user-select: none; } .copy-btn:hover { background-color: #e5e7eb; color: #1f2937; } .copy-btn.copied { background-color: #dcfce7; color: #16a34a; border-color: #bbf7d0; } .info-link { color: #007bff; text-decoration: none; } .info-link:hover { text-decoration: underline; } </style></head><body><div class=&quot;container&quot;><div id=&quot;composer&quot; data-widget=&quot;Kekule.Editor.Composer&quot; data-enable-style-toolbar=&quot;false&quot; data-common-tool-buttons=&quot;['undo', 'redo']&quot; data-chem-tool-buttons=&quot;['manipulate', 'erase', 'bond', 'atom', 'ring', 'charge']&quot;></div><div class=&quot;btn-container&quot;><button id=&quot;generate-btn&quot; class=&quot;calc-btn btn-2d-smiles&quot; disabled>Loading Core Engines...</button><button id=&quot;clear-btn&quot; class=&quot;btn-clear&quot; disabled>✕ Reset</button><button id=&quot;load-smiles-btn&quot; class=&quot;calc-btn btn-smiles-2d&quot; disabled>Loading Core Engines...</button></div><div id=&quot;status-msg&quot; class=&quot;status-message&quot;></div><div class=&quot;output-panel&quot;><div class=&quot;output-group&quot;><p style=&quot;margin: 10px 0 0 0;&quot;><strong>SMILES (Reference / Input):</strong></p><div class=&quot;output-row&quot;><textarea id=&quot;smiles-output&quot; class=&quot;key-display&quot; rows=&quot;2&quot; placeholder=&quot;Paste or generate SMILES here...&quot;></textarea><button class=&quot;copy-btn&quot; onclick=&quot;copyData('smiles-output', this)&quot;>📋 Copy</button></div></div><div class=&quot;output-group&quot;><p style=&quot;margin: 5px 0 0 0;&quot;><strong>InChIKey:</strong></p><div class=&quot;output-row&quot;><div id=&quot;inchikey-output&quot; class=&quot;key-display&quot;>Ready.</div><button class=&quot;copy-btn&quot; onclick=&quot;copyData('inchikey-output', this)&quot;>📋 Copy</button></div></div></div><hr style=&quot;border: 0; border-top: 1px solid #ddd; margin-top: 40px; margin-bottom: 20px;&quot;></div><script> let rdkitModule = null; let composerApp = null; const generateBtn = document.getElementById('generate-btn'); const loadSmilesBtn = document.getElementById('load-smiles-btn'); const clearBtn = document.getElementById('clear-btn'); const inchikeyOutput = document.getElementById('inchikey-output'); const smilesOutput = document.getElementById('smiles-output'); const statusMsg = document.getElementById('status-msg'); function showStatus(text, isSuccess) { statusMsg.innerText = text; statusMsg.className = &quot;status-message &quot; + (isSuccess ? &quot;status-success&quot; : &quot;status-error&quot;); } function copyData(elementId, buttonElement) { const target = document.getElementById(elementId); let textToCopy = target.tagName === &quot;TEXTAREA&quot; ? target.value : target.innerText; if (!textToCopy || textToCopy === &quot;Ready.&quot; || textToCopy.startsWith(&quot;Error:&quot;) || textToCopy.startsWith(&quot;Conversion failed:&quot;)) { return; } navigator.clipboard.writeText(textToCopy).then(() => { buttonElement.innerText = &quot;Copied! ✓&quot;; buttonElement.classList.add('copied'); setTimeout(() => { buttonElement.innerText = &quot;📋 Copy&quot;; buttonElement.classList.remove('copied'); }, 1500); }).catch(err => { console.error(&quot;Clipboard copy operation failed: &quot;, err); }); } function clearWholeApp() { if (composerApp) { composerApp.newDoc(); } inchikeyOutput.innerText = &quot;Ready.&quot;; smilesOutput.value = &quot;&quot;; statusMsg.innerText = &quot;&quot;; statusMsg.className = &quot;status-message&quot;; } window.initRDKitModule().then(function(instance) { rdkitModule = instance; checkInitializationComplete(); }).catch(err => { inchikeyOutput.innerText = &quot;Fatal Error: Unable to load RDKit WebAssembly core.&quot;; showStatus(&quot;Fatal Error: Unable to load RDKit core.&quot;, false); console.error(err); }); Kekule.X.domReady(() => { composerApp = Kekule.Widget.getWidgetById('composer'); checkInitializationComplete(); }); function checkInitializationComplete() { if (rdkitModule &amp;&amp; composerApp) { generateBtn.innerText = &quot;↓ SMILES&quot;; generateBtn.disabled = false; loadSmilesBtn.innerText = &quot;↑ 2D&quot;; loadSmilesBtn.disabled = false; clearBtn.disabled = false; generateBtn.addEventListener('click', processMoleculeAndGenerateKey); loadSmilesBtn.addEventListener('click', loadSmilesIntoComposer); clearBtn.addEventListener('click', clearWholeApp); } } function processMoleculeAndGenerateKey() { if (!rdkitModule || !composerApp) return; const chemObj = composerApp.getChemObj(); if (!chemObj || chemObj.isEmpty()) { inchikeyOutput.innerText = &quot;Error: Drawing board empty!&quot;; smilesOutput.value = &quot;&quot;; showStatus(&quot;Conversion failed: The drawing board is empty!&quot;, false); return; } try { const molfileData = Kekule.IO.saveFormatData(chemObj, 'mol'); if (!molfileData || molfileData.trim() === &quot;&quot;) { showStatus(&quot;Conversion failed: Structural generation error.&quot;, false); return; } const rdkitMol = rdkitModule.get_mol(molfileData); if (rdkitMol) { const canonicalSmiles = rdkitMol.get_smiles(); smilesOutput.value = canonicalSmiles; const inchi = rdkitMol.get_inchi(); if (inchi) { inchikeyOutput.innerText = rdkitModule.get_inchikey_for_inchi(inchi); showStatus(&quot;Success: 2D structure converted to identifiers!&quot;, true); } else { inchikeyOutput.innerText = &quot;Error: InChI failed.&quot;; showStatus(&quot;Partial conversion: InChI coordinates generation failed.&quot;, false); } rdkitMol.delete(); } else { inchikeyOutput.innerText = &quot;Error: Chemistry Validation Error.&quot;; showStatus(&quot;Conversion failed: Invalid chemical structure detected.&quot;, false); } } catch (error) { console.error(error); showStatus(&quot;Error: A critical parser exception occurred.&quot;, false); } } function loadSmilesIntoComposer() { if (!rdkitModule || !composerApp) return; const inputSmiles = smilesOutput.value.trim(); if (!inputSmiles || inputSmiles === &quot;Error: SMILES field is empty!&quot;) { showStatus(&quot;Conversion failed: Please enter a SMILES string.&quot;, false); return; } let rdkitMol = null; try { rdkitMol = rdkitModule.get_mol(inputSmiles); if (rdkitMol) { const molfile = rdkitMol.get_new_coords(); const chemObj = Kekule.IO.loadFormatData(molfile, 'mol'); if (chemObj) { composerApp.setChemObj(chemObj); const inchi = rdkitMol.get_inchi(); if (inchi) { inchiOutput.innerText = inchi; inchikeyOutput.innerText = rdkitModule.get_inchikey_for_inchi(inchi); } showStatus(&quot;Success: SMILES loaded to 2D canvas!&quot;, true); } else { showStatus(&quot;Conversion failed: Render engine error.&quot;, false); } rdkitMol.delete(); } else { showStatus(&quot;Conversion failed: Unparseable or invalid SMILES string.&quot;, false); } } catch (error) { console.error(error); showStatus(&quot;Error: A parser exception occurred handling the SMILES code.&quot;, false); if (rdkitMol) rdkitMol.delete(); } }</script></body></html>" title="2D Structure Tool"></iframe>
+"""
+
+# JS snippet for collapsible buttons
+collapsible_js = """
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = document.getElementsByClassName("inner")[0];
+        var nextContent = this.nextElementSibling;
+        console.log("search",content);
+        console.log("sibling",nextContent);
+        if (content.style.display === "block") {
+        content.style.display = "none";
+        } else {
+        content.style.display = "block";
+        }
+    });
+    }
+    </script>   
+"""
+
+# Full collapsible + div for the editor
+super_template = """{% block contents %}
+    <div class="content">
+
+    {{ super() }}
+    
+    <div class="divider"> </div>
+    <button type="button" class="collapsible">Molecule editor to get InChIKeys for Locate Molecule (drop-down)</button>
+    <div class="divider"> </div>
+    <div class="inner">
+    """ + iframe_editor + "</div> \n </div> \n" + collapsible_js + "{% endblock %}"
 
 def cluster_nodes(descriptors, n_clusters="silhouettes", verbose=True):
     node_ids = list(descriptors.keys())
@@ -88,19 +129,11 @@ def complete_cluster(node_list, cluster_dict, cluster_idx):
     new_assignments = [(nd, cluster_idx) for nd in unassigned]
     cluster_dict.update(dict(new_assignments))
     return cluster_dict
-
-
-def build_dashboard(
-    G,
-    compounds,
-    title,
-    outfile,
-    size=(1400, 800),
-    layout_function="kamada_kawai",
-    map_field="energy",
-    verbose=True,
-    **kwargs,
-):
+    
+def build_dashboard(G, compounds, title,outfile,size=(1400,800), 
+                    layout_function="kamada_kawai",  
+                    map_field="energy", verbose=True, add_editor=True,
+                    **kwargs):
     """
     Wrapper function to generate HTML visualizations for a given network.
 
@@ -141,29 +174,60 @@ def build_dashboard(
         "https://cdn.jsdelivr.net/gh/dgarayr/"
         "jsmol_to_bokeh/jsmol_to_bokeh.min.js"
     )
-    style_template = f"""
-    {{% block postamble %}}
-    <script type="text/javascript" src="{jsmol_script}"></script>
+    style_template = """
+    {% block postamble %}
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/dgarayr/jsmol_to_bokeh/jsmol_to_bokeh.min.js"></script>
     <style>
-    .bk-root .bk-btn-default {{
+    .bk-root .bk-btn-default {
         font-size: 1.2vh;
-    }}
-    .bk-root .bk-input {{
+    }
+    .bk-root .bk-input {
         font-size: 1.2vh;
         padding-bottom: 5px;
         padding-top: 5px;
-    }}
-    .bk-root .bk {{
+    }
+    .bk-root .bk {
         font-size: 1.2vh;
-    }}
-    .bk-root .bk-clearfix{{
+    }
+    .bk-root .bk-clearfix{
         padding-bottom: 0.8vh;
-    }}
+    }
+    .collapsible {
+        background-color: #ffffff;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+    .active, .collapsible:hover {
+        background-color: #cccccc;
+        color: black;
+        height: 50%;
+    }
+    .inner {
+        padding: 0 18px;
+        display: none;
+        overflow: hidden;
+        background-color: white;
+    }
+    .divider {
+        height: 3px;
+        width: 100%;
+        background: #000000;
+        cursor: col-resize;
+    }
     </style>
-    {{% endblock %}}
+    {% endblock %}
     """
 
-    if layout_function == "KMeans":  # custom clustering of nodes
+
+    if add_editor:
+        style_template += super_template 
+
+    if layout_function == 'KMeans':  # custom clustering of nodes
         # this should be modifiable later
         cluster_property = "xyzdes"
         descriptors, prop_values = {}, []
@@ -221,7 +285,7 @@ def build_dashboard(
         if (tsname.includes('TSb')){
             hover.tooltips = [["tag","@name"]]
         } else {
-            hover.tooltips = [["tag","@name"],["charge","@chargeStr"],
+            hover.tooltips = [["tag","@name"],["charge","@chargeStr"], ["pfcost", "@pfcostStr"],
                                 ["multiplicity","@multiplicityStr"],["formula","@formulaStr"],
                                 [label1,"@deltaE1"],[label2,"@deltaE2"]]
         }
@@ -400,6 +464,7 @@ def build_dashboard(
         ("multiplicity", "@multiplicityStr"),
         ("formula", "@formulaStr"),
         ("smiles", "@smilesStr"),
+        ("pfcost", "@pfcostStr"),
     ]
     tooltips += kwargs.get("custom_hovers", [])
 
@@ -447,7 +512,8 @@ def build_dashboard(
         code=hide_barrlessJS,
     )
 
-    lay = arxviz.full_view_layout(bk_fig, bk_graph, sizing_dict=sizing_dict)
+    alt_ref_e = kwargs.get("alt_ref_energy",0.0)
+    lay = arxviz.full_view_layout(bk_fig, bk_graph, G=G, sizing_dict=sizing_dict,alt_ref_energy=alt_ref_e)
 
     # add a button to the layout
     b_highlight = bkm.Button(
@@ -580,7 +646,7 @@ def preprocess_compounds(compounds):
     """
     Helper function to process compounds properties.
     """
-    tgt_vars = ["energy", "charge", "multiplicity"]
+    tgt_vars = ["energy", "charge", "multiplicity"] #, "pfcost"]
     for comp in compounds.values():
         for vv in tgt_vars:
             if not isinstance(comp[vv], list):
@@ -655,6 +721,7 @@ def add_node_attributes(
         nd[1]["smiles"] = str(comp.get("smiles", "None")).split("//")
         nd[1]["inchikey"] = str(comp.get("inchikey", "None")).split("//")
         nd[1]["xyzdes"] = comp["xyzdes"]
+        #nd[1]["pfcost"] = comp["pfcost"]
 
 
 def add_edge_attributes(graph, compounds):
@@ -703,7 +770,7 @@ def format_string_attributes(graph):
     Processes node & edge attributes that are shown as strings in the
     final dashboard
     """
-    node_attrs = ["charge", "multiplicity", "formula", "smiles"]
+    node_attrs = ["charge", "multiplicity", "formula", "smiles"] #, "pfcost"]
     edge_attrs = ["charge", "multiplicity", "formula"]
     for nd in graph.nodes(data=True):
         for tgt in node_attrs:
@@ -756,6 +823,36 @@ def process_graph(reaction_list, compounds, dist_adduct=3.0):
 
     return graph
 
+def property_list_flatter(prop_dict,sep="//"):
+    """For a list of node/edge properties, collapse lists into strings (if no propertyStr property exists yet)
+    (and stringify None)"""
+    to_add = {}
+    to_remove = []
+    for k,v in prop_dict.items():
+        if v is None:
+            prop_dict[k] = "None"
+            continue 
+        if not(isinstance(v,list)):
+            continue 
+        if f"{k}Str" not in prop_dict.keys():
+            to_add[f"{k}Str"] = sep.join([str(val) for val in v])
+        to_remove.append(k)
+    for k in to_remove:   
+        del prop_dict[k]
+    prop_dict.update(to_add)
+    return prop_dict
+            
+def save_graph(graph,filename):
+    """
+    Wrapper function to save the graph to GraphML format (Gephi-compatible). Must collapse lists into strings.
+    """
+    gwork = graph.copy()
+    for nd in gwork.nodes(data=True):
+        property_list_flatter(nd[1]) 
+    for ed in gwork.edges(data=True):
+        property_list_flatter(ed[2])
+    nx.write_graphml(gwork,path=filename)
+    return None
 
 def format_value_list(val_list, fmt="%.4f", sep="//"):
     """
@@ -803,3 +900,90 @@ def aggregate_property(Gx, prop_name, agg_func="mean", na_value=0):
         agg_values.append(val)
         flags.append(flag)
     return agg_values, flags
+
+
+### Path management functions - July 2026
+def identify_balanced_node(graph,node,neighbor):
+    """Convenience function to locate a suitable balanced (A+B) node in a graph, 
+    given one of the involved compounds (A or B) and a neighboring node"""
+    if "ts" in neighbor.lower():
+        # Locate by name
+        pair = [ed[0:2] for ed in graph.edges(data="name") if ed[2] == neighbor][0]
+        onode = [item for item in pair if item != neighbor][0]
+    else:
+        # Get all neighbors of the neighbor and filter by name
+        sel = [nd for nd in graph[neighbor] if node in nd]
+        onode = sel[0]
+    return onode
+
+def path_adjuster(graph,path_list_raw):
+    """Processes existing paths (e.g. from pathfinder) to make them compliant with amk-tools considerations: balanced nodes 
+    (for start and end) and uppercase TS labels"""
+    out_path_list = []
+    for path in path_list_raw:
+        fmt_path = [entry.replace("ts","TS") if "ts" in entry else entry for entry in path[1:-1]]
+        # processing first and last entries
+        source = path[0]
+        target = path[-1]
+    
+        # if they are a node, proceed
+        if source in graph.nodes():
+            fmt_path = [source] + fmt_path
+        else:
+            neigh = path[1]
+            onode = identify_balanced_node(graph,source,neigh)
+            fmt_path = [onode] + fmt_path
+            
+        if target in graph.nodes():
+            fmt_path += [target]
+        else:
+            neigh = path[-2]
+            onode = identify_balanced_node(graph,target,neigh)
+            fmt_path += [onode]
+
+        out_path_list.append(fmt_path)
+    return out_path_list
+
+def prepare_extrema(graph,node):
+    """For a given string defining an entity in the CRN, retrieves the corresponding node (if existing)
+    or the collection of all the nodes where that entity participates (e.g. A -> A+B, A+C, D+A...)"""
+    if node not in graph.nodes():
+        nodeset = [nd for nd in graph.nodes if node in nd.split("+")]
+    else:
+        nodeset = [node]
+    return nodeset
+
+def check_pfcosts_in_path(graph,path,limit_value=9999):
+    """For a given path composed of valid nodes through the graph, returns a list with all
+    the node costs through the path."""
+    path_nodes = [item for item in path if "ts" not in item.lower()]
+    costs = [sum(graph.nodes[nd].get('pfcost',[limit_value])) for nd in path_nodes]
+    return costs
+
+def generate_paths(graph,source,target,max_length=6,check_costs=False,Npaths_filt=10):
+    """Wrapper function to generate valid paths for a given graph, using a maximum cutoff length (longer paths
+    will not be considered to limit path search cost). Source and target are automatically checked for node 
+    validity, finding combinations through prepare_extrema. The pfcost property of nodes can be used to 
+    accumulate the cost of each path and rank them"""
+    src_nodes = prepare_extrema(graph,source)
+    end_nodes = prepare_extrema(graph,target)
+    found_paths = arx.add_paths(graph,src_nodes,end_nodes,cutoff=max_length)
+    found_paths_cln = path_adjuster(graph,found_paths)
+
+    if check_costs:
+        all_costs = [(idx,sum(check_pfcosts_in_path(graph,path))) for idx,path in enumerate(found_paths_cln)]
+        srt_costs = sorted(all_costs,key=itemgetter(1))
+        Np = min(len(found_paths_cln),Npaths_filt)
+        sel_paths = [found_paths_cln[idx] for idx,cost in srt_costs[0:Np]] 
+    else:
+        sel_paths = found_paths_cln 
+
+    return sel_paths
+
+def get_energy_ref(graph,path_list):
+    """Gets the energy of all starting nodes involved in the path list and returns the lowest-energy one to
+    be used as reference for relative energies"""
+    start_nodes = [path[0] for path in path_list]
+    all_energies = [graph.nodes[nd]["energy"] for nd in start_nodes]
+    idx = np.argmin(all_energies)
+    return (start_nodes[idx],all_energies[idx])

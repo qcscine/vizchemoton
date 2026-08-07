@@ -2,17 +2,13 @@
 Enric Petrus, August 2025. Cheminformatics helper functions.
 """
 
-# Standard Library Imports
-import scine_molassembler as masm
-import scine_database as db
-import scine_utilities as su
-from vizchemoton.html_module import format_value_list
+# Standard library imports
 from collections import Counter, defaultdict
 import json
 import time
 import requests
 
-# Third-Party Library Imports
+# Third-party library imports
 import numpy as np
 from xyz2mol import xyz2mol
 from rdkit.Chem import (
@@ -26,11 +22,13 @@ from rdkit.Chem import GetPeriodicTable
 from rdkit import Chem
 from rdkit.Chem import inchi
 from rdkit import RDLogger
-
-# Disable all RDKit warnings/errors/info messages
 RDLogger.DisableLog("rdApp.*")  # type: ignore[attr-defined]
 
-# Local Imports
+# Project-specific SCINE imports
+import scine_molassembler as masm
+import scine_database as db
+import scine_utilities as su
+from vizchemoton.html_module import format_value_list
 
 
 def get_cartesian_descriptors(xyz):
@@ -200,7 +198,10 @@ def _convert_scine_bo_to_smiles(centroid, properties, tmpfile, dsmiles):
 
 def _convert_to_smiles_molassembler(centroid, properties, tmpfile, dsmiles):
     """
-    TO-DO
+    Returns SMILES using the experimental.emit_smiles method in the Molassembler 
+    object. However, we have found that for some cases it leads to segmentation
+    errors from the C++ bindings, which makes it complicated to use in the current
+    workflow. 
     """
     atomcollection = centroid.get_atoms()
     if not centroid.has_property("bond_orders"):
@@ -278,7 +279,7 @@ def convert_struct_to_smiles(
         [2] Bull. Korean Chem. Soc. 2015, 36, 1769-1777.
         [3] Forthcoming: ChemRxiv 2026 (Internal hybrid refinement).
     """
-    dsmiles = {"smiles": None}
+    dsmiles = {"smiles": None, "inchikey": None}
     tmpfile = "tmp" + timestmp + ".mol"
     if smilesmode == "scine":
         dsmiles = _convert_scine_bo_to_smiles(

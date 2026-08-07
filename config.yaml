@@ -3,20 +3,23 @@ scine:
   name: "ozone_tme_lcpbe"
   ip: "localhost"
   port: "27017"
+  verbose: True
   method:
     method_family: "dft"
     method: "lc-pbe"
     basis_set: "def2-svp"
-    solvation: False
-    solvent: False
     program: "orca"
-    vfilter: False
   pathfinder:
-    path: "./vizchemoton/resources/crn_tme_lcpbe.json"
-    mode: "read"
-  verbose: True
+    mode_graph: "read"
+    path_graph: "pathfinder_graph_tme_dft.json"
+    mode_costs: "read"
+    path_costs: "pathfinder_costs_tme_dft.json"
+    init_costs: {"660d49de86b7e52a0c3bc06c": 100, # ozone
+                 "660d4a1086b7e52a0c3bc070": 1,   # tme
+                 "6649c98d86b7e5495e6e44ac": 100} # water   
 
 cheminfo:
+  verbose: False
   rdkit:
       active: False
       method: "hybrid"
@@ -25,23 +28,28 @@ cheminfo:
       pubchem: False
       chembl: False
       chebi: False
-  verbose: False
 
 files:
-  reactions:
-    path: "./vizchemoton/resources/reactions_tme_dft.csv"
-    mode: "read"
-  compounds:
-    path: "./vizchemoton/resources/compounds_tme_dft.json"
-    mode: "read"
+  mode_reactions: "read"
+  path_reactions: "reactions_tme_dft.csv"
+  mode_compounds: "read"
+  path_compounds: "compounds_tme_dft.json"
 
 html:
-  dist_adduct: 3.0
-  size:  [1400, 800]
-  layout: "kamada_kawai"  # use "random" for huge networks
-  map_field: "pubchemRank" # value "energy" always available
-  node_size: 25
-  title: "Ozonation reaction network - PubChem color matching"
-  path: "network_tme_dft.html"
+  pathsearch:
+    use_costs: True
+    Npaths: 10
+    max_length: 10
+    source: "c1" 
+    target: "c48"
+  dist_adduct: 4.0
+  layout: "random" 
+  map_field: "energy"
+  title: "Ozonation of Tetramethylethene with Chemoton"
+  path_network: "network_tme_dft.html"
+
+
+   
+
 
 
